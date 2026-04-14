@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>ShareID Prototype — How to use</title>
+<style>
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:720px;margin:60px auto;padding:0 24px;color:#0D1122;line-height:1.6}
+  h1{font-size:32px;margin-bottom:8px}
+  h2{font-size:20px;margin-top:32px;color:#3253d1}
+  .sub{color:#666;margin-bottom:32px}
+  a.card{display:block;padding:20px 24px;border:1px solid #e5e7eb;border-radius:12px;text-decoration:none;color:inherit;margin-bottom:12px;transition:all .15s}
+  a.card:hover{border-color:#3253d1;background:rgba(50,83,209,.04)}
+  a.card b{display:block;font-size:17px;margin-bottom:4px}
+  a.card span{color:#666;font-size:14px}
+  ol li{margin-bottom:8px}
+  code{background:#f3f4f6;padding:2px 6px;border-radius:4px;font-size:13px}
+</style>
+</head>
+<body>
+
+<h1>ShareID Workflow & Pricing Prototype</h1>
+<p class="sub">Interactive prototype — open the HTML files below in any modern browser (Chrome, Safari, Firefox).</p>
+
+<h2>Start here</h2>
+<a class="card" href="documentation.html">
+  <b>1. Workflow Builder →</b>
+  <span>Build an onboarding or authentication flow by adding modules (Doc IDV, Face IDV, Auth).</span>
+</a>
+<a class="card" href="pricing.html">
+  <b>2. Pricing Calculator →</b>
+  <span>See price based on your flow, expected volume, and token pack.</span>
+</a>
+
+<h2>How to use</h2>
+<ol>
+  <li>Open <code>documentation.html</code> — pick a preset or build a custom flow.</li>
+  <li>Toggle between <b>Onboarding</b> and <b>Authentication</b> modes at the top.</li>
+  <li>Click <b>See pricing</b> to jump to the calculator with your flow pre-loaded.</li>
+  <li>In <code>pricing.html</code>, adjust the volume slider to estimate annual cost.</li>
+  <li>Switch modes in pricing to compare onboarding vs. authentication costs.</li>
+</ol>
+
+<h2>Notes</h2>
+<ul>
+  <li>Flows are saved in browser localStorage — they persist between sessions.</li>
+  <li>Both HTML files are fully self-contained; no server or internet required after download.</li>
+  <li>Keep the <code>illustrations/</code> folder next to the HTML files.</li>
+</ul>
+
+</body>
+</html>
