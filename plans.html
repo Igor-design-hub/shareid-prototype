@@ -122,10 +122,11 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .addon-popup-url{width:100%;box-sizing:border-box;margin-top:2px;margin-bottom:2px;padding:8px 10px;border-radius:8px;border:1px solid var(--brd-l);font:500 12px/1 Inter,sans-serif;color:var(--t2);background:var(--white);outline:none;transition:border-color .12s,box-shadow .12s}
 .addon-popup-url:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(50,83,209,.10)}
 .addon-popup-url::placeholder{color:var(--t5)}
-.module-row{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:12px;border:1px solid var(--brd-l)}
+.module-row{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:12px;border:1px solid var(--brd-l);transition:border-color .12s,box-shadow .12s}
 .module-row.core-doc{background:var(--white);border-color:var(--brd-l)}
 .module-row.core-face,.module-row.core-auth{background:var(--white);border-color:var(--brd-l)}
 .module-row.addon-row{background:var(--white);border-style:dashed}
+.module-row.popup-open{border-color:var(--blue);box-shadow:0 0 0 3px rgba(50,83,209,.1)}
 .module-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .mi-doc,.mi-face,.mi-auth,.mi-ext,.mi-int{background:var(--blue-bg)}
 .module-info{flex:1;min-width:0}
@@ -517,12 +518,18 @@ function changeModulePreset(idx,label){
 }
 /* ── PRESET POPUP (single-select, white) ── */
 let _presetPopupIdx=null;
+function _setRowActive(idx,on){
+  const rows=document.querySelectorAll('.module-row');
+  rows.forEach(r=>r.classList.remove('popup-open'));
+  if(on&&idx!=null){const r=rows[idx];if(r)r.classList.add('popup-open');}
+}
 function openPresetPopup(idx,event){
   event.stopPropagation();
   const popup=document.getElementById('presetPopup');
   if(_presetPopupIdx===idx){closePresetPopup();return;}
   closeAddonPopup();
   _presetPopupIdx=idx;
+  _setRowActive(idx,true);
   const m=currentModules[idx];
   const opts=MOD_PRESETS[m.type]||[];
   const chkSvg=`<svg viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5L8.5 2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
@@ -544,6 +551,7 @@ function applyModulePreset(idx,val){
 }
 function closePresetPopup(){
   _presetPopupIdx=null;
+  _setRowActive(null,false);
   const popup=document.getElementById('presetPopup');
   if(popup)popup.style.display='none';
 }
@@ -578,6 +586,7 @@ function openAddonPopup(idx,event){
 }
 function closeAddonPopup(){
   _popupIdx=null;
+  _setRowActive(null,false);
   const popup=document.getElementById('addonPopup');
   if(popup)popup.style.display='none';
 }
