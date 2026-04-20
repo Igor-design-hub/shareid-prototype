@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ShareID — Pricing</title>
+<title>ShareID — Pricing plans</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
@@ -18,10 +18,41 @@
 }
 body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--t1);-webkit-font-smoothing:antialiased;min-height:100vh}
 
+/* Shell */
+.app{display:flex;min-height:100vh}
+.side{width:240px;flex-shrink:0;background:var(--blue);color:#fff;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow:hidden;z-index:60}
+.side-hd{padding:22px 20px 14px;display:flex;align-items:center;gap:10px}
+.side-logo{display:flex;align-items:center;text-decoration:none;color:#fff}
+.side-logo img{height:28px;width:auto;display:block;filter:brightness(0) invert(1)}
+.side-nav{padding:8px 10px;flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:1px}
+.side-sep{height:1px;background:rgba(255,255,255,.16);margin:8px 6px}
+.side-item{display:flex;align-items:center;gap:12px;padding:9px 10px;border-radius:8px;text-decoration:none;color:rgba(255,255,255,.88);font:600 13px/1 Inter,sans-serif;cursor:pointer;border:none;background:transparent;font-family:inherit;width:100%;text-align:left;transition:background .12s,color .12s}
+.side-item:hover{background:rgba(255,255,255,.08);color:#fff}
+.side-item.active{background:rgba(255,255,255,.12);color:#fff}
+.side-item svg{width:16px;height:16px;flex-shrink:0;opacity:.88}
+.side-item:hover svg,.side-item.active svg{opacity:1}
+.side-item.disabled{opacity:.5;cursor:default;pointer-events:none}
+.side-item .chev{margin-left:auto;width:14px;height:14px;opacity:.7;transition:transform .18s}
+.side-item[aria-expanded="true"] .chev{transform:rotate(180deg)}
+.side-group-body{position:relative;padding:4px 0 6px 12px;margin-left:14px;display:flex;flex-direction:column;gap:2px;border-left:1px solid rgba(255,255,255,.22)}
+.side-group-body[aria-hidden="true"]{display:none}
+.side-sub{display:flex;align-items:center;padding:7px 12px;border-radius:7px;text-decoration:none;color:rgba(255,255,255,.72);font:500 13px/1 Inter,sans-serif;cursor:pointer;border:1.5px solid transparent;background:transparent;transition:color .12s,border-color .12s,background .12s}
+.side-sub:hover{color:#fff;background:rgba(255,255,255,.06)}
+.side-sub.active{color:#fff;font-weight:600;background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.22);box-shadow:0 1px 2px rgba(0,0,0,.12)}
+
+.side-ft{padding:12px 14px;border-top:1px solid rgba(255,255,255,.16);display:flex;align-items:center;gap:10px}
+.side-avatar{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.22);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px}
+.side-user{flex:1;min-width:0}
+.side-user-name{font-size:13px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.side-user-role{font-size:10px;color:rgba(255,255,255,.62);letter-spacing:.08em;text-transform:uppercase;font-weight:700}
+.side-exit{width:28px;height:28px;border:none;background:transparent;color:rgba(255,255,255,.72);border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.side-exit:hover{background:rgba(255,255,255,.12);color:#fff}
+.side-exit svg{width:14px;height:14px}
+.main{flex:1;min-width:0;display:flex;flex-direction:column;min-height:100vh}
+
 /* TOPBAR */
-.topbar{height:64px;background:var(--white);border-bottom:1px solid var(--brd-l);display:flex;align-items:center;justify-content:space-between;padding:0 32px;position:sticky;top:0;z-index:50}
-.logo{display:flex;align-items:center;gap:8px;font-weight:700;font-size:16px;color:var(--navy);text-decoration:none}
-.logo svg{width:24px;height:24px}
+.topbar{height:56px;background:var(--white);border-bottom:1px solid var(--brd-l);display:flex;align-items:center;justify-content:space-between;padding:0 28px;position:sticky;top:0;z-index:50}
+.tb-page-title{font-size:14px;font-weight:600;color:var(--t1)}
 .topbar-label{font-size:12px;font-weight:600;color:var(--t5)}
 
 /* PAGE */
@@ -57,8 +88,6 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .wf-actions{display:flex;gap:14px;align-items:center}
 
 /* Preset picker */
-body.ws-mode .preset-picks,body.ws-mode .pp.custom,body.ws-mode .pp-build{display:none!important}
-body.ws-mode .mode-switch{display:none}
 .preset-picks{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--brd-l)}
 .pp{padding:5px 12px;border-radius:8px;border:1px solid var(--brd);font-size:12px;font-weight:600;color:var(--t4);background:var(--white);cursor:pointer;transition:all .12s;white-space:nowrap}
 .pp:hover{border-color:var(--blue);color:var(--blue)}
@@ -158,7 +187,9 @@ body.ws-mode .mode-switch{display:none}
 .price-row{display:flex;justify-content:space-between;align-items:center;font-size:13px}
 .price-row-label{color:rgba(255,255,255,.4)}
 .price-row-val{font-weight:700}
-.price-row--license{margin-top:4px;padding-top:8px;border-top:1px solid rgba(255,255,255,.12)}
+.price-row--total{margin-top:4px;padding-top:10px;border-top:1px solid rgba(255,255,255,.18);font-size:14px}
+.price-row--total .price-row-label{color:rgba(255,255,255,.7)}
+.price-row--total .price-row-val{font-size:15px}
 
 /* Breakdown */
 .bd-toggle{display:flex;align-items:center;justify-content:space-between;padding:13px 18px;cursor:pointer;font-size:13px;font-weight:600;color:var(--t4);transition:color .12s;user-select:none}
@@ -187,26 +218,69 @@ body.ws-mode .mode-switch{display:none}
 </head>
 <body>
 
+<div class="app">
+<aside class="side" aria-label="Primary navigation">
+  <div class="side-hd">
+    <a class="side-logo" href="workspace.html" aria-label="ShareID"><img src="illustrations/ShareID-logo.svg" alt="ShareID" draggable="false"></a>
+  </div>
+  <nav class="side-nav">
+    <a class="side-item disabled" href="#" aria-disabled="true"><svg viewBox="0 0 16 16" fill="none"><path d="M3 7.5L8 3l5 4.5V13a1 1 0 01-1 1h-2.5v-3.5h-3V14H4a1 1 0 01-1-1V7.5Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg><span>Home</span></a>
+    <button class="side-item" type="button" aria-expanded="true" aria-controls="grpWf" onclick="toggleGroup(this)">
+      <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="2" y="3" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.4"/><rect x="9" y="3" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.4"/><rect x="2" y="10" width="5" height="3" rx="1" stroke="currentColor" stroke-width="1.4"/><rect x="9" y="10" width="5" height="3" rx="1" stroke="currentColor" stroke-width="1.4"/></svg>
+      <span>Workflows</span>
+      <svg class="chev" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M4 9l3-3 3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <div class="side-group-body" id="grpWf" aria-hidden="false">
+      <a class="side-sub" href="workspace.html">My flows</a>
+      <a class="side-sub active" href="plans.html" aria-current="page">Pricing</a>
+    </div>
+    <a class="side-item disabled" href="#" aria-disabled="true"><svg viewBox="0 0 16 16" fill="none"><path d="M3 13V7m3 6V4m3 9v-6m3 6V3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg><span>Reporting</span></a>
+    <a class="side-item disabled" href="#" aria-disabled="true"><svg viewBox="0 0 16 16" fill="none"><rect x="2.5" y="2.5" width="11" height="11" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M5 6h6M5 8.5h6M5 11h3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg><span>Requests history</span></a>
+    <div class="side-sep" aria-hidden="true"></div>
+    <a class="side-item disabled" href="#" aria-disabled="true"><svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="1.4"/><path d="M8 4V2.5M8 13.5V12M4 8H2.5M13.5 8H12M4.9 4.9l-1-1M12.1 12.1l-1-1M4.9 11.1l-1 1M12.1 3.9l-1 1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg><span>Manage Businesses</span></a>
+    <a class="side-item disabled" href="#" aria-disabled="true"><svg viewBox="0 0 16 16" fill="none"><rect x="2.5" y="2.5" width="11" height="11" rx="1.5" stroke="currentColor" stroke-width="1.4"/><circle cx="8" cy="7" r="2" stroke="currentColor" stroke-width="1.3"/><path d="M5 13c.5-1.6 1.7-2.6 3-2.6s2.5 1 3 2.6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg><span>Manage Users</span></a>
+    <div class="side-sep" aria-hidden="true"></div>
+    <a class="side-item disabled" href="#" aria-disabled="true"><svg viewBox="0 0 16 16" fill="none"><rect x="2.5" y="3" width="11" height="8" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M5.5 13h5M7 11v2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><polygon points="7,5.8 10,7.3 7,8.8" fill="currentColor"/></svg><span>Product demo</span></a>
+    <a class="side-item disabled" href="#" aria-disabled="true"><svg viewBox="0 0 16 16" fill="none"><rect x="2" y="4" width="12" height="9" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M5.5 4V2.5h5V4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="8" cy="8.5" r="2" stroke="currentColor" stroke-width="1.3"/></svg><span>Run Authenticity Photo</span></a>
+    <a class="side-item disabled" href="#" aria-disabled="true"><svg viewBox="0 0 16 16" fill="none"><path d="M10 4h3v3M13 4l-5 5M6.5 6H3.5a1 1 0 00-1 1v5a1 1 0 001 1h5a1 1 0 001-1V9.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Operator platform</span></a>
+    <a class="side-item disabled" href="#" aria-disabled="true"><svg viewBox="0 0 16 16" fill="none"><rect x="2.5" y="3.5" width="11" height="9" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M2.5 5l5.5 3.5L13.5 5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Contact support</span></a>
+  </nav>
+  <script>
+  function toggleGroup(btn){
+    const expanded=btn.getAttribute('aria-expanded')==='true';
+    const target=document.getElementById(btn.getAttribute('aria-controls'));
+    btn.setAttribute('aria-expanded',expanded?'false':'true');
+    if(target)target.setAttribute('aria-hidden',expanded?'true':'false');
+    try{localStorage.setItem('sb_grp_'+btn.getAttribute('aria-controls'),expanded?'0':'1');}catch(e){}
+  }
+  document.querySelectorAll('.side-item[aria-controls]').forEach(btn=>{
+    try{
+      const saved=localStorage.getItem('sb_grp_'+btn.getAttribute('aria-controls'));
+      if(saved==='0'){btn.setAttribute('aria-expanded','false');const t=document.getElementById(btn.getAttribute('aria-controls'));if(t)t.setAttribute('aria-hidden','true');}
+    }catch(e){}
+  });
+  </script>
+  <div class="side-ft">
+    <div class="side-avatar" aria-hidden="true">S</div>
+    <div class="side-user"><div class="side-user-name">Demo user</div><div class="side-user-role">Admin</div></div>
+    <button class="side-exit" aria-label="Sign out" title="Sign out"><svg viewBox="0 0 16 16" fill="none"><path d="M7 3H4a1 1 0 00-1 1v8a1 1 0 001 1h3M10 5l3 3-3 3M13 8H6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+  </div>
+</aside>
+
+<div class="main">
+
 <div class="topbar">
-  <a href="workspace.html" class="logo" id="pgLogo">
-    <img src="illustrations/ShareID-logo.svg" alt="ShareID" style="height:32px;width:auto;display:block" draggable="false">
-  </a>
-  <span class="topbar-label" id="pgWfName">Pricing</span>
+  <span class="tb-page-title">Pricing plans</span>
+  <span class="topbar-label">Standard presets</span>
 </div>
 
 <div class="page">
-  <div class="breadcrumb">
-    <a href="workspace.html" class="bc-back" id="bcWorkspace">
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 11L5 7l4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      Workflows
-    </a>
-    <span class="bc-sep">›</span>
-    <a href="documentation.html" class="bc-back" id="bcBuilder" style="color:var(--t4)">Builder</a>
-    <span class="bc-sep">›</span>
-    <span class="bc-cur">Pricing</span>
+  <div style="margin-bottom:10px">
+    <h1 style="font-size:24px;font-weight:800;letter-spacing:-.02em;color:var(--t1);margin-bottom:6px">Pricing plans</h1>
+    <p style="font-size:13px;color:var(--t4);line-height:1.55;max-width:640px">Browse standard ShareID configurations and estimate pricing by verification volume. For a tailor-made flow, open <a href="workspace.html" style="color:var(--blue);font-weight:600;text-decoration:none">your workflows</a> and calculate from there.</p>
   </div>
 
-  <div class="mode-switch" id="modeSwitch" role="group" aria-label="Flow type">
+  <div class="mode-switch" id="modeSwitch" role="group" aria-label="Flow type" style="margin-top:22px">
     <button class="mode-b on" id="mdOnb" onclick="setPricingMode('onboarding')" aria-pressed="true">Onboarding</button>
     <button class="mode-b" id="mdAuth" onclick="setPricingMode('auth')" aria-pressed="false">Authentication</button>
   </div>
@@ -217,14 +291,13 @@ body.ws-mode .mode-switch{display:none}
     <div class="left">
 
       <div>
-        <div class="sec-label">Your workflow</div>
+        <div class="sec-label">Choose a preset</div>
         <div class="card wf-card">
           <div class="wf-header">
             <div class="wf-title">
               <span class="wf-title-text">Configuration</span>
               <span class="wf-badge" id="wfBadge">Onboarding</span>
             </div>
-            <a href="documentation.html" class="wf-edit" id="wfEditLink" style="display:none" onclick="try{sessionStorage.setItem('shareid_edit_flow','1');}catch(e){}">Edit</a>
           </div>
           <div class="preset-picks" id="presetPicks"></div>
           <div class="modules-list" id="modulesList"></div>
@@ -281,16 +354,16 @@ body.ws-mode .mode-switch{display:none}
           <div class="price-big" id="heroCpv">--<span class="price-unit">/ verif.</span></div>
           <div class="price-rows">
             <div class="price-row">
-              <span class="price-row-label">Total cost</span>
-              <span class="price-row-val" id="heroTotal">--</span>
-            </div>
-            <div class="price-row">
               <span class="price-row-label">Pack</span>
               <span class="price-row-val" id="heroPack">--</span>
             </div>
-            <div class="price-row price-row--license">
+            <div class="price-row">
               <span class="price-row-label">License fee</span>
               <span class="price-row-val" id="heroLicense">--</span>
+            </div>
+            <div class="price-row price-row--total">
+              <span class="price-row-label">Total</span>
+              <span class="price-row-val" id="heroTotal">--</span>
             </div>
           </div>
         </div>
@@ -311,13 +384,14 @@ body.ws-mode .mode-switch{display:none}
         </div>
 
         <button class="cta-primary">Request this plan</button>
-        <a href="documentation.html" class="cta-back">← Back to workflow builder</a>
+        <a href="workspace.html" class="cta-back">← Back to workflows</a>
 
       </div>
     </div>
 
   </div>
-</div>
+</div><!-- /main -->
+</div><!-- /app -->
 
 <script>
 const PRESETS=[
@@ -343,6 +417,7 @@ const AUTH_PRESETS=[
 ];
 let customWf=null;
 let selectedPackTokens=null;
+const customFlows={onboarding:null,auth:null}; /* retained as stub for dead-code paths */
 
 const PACKS=[
   {tokens:60000,  price:0.15,cost:9000,  label:'60K',  license:3000},
@@ -366,9 +441,9 @@ function intIcon(){return`<svg width="16" height="16" viewBox="0 0 16 16" fill="
 function authIcon(){return`<svg width="16" height="16" viewBox="0 0 18 18" fill="none"><path d="M9 1.8 2.8 4v4.2c0 3.6 2.5 6.6 6.2 8 3.7-1.4 6.2-4.4 6.2-8V4L9 1.8Z" stroke="#3253d1" stroke-width="1.3" stroke-linejoin="round" fill="#3253d1" fill-opacity=".06"/><path d="m6.3 9 2 2 3.6-3.8" stroke="#3253d1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`}
 
 const TYPE_META={
-  doc: {name:'Identity',  cls:'mi-doc', icon:docIcon},
+  doc: {name:'Doc IDV',   cls:'mi-doc', icon:docIcon},
   face:{name:'Face IDV',  cls:'mi-face',icon:faceIcon},
-  ext: {name:'Issuance',  cls:'mi-ext', icon:extIcon},
+  ext: {name:'Extensions',cls:'mi-ext', icon:extIcon},
   int: {name:'Integration',cls:'mi-int',icon:intIcon},
   auth:{name:'Auth',      cls:'mi-auth',icon:authIcon},
 };
@@ -381,8 +456,6 @@ const MOD_PRESETS={
   ],
   face:[{l:'Basic',t:1},{l:'Substantiel',t:2},{l:'High',t:5}],
   auth:[{l:'MFA 3.0',t:1},{l:'EUDIW PID',t:2}],
-  ext:[{l:'EUDIW Attestation',t:2},{l:'Other Attestation',t:1}],
-  int:[{l:'Webhook',t:0}],
 };
 let currentModules=[];
 let isCustomFlow=false;
@@ -411,7 +484,7 @@ function changeModulePreset(idx,label){
   if(selectedPackTokens===null)syncActivePick();
   calc();
 }
-const MOD_LABELS={doc:'Identity',face:'Face IDV',auth:'Auth',ext:'Issuance',int:'Integration'};
+const MOD_LABELS={doc:'Doc IDV',face:'Face IDV',auth:'Auth'};
 function addModule(type){
   if(!MOD_PRESETS[type])return;
   if(currentModules.some(m=>m.type===type))return;
@@ -477,7 +550,7 @@ function renderModuleRows(modules){
     </div>`;
   };
   // Add module button (only for custom flows, when there's a slot available)
-  const allowedTypes=currentCustomKey==='auth'?['auth','int']:['doc','face','ext','int'];
+  const allowedTypes=currentCustomKey==='auth'?['auth']:['doc','face','auth'];
   const missingTypes=allowedTypes.filter(t=>!modules.some(m=>m.type===t));
   const addBtnHTML=(isCustomFlow&&missingTypes.length)?`<div class="add-mod-wrap"><button class="add-mod-btn" onclick="toggleAddMenu()" aria-haspopup="true"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 2v8M2 6h8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>Add module</button><div class="add-mod-menu" id="addModMenu" role="menu">${missingTypes.map(t=>`<button class="add-mod-item" onclick="addModule('${t}')" role="menuitem">${MOD_LABELS[t]}</button>`).join('')}</div></div>`:'';
   document.getElementById('modulesList').innerHTML=
@@ -494,69 +567,24 @@ function renderModuleRows(modules){
 }
 
 /* ── PRESET PICKER ── */
-const customFlows={onboarding:null,auth:null};
 function buildPresetPicker(activeId){
   const el=document.getElementById('presetPicks');
-  const isAuthCtx=activeId==='custom-auth'||(activeId==='build-auth')||AUTH_PRESETS.some(p=>p.id===activeId);
+  const isAuthCtx=AUTH_PRESETS.some(p=>p.id===activeId);
   const authMode=document.getElementById('mdAuth')&&document.getElementById('mdAuth').classList.contains('on');
   const inAuth=isAuthCtx||authMode;
-  const hasOn=customFlows.onboarding&&Array.isArray(customFlows.onboarding.pipeline);
-  const hasAu=customFlows.auth&&Array.isArray(customFlows.auth.pipeline);
-  let customBtns='';
-  if(!inAuth){
-    const customId='custom-onboarding';
-    customBtns+=`<div class="pp custom${activeId===customId?' on':''}" data-id="${customId}" onclick="startCustomFlow('onboarding')">Custom flow</div>`;
-  }
   const presetSet=inAuth?AUTH_PRESETS:PRESETS;
-  const presetBtns=presetSet.map((p,i)=>`<div class="pp${activeId===p.id?' on':''}" data-id="${p.id}" onclick="selectPreset(this)">${p.label}</div>`).join('');
-  el.innerHTML=customBtns+presetBtns;
-}
-function startCustomFlow(flowKey){
-  if(!customFlows[flowKey]||!Array.isArray(customFlows[flowKey].pipeline)){
-    customFlows[flowKey]={pipeline:[],totalTok:0};
-  }
-  const targetId='custom-'+flowKey;
-  buildPresetPicker(targetId);
-  selectPreset({dataset:{id:targetId}});
-}
-function goBuild(flowKey){
-  // Start an empty custom flow in-place so user can add modules right here
-  customFlows[flowKey]={pipeline:[],totalTok:0};
-  isCustomFlow=true;
-  currentCustomKey=flowKey;
-  currentModules=[];
-  TPV=0;
-  document.getElementById('wfBadge').textContent=flowKey==='auth'?'Authentication':'Onboarding';
-  document.getElementById('wfEditLink').style.display='';
-  const editLink=document.getElementById('wfEditLink');
-  try{editLink.onclick=function(){try{sessionStorage.setItem('shareid_edit_flow','1');sessionStorage.setItem('shareid_edit_mode',flowKey);}catch(e){}};}catch(e){}
-  buildPresetPicker('custom-'+flowKey);
-  renderModuleRows(currentModules);
-  syncCustomFlow();
+  el.innerHTML=presetSet.map((p)=>`<div class="pp${activeId===p.id?' on':''}" data-id="${p.id}" onclick="selectPreset(this)">${p.label}</div>`).join('');
 }
 function selectPreset(el){
   const id=el.dataset.id;
   buildPresetPicker(id);
   syncModeSwitch(id);
-  const editLink=document.getElementById('wfEditLink');
-  if(id==='custom-onboarding'||id==='custom-auth'){
-    const flowKey=id==='custom-auth'?'auth':'onboarding';
-    const flow=customFlows[flowKey];
-    if(!flow)return;
-    isCustomFlow=true;
-    currentCustomKey=flowKey;
-    editLink.style.display='';
-    try{editLink.onclick=function(){try{sessionStorage.setItem('shareid_edit_flow','1');sessionStorage.setItem('shareid_edit_mode',flowKey);}catch(e){}};}catch(e){}
-    document.getElementById('wfBadge').textContent=flowKey==='auth'?'Authentication':'Onboarding';
-    TPV=flow.totalTok||flow.pipeline.reduce((s,st)=>s+(st.config?(st.config.t||0):0),0)||6;
-    const all=flow.pipeline.map(s=>({type:s.type,name:(TYPE_META[s.type]||TYPE_META.int).name,preset:s.config?(s.config.l||'—'):'Not configured',tok:s.config?(s.config.t||0):0}));
-    renderModuleRows(all);
-  } else {
+  {
     const authPreset=AUTH_PRESETS.find(p=>p.id===id);
     const preset=authPreset||PRESETS.find(p=>p.id===id);if(!preset)return;
     isCustomFlow=false;
     currentCustomKey=null;
-    editLink.style.display='none';
+    // editLink not used in plans
     document.getElementById('wfBadge').textContent=authPreset?'Authentication':'Onboarding';
     TPV=preset.tpv;
     renderModuleRows(preset.modules);
@@ -564,113 +592,14 @@ function selectPreset(el){
   calc();
 }
 
-/* ── WORKSPACE STORAGE ── */
-const WS_KEY='shareid_workspaces';
-const WS_ACTIVE='shareid_active_workspace';
-const LEGACY_KEY='shareid_workflow';
-function loadWorkspaces(){try{const a=JSON.parse(localStorage.getItem(WS_KEY)||'[]');return Array.isArray(a)?a:[]}catch(e){return[]}}
-function saveWorkspaces(list){try{localStorage.setItem(WS_KEY,JSON.stringify(list));}catch(e){}}
-function getQueryParam(k){return new URLSearchParams(location.search).get(k)}
-
-let workspaces=loadWorkspaces();
-let currentWorkspaceId=getQueryParam('w')||localStorage.getItem(WS_ACTIVE)||null;
-let currentWorkspace=currentWorkspaceId?workspaces.find(w=>w.id===currentWorkspaceId):null;
-
-function wfLink(page){
-  return page+(currentWorkspaceId?('?w='+encodeURIComponent(currentWorkspaceId)):'');
+/* ── INIT (pick a default preset) ── */
+function initPlans(){
+  const defaultId='substantiel';
+  buildPresetPicker(defaultId);
+  syncModeSwitch(defaultId);
+  selectPreset({dataset:{id:defaultId}});
 }
-function wireNavLinks(){
-  const lg=document.getElementById('pgLogo');if(lg)lg.href='workspace.html';
-  const w=document.getElementById('bcWorkspace');if(w)w.href='workspace.html';
-  const b=document.getElementById('bcBuilder');if(b)b.href=wfLink('documentation.html');
-  const nm=document.getElementById('pgWfName');
-  if(nm&&currentWorkspace)nm.textContent=currentWorkspace.name||'Pricing';
-}
-
-/* ── LOAD WORKFLOW ── */
-function loadWorkflow(){
-  const calcTok=(pl)=>{let x=0;(pl||[]).forEach(st=>x+=(st.config?(st.config.t||0):0));return x;};
-  // Prefer workspace, fall back to legacy key
-  if(currentWorkspace&&currentWorkspace.flows){
-    const fl=currentWorkspace.flows;
-    if(fl.onboarding&&Array.isArray(fl.onboarding.pipeline)&&fl.onboarding.pipeline.length)
-      customFlows.onboarding={pipeline:fl.onboarding.pipeline,totalTok:calcTok(fl.onboarding.pipeline)};
-    if(fl.auth&&Array.isArray(fl.auth.pipeline)&&fl.auth.pipeline.length)
-      customFlows.auth={pipeline:fl.auth.pipeline,totalTok:calcTok(fl.auth.pipeline)};
-    customWf={flows:fl,mode:'onboarding'};
-  } else {
-    try{const r=localStorage.getItem(LEGACY_KEY);if(r)customWf=JSON.parse(r);}catch(e){}
-    if(customWf&&customWf.flows){
-      if(customWf.flows.onboarding&&Array.isArray(customWf.flows.onboarding.pipeline)&&customWf.flows.onboarding.pipeline.length)
-        customFlows.onboarding={pipeline:customWf.flows.onboarding.pipeline,totalTok:customWf.flows.onboarding.totalTok||calcTok(customWf.flows.onboarding.pipeline)};
-      if(customWf.flows.auth&&Array.isArray(customWf.flows.auth.pipeline)&&customWf.flows.auth.pipeline.length)
-        customFlows.auth={pipeline:customWf.flows.auth.pipeline,totalTok:customWf.flows.auth.totalTok||calcTok(customWf.flows.auth.pipeline)};
-    }else if(customWf&&Array.isArray(customWf.pipeline)&&customWf.pipeline.length){
-      const k=customWf.mode==='auth'?'auth':'onboarding';
-      customFlows[k]={pipeline:customWf.pipeline,totalTok:customWf.totalTok||calcTok(customWf.pipeline)};
-    }
-  }
-  const hasOn=!!customFlows.onboarding, hasAu=!!customFlows.auth;
-  const preferred=(customWf&&customWf.mode==='auth'&&hasAu)?'custom-auth':(hasOn?'custom-onboarding':(hasAu?'custom-auth':'substantiel'));
-  buildPresetPicker(preferred);
-  syncModeSwitch(preferred);
-  selectPreset({dataset:{id:preferred}});
-
-  // Pre-fill volume from saved workspace pricing if present
-  restorePricingInputs();
-}
-
-/* ── PRICING PERSISTENCE ── */
-let _pricingSaveTimer=null;
-function getCurrentPricingMode(){
-  // Map the current calc context to 'onboarding' | 'auth'
-  if(isCustomFlow&&currentCustomKey)return currentCustomKey;
-  // Preset-based? Infer from mode switch button state
-  const au=document.getElementById('mdAuth');
-  if(au&&au.classList.contains('on'))return 'auth';
-  return 'onboarding';
-}
-function saveWorkspacePricing(){
-  if(!currentWorkspace)return;
-  if(volume<=0)return; // nothing calculated yet
-  const modeKey=getCurrentPricingMode();
-  const required=TPV*volume;
-  let pack=PACKS[PACKS.length-1];
-  for(const p of PACKS){if(p.tokens>=required){pack=p;break;}}
-  const monthlyCost=pack.cost+pack.license;
-  currentWorkspace.pricing=currentWorkspace.pricing||{};
-  currentWorkspace.pricing[modeKey]={
-    volume,
-    tpv:TPV,
-    packTokens:pack.tokens,
-    packLabel:pack.label,
-    totalCost:monthlyCost,
-    updatedAt:Date.now()
-  };
-  currentWorkspace.updatedAt=Date.now();
-  const idx=workspaces.findIndex(w=>w.id===currentWorkspaceId);
-  if(idx>=0)workspaces[idx]=currentWorkspace;
-  saveWorkspaces(workspaces);
-}
-function schedulePricingSave(){
-  clearTimeout(_pricingSaveTimer);
-  _pricingSaveTimer=setTimeout(saveWorkspacePricing,280);
-}
-function restorePricingInputs(){
-  if(!currentWorkspace||!currentWorkspace.pricing)return;
-  const modeKey=getCurrentPricingMode();
-  const p=currentWorkspace.pricing[modeKey];
-  if(!p||!p.volume)return;
-  volume=p.volume;
-  const vi=document.getElementById('volInput');
-  if(vi)vi.value=p.volume.toLocaleString('en-US');
-  if(p.packTokens){
-    selectedPackTokens=p.packTokens;
-    document.querySelectorAll('.qp').forEach(el=>{el.classList.toggle('on',parseInt(el.dataset.tokens)===p.packTokens);});
-  }
-  syncSlider&&syncSlider();
-  calc();
-}
+function schedulePricingSave(){/* no-op on plans page */}
 
 /* ── CALC ── */
 function calc(){
@@ -738,28 +667,13 @@ function setVolume(v){volume=v;document.getElementById('volInput').value=v.toLoc
 
 /* Mode toggle (Onboarding / Authentication) */
 function setPricingMode(m){
-  const hasFlow=!!customFlows[m];
-  // Update mode toggle UI immediately
   const onb=document.getElementById('mdOnb'),au=document.getElementById('mdAuth');
   onb.classList.toggle('on',m==='onboarding');onb.setAttribute('aria-pressed',m==='onboarding');
   au.classList.toggle('on',m==='auth');au.setAttribute('aria-pressed',m==='auth');
-  // Always update badge to reflect current toggle
   document.getElementById('wfBadge').textContent=m==='auth'?'Authentication':'Onboarding';
-  if(m==='auth'){
-    // Auth always uses presets (MFA 3.0 / EUDIW PID), no custom editing
-    buildPresetPicker('mfa_3');
-    selectPreset({dataset:{id:'mfa_3'}});
-    return;
-  }
-  if(hasFlow){
-    const targetId='custom-'+m;
-    buildPresetPicker(targetId);
-    selectPreset({dataset:{id:targetId}});
-    return;
-  }
-  // Onboarding with no custom flow — default preset
-  buildPresetPicker('substantiel');
-  selectPreset({dataset:{id:'substantiel'}});
+  const targetId=m==='auth'?'mfa_3':'substantiel';
+  buildPresetPicker(targetId);
+  selectPreset({dataset:{id:targetId}});
 }
 function syncModeSwitch(activeId){
   const isAuthId=activeId==='custom-auth'||AUTH_PRESETS.some(p=>p.id===activeId);
@@ -777,10 +691,8 @@ function toggleBd(){
   document.getElementById('bdArrow').classList.toggle('open',bdOpen);
 }
 
-wireNavLinks();
 renderQuickPicks();
-if(currentWorkspace){document.body.classList.add('ws-mode');}
-loadWorkflow();
+initPlans();
 </script>
 </body>
 </html>

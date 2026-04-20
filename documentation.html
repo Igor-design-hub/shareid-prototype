@@ -16,12 +16,56 @@
   --t1:#0f1117;--t2:#1e2030;--t3:#3d4155;--t4:#6b7086;--t5:#9ca1b5;--t6:#c5c8d6;
   --brd:#dfe1ea;--brd-l:#eceef4;
 }
-body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;color:var(--t1);-webkit-font-smoothing:antialiased;background:var(--bg);height:100vh;display:flex;flex-direction:column;overflow:hidden}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;color:var(--t1);-webkit-font-smoothing:antialiased;background:var(--bg);height:100vh;overflow:hidden;margin:0}
+
+/* App shell with sidebar */
+.app{display:flex;height:100vh;overflow:hidden}
+.side{width:240px;flex-shrink:0;background:var(--blue);color:#fff;display:flex;flex-direction:column;height:100vh;overflow:hidden}
+.side-hd{padding:22px 20px 14px;display:flex;align-items:center;gap:10px}
+.side-logo{display:flex;align-items:center;text-decoration:none;color:#fff}
+.side-logo img{height:28px;width:auto;display:block;filter:brightness(0) invert(1)}
+.side-nav{padding:8px 10px;flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:1px}
+.side-sep{height:1px;background:rgba(255,255,255,.16);margin:8px 6px}
+.side-item{display:flex;align-items:center;gap:12px;padding:9px 10px;border-radius:8px;text-decoration:none;color:rgba(255,255,255,.88);font:600 13px/1 Inter,sans-serif;cursor:pointer;border:none;background:transparent;font-family:inherit;width:100%;text-align:left;transition:background .12s,color .12s}
+.side-item:hover{background:rgba(255,255,255,.08);color:#fff}
+.side-item.active{background:rgba(255,255,255,.12);color:#fff}
+.side-item svg{width:16px;height:16px;flex-shrink:0;opacity:.88}
+.side-item:hover svg,.side-item.active svg{opacity:1}
+.side-item.disabled{opacity:.5;cursor:default;pointer-events:none}
+.side-item .chev{margin-left:auto;width:14px;height:14px;opacity:.7;transition:transform .18s}
+.side-item[aria-expanded="true"] .chev{transform:rotate(180deg)}
+.side-group-body{position:relative;padding:4px 0 6px 12px;margin-left:14px;display:flex;flex-direction:column;gap:2px;border-left:1px solid rgba(255,255,255,.22)}
+.side-group-body[aria-hidden="true"]{display:none}
+.side-sub{display:flex;align-items:center;padding:7px 12px;border-radius:7px;text-decoration:none;color:rgba(255,255,255,.72);font:500 13px/1 Inter,sans-serif;cursor:pointer;border:1.5px solid transparent;background:transparent;transition:color .12s,border-color .12s,background .12s}
+.side-sub:hover{color:#fff;background:rgba(255,255,255,.06)}
+.side-sub.active{color:#fff;font-weight:600;background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.22);box-shadow:0 1px 2px rgba(0,0,0,.12)}
+.side-ft{padding:12px 14px;border-top:1px solid rgba(255,255,255,.16);display:flex;align-items:center;gap:10px}
+.side-avatar{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.22);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px}
+.side-user{flex:1;min-width:0}
+.side-user-name{font-size:13px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.side-user-role{font-size:10px;color:rgba(255,255,255,.62);letter-spacing:.08em;text-transform:uppercase;font-weight:700}
+.side-exit{width:28px;height:28px;border:none;background:transparent;color:rgba(255,255,255,.72);border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.side-exit:hover{background:rgba(255,255,255,.12);color:#fff}
+.side-exit svg{width:14px;height:14px}
+.app-main{flex:1;min-width:0;display:flex;flex-direction:column;height:100vh;overflow:hidden}
 
 /* ─── TOP BAR ─── */
-.topbar{height:64px;border-bottom:1px solid var(--brd-l);display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:var(--white);flex-shrink:0;z-index:10}
-.logo{display:flex;align-items:center;gap:7px;font-weight:800;font-size:14px;color:var(--navy);letter-spacing:-.02em;text-decoration:none}
+.topbar{height:64px;border-bottom:1px solid var(--brd-l);display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:var(--white);flex-shrink:0;z-index:10;gap:16px}
+.tb-left{display:flex;align-items:center;gap:14px;min-width:0;flex:1;overflow:hidden}
+@media (max-width:900px){.tb-back span,.tb-back{} .tb-actions span{display:none}}
+@media (max-width:640px){.tb-saved{display:none} .tb-divider{display:none}}
+.logo{display:flex;align-items:center;gap:7px;font-weight:800;font-size:14px;color:var(--navy);letter-spacing:-.02em;text-decoration:none;flex-shrink:0}
 .logo svg{width:20px;height:20px}
+.tb-back{display:inline-flex;align-items:center;gap:5px;padding:6px 10px;border-radius:7px;background:none;border:1px solid transparent;color:var(--t4);font:600 12px/1 Inter,sans-serif;text-decoration:none;cursor:pointer;transition:all .12s;flex-shrink:0}
+.tb-back:hover{background:var(--bg);color:var(--t2)}
+.tb-back svg{width:11px;height:11px}
+.tb-divider{width:1px;height:22px;background:var(--brd-l);flex-shrink:0}
+.tb-wf-name{font:700 14px/1.2 Inter,sans-serif;color:var(--t1);letter-spacing:-.01em;padding:6px 10px;border-radius:7px;border:1px solid transparent;cursor:text;background:none;outline:none;font-family:inherit;min-width:80px;max-width:340px;width:auto;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;field-sizing:content}
+.tb-wf-name:hover{background:var(--bg);border-color:var(--brd-l)}
+.tb-wf-name:focus{background:var(--white);border-color:var(--blue);box-shadow:0 0 0 3px rgba(50,83,209,.12);max-width:none}
+.tb-saved{font-size:11px;color:var(--t5);font-weight:500;display:inline-flex;align-items:center;gap:4px;flex-shrink:0;opacity:.85}
+.tb-saved svg{width:11px;height:11px}
+.tb-saved.saving{color:var(--t4)}
 .tb-actions{display:flex;align-items:center;gap:8px}
 .tb-btn{padding:7px 14px;border-radius:7px;border:1px solid var(--brd);background:var(--white);font-size:12px;font-weight:600;color:var(--t3);cursor:pointer;font-family:inherit;transition:all .12s;display:flex;align-items:center;gap:5px}
 .tb-btn svg{width:11px;height:11px}
@@ -38,24 +82,24 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;color:var(-
 .canvas-mode{position:absolute;top:20px;left:50%;transform:translateX(-50%);z-index:25;display:flex;background:rgba(255,255,255,.92);backdrop-filter:blur(10px);border-radius:12px;padding:4px;border:1px solid var(--brd-l);box-shadow:0 2px 16px rgba(0,0,0,.08)}
 .mode-b{padding:8px 20px;border-radius:8px;border:none;background:none;font-size:13px;font-weight:600;color:var(--t4);cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap}
 .mode-b.on{background:var(--blue);color:var(--white);box-shadow:0 2px 10px rgba(50,83,209,.3)}
+.mode-badge{padding:7px 18px;border-radius:8px;background:var(--blue);color:var(--white);font-size:13px;font-weight:600;box-shadow:0 2px 10px rgba(50,83,209,.3);white-space:nowrap}
 .sb-sep{height:1px;background:var(--brd-l);margin:0 14px}
 .sb-head{padding:12px 16px 6px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--t5)}
+.sb-hd-row{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 10px;border-bottom:1px solid var(--brd-l);flex-shrink:0}
+.sb-hd-title{font-size:13px;font-weight:700;color:var(--t2)}
+.sb-hd-badge{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:3px 9px;border-radius:6px;background:var(--blue-bg);color:var(--blue)}
 .sb-list{padding:4px 10px 16px;display:flex;flex-direction:column;gap:0;flex:1;overflow-y:auto}
 .sb-group{display:flex;flex-direction:column;gap:2px}
-.sb-group+.sb-group{margin-top:20px;padding-top:20px;border-top:1px solid var(--brd-l)}
-.sb-label{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--t5);padding:14px 12px 0;margin-bottom:8px}
-.sb-item{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:10px;cursor:grab;user-select:none;transition:all .12s;border:1.5px solid transparent}
+.sb-group+.sb-group{margin-top:12px;padding-top:12px;border-top:1px solid var(--brd-l)}
+.sb-label{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--t5);padding:8px 12px 0;margin-bottom:6px}
+.sb-item{display:flex;align-items:center;gap:12px;padding:9px 12px;border-radius:10px;cursor:grab;user-select:none;transition:all .12s;border:1.5px solid transparent}
 .sb-item:hover{background:var(--bg);border-color:var(--brd-l)}
 .sb-item:active{cursor:grabbing}
 .sb-item.used{opacity:.28;cursor:not-allowed;pointer-events:none}
 .sb-item.dragging{opacity:.3}
-.sb-ico{width:36px;height:36px;border-radius:9px;background:var(--blue-bg);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--blue);transition:all .12s}
+.sb-ico{width:36px;height:36px;border-radius:9px;background:var(--blue-bg);color:var(--blue);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .12s}
 .sb-ico svg{width:16px;height:16px}
-.sb-item[data-type="doc"] .sb-ico{background:var(--blue-bg);color:var(--blue)}
-.sb-item[data-type="face"] .sb-ico{background:var(--blue-bg);color:var(--blue)}
-.sb-item[data-type="doc"]:hover .sb-ico{background:var(--blue-l);color:var(--blue)}
-.sb-item[data-type="face"]:hover .sb-ico{background:#dde3fb;color:var(--blue)}
-.sb-item[data-type="ext"]:hover .sb-ico,.sb-item[data-type="int"]:hover .sb-ico{background:var(--blue-bg);color:var(--blue)}
+.sb-item:hover .sb-ico{background:var(--blue-l);color:var(--blue)}
 .sb-info{flex:1;min-width:0}
 .sb-name{font-size:13px;font-weight:600;color:var(--t2)}
 .sb-desc{font-size:11px;color:var(--t5);margin-top:2px}
@@ -79,7 +123,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;color:var(-
 .bb-cta.off{background:var(--t5);pointer-events:none;cursor:not-allowed}
 
 /* ─── CANVAS ─── */
-.canvas{flex:1;overflow:auto;display:flex;align-items:flex-start;justify-content:center;padding:88px 40px 80px;position:relative;
+.canvas{flex:1;overflow:auto;display:flex;align-items:flex-start;justify-content:center;padding:48px 40px 80px;position:relative;
   background-image:radial-gradient(circle,#dfe1ea 1px,transparent 1px);
   background-size:22px 22px}
 /* Center content when canvas is empty */
@@ -102,6 +146,8 @@ body.is-dragging .canvas{
 .step{display:flex;flex-direction:column;width:280px;background:var(--white);border:1.5px solid var(--brd);border-radius:16px;cursor:pointer;transition:border-color .15s,box-shadow .15s;flex-shrink:0;position:relative;overflow:visible}
 .step:hover{border-color:#b0b6cc;box-shadow:0 4px 16px rgba(0,0,0,.07)}
 .step.active{border-color:var(--blue);box-shadow:0 4px 20px rgba(50,83,209,.15)}
+.step:not(.addon-step):not(.done):not(.active){border-color:#f59e0b;border-style:dashed}
+.step:not(.addon-step):not(.done):not(.active):hover{border-color:#f97316;border-style:dashed}
 
 /* Drag grip — top center, appears on hover */
 .step-grip{height:18px;display:flex;align-items:center;justify-content:center;cursor:grab;opacity:0;transition:opacity .12s;border-radius:16px 16px 0 0;flex-shrink:0;color:var(--t5)}
@@ -119,11 +165,9 @@ body.is-dragging .canvas{
 .step-name{font-size:13px;font-weight:700;color:var(--t1);margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .step.active .step-name{color:var(--blue)}
 .step-sub{font-size:11px;color:var(--t5);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.step-status{width:8px;height:8px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#fff}
-.step-status.cfgd{width:18px;height:18px;background:var(--blue);box-shadow:0 0 0 2px var(--blue-l)}
-.step-status.cfgd svg{width:11px;height:11px}
-.step-status.uncfg{background:var(--orange);box-shadow:0 0 0 2px var(--orange-l)}
-.step-status.editing{background:var(--blue);box-shadow:0 0 0 2px var(--blue-l)}
+.step-status{width:22px;height:22px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#fff;background:var(--blue);box-shadow:0 0 0 2px var(--blue-l)}
+.step-status svg{width:12px;height:12px}
+.step-status.hidden{display:none}
 
 /* Footer */
 .step-foot{border-top:1px solid var(--brd-l);padding:9px 16px;display:flex;align-items:center;justify-content:space-between}
@@ -133,35 +177,17 @@ body.is-dragging .canvas{
 .step-tok-lbl{font-size:10px;color:var(--blue);font-weight:600;opacity:.7;margin-left:2px}
 
 /* Remove button */
-.step-rm{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--brd-l);background:var(--white);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--t5);opacity:0;transition:opacity .1s;padding:0;position:absolute;top:-9px;right:-9px;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.step-rm{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--brd-l);background:var(--white);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--t5);opacity:0;transition:opacity .1s;padding:0;position:absolute;top:6px;right:6px;z-index:2;box-shadow:0 1px 4px rgba(0,0,0,.08)}
 .step:hover .step-rm{opacity:1}
 .step-rm:hover{color:#dc2626;border-color:#dc2626;background:#fff5f5}
 .step-rm svg{width:8px;height:8px}
 
-/* Extension step — blue accent, smaller */
-.step.ext-step{width:240px;border-style:dashed;border-color:var(--blue-l)}
-.step.ext-step .step-ico{background:var(--blue-bg)}
-.step.ext-step .step-ico svg{color:var(--blue)}
-.step.ext-step.active{border-color:var(--blue);border-style:solid;box-shadow:0 4px 20px rgba(50,83,209,.12)}
-.step.ext-step.done{border-color:var(--blue-l);border-style:dashed}
-.step.ext-step .step-status.cfgd{background:var(--blue);box-shadow:0 0 0 2px var(--blue-bg)}
-.step.ext-step .step-status.uncfg{background:var(--t5);box-shadow:0 0 0 2px var(--bg2)}
-.step.ext-step .step-name{color:var(--t3)}
-.step.ext-step.active .step-name{color:var(--blue)}
-.step.ext-step .step-tok{color:var(--t5)}
+/* Configured step — blue accent */
+.step.done{border-color:var(--blue-l)}
+.step.done:hover{border-color:var(--blue)}
 
-/* Unconfigured step — red border hint */
-.step:not(.done):not(.active):not(.int-step){border-color:#fca5a5}
-.step.ext-step:not(.done):not(.active){border-color:#fca5a5;border-style:dashed}
-
-/* Integration step — gray, dashed, technical */
-.step.int-step{width:240px;border-style:dashed;border-color:var(--brd);background:var(--bg)}
-.step.int-step .step-ico{background:var(--bg2)}
-.step.int-step.active{border-color:var(--t4);border-style:solid;box-shadow:0 4px 20px rgba(0,0,0,.1)}
-.step.int-step .step-name{color:var(--t4)}
-.step.int-step.active .step-name{color:var(--t2)}
-.step.int-step .step-body{opacity:.85}
-.step.int-step .step-status.uncfg{background:var(--t5);box-shadow:0 0 0 2px var(--bg2)}
+/* Add-on steps (Issuance, Integration) — same style as core, just narrower */
+.step.ext-step,.step.int-step{width:240px}
 
 /* Vertical connector arrow */
 .conn{display:flex;flex-direction:column;align-items:center;height:44px;flex-shrink:0;position:relative;width:2px;transition:height .15s}
@@ -208,8 +234,8 @@ body.is-dragging .add-node{border-color:var(--blue);color:var(--blue);background
 .canvas-empty-hint{display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:8px;background:var(--bg);border:1px solid var(--brd-l);font-size:12px;color:var(--t5);font-weight:500;margin-top:4px}
 
 /* ─── RIGHT PANEL phone preview — big, bottom 1/3 overflows ─── */
-.phone-wrap{position:absolute;top:8px;left:50%;transform:translateX(-50%)}
-.phone-frame{width:148px;height:320px;background:var(--white);border-radius:30px;border:2px solid rgba(0,0,0,.2);box-shadow:0 20px 56px rgba(0,0,0,.22),0 4px 10px rgba(0,0,0,.1);padding:5px 5px 7px;display:flex;flex-direction:column;position:relative}
+.phone-wrap{position:absolute;top:10px;left:50%;transform:translateX(-50%)}
+.phone-frame{width:120px;height:260px;background:var(--white);border-radius:30px;border:2px solid rgba(0,0,0,.2);box-shadow:0 20px 56px rgba(0,0,0,.22),0 4px 10px rgba(0,0,0,.1);padding:5px 5px 7px;display:flex;flex-direction:column;position:relative}
 .phone-notch{width:36px;height:6px;background:rgba(0,0,0,.16);border-radius:0 0 7px 7px;position:absolute;top:5px;left:50%;transform:translateX(-50%);z-index:2}
 .phone-screen{flex:1;border-radius:22px;overflow:hidden;margin-top:14px}
 .phone-screen svg{width:100%;height:100%;display:block}
@@ -232,8 +258,8 @@ body.is-dragging .add-node{border-color:var(--blue);color:var(--blue);background
 .panel-inner{width:100%;display:flex;flex-direction:column;height:100%;overflow:hidden;min-height:0}
 .panel-hd{padding:0;border-bottom:1px solid var(--brd-l);flex-shrink:0;overflow:hidden}
 /* Right panel phone preview */
-.panel-preview{height:310px;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;border-bottom:1px solid rgba(0,0,0,.07)}
-.panel-illust{height:295px;max-width:100%;object-fit:contain;pointer-events:none;user-select:none;display:block}
+.panel-preview{display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;border-bottom:1px solid rgba(0,0,0,.07);background:var(--bg);padding:0}
+.panel-illust{max-width:100%;object-fit:contain;pointer-events:none;user-select:none;display:block}
 /* Panel header row */
 .panel-hd-row{display:flex;align-items:center;gap:10px;padding:12px 16px}
 .panel-ico{width:30px;height:30px;border-radius:8px;background:var(--blue);display:flex;align-items:center;justify-content:center;flex-shrink:0}
@@ -286,6 +312,46 @@ body.is-dragging .add-node{border-color:var(--blue);color:var(--blue);background
 .fb-pill{padding:5px 14px;border-radius:99px;border:1.5px solid var(--brd);background:none;font-size:12px;font-weight:600;color:var(--t4);cursor:pointer;font-family:inherit;transition:all .15s}
 .fb-pill:hover{border-color:var(--blue);color:var(--blue)}
 .fb-pill.on{background:var(--blue);border-color:var(--blue);color:var(--white)}
+
+/* Path toggle (Document / Wallet) */
+.path-toggle{display:flex;gap:0;margin-bottom:12px;background:var(--bg);border-radius:10px;padding:3px;border:1px solid var(--brd-l)}
+.path-btn{flex:1;padding:7px 12px;border:none;border-radius:8px;font-size:13px;font-weight:600;color:var(--t4);cursor:pointer;font-family:inherit;background:none;transition:all .15s}
+.path-btn.on{background:var(--white);color:var(--blue);box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.path-btn:hover:not(.on){color:var(--t2)}
+
+/* Inline fallback inside preset card */
+.opt-fb-wrap{border-radius:10px;overflow:hidden;border:1.5px solid var(--blue);background:var(--blue-bg)}
+.opt-fb-wrap .opt{border:none;border-radius:0}
+.opt.no-bottom-radius{border-bottom-left-radius:0;border-bottom-right-radius:0}
+.fb-inline{padding:8px 12px;display:flex;align-items:center;gap:8px;background:rgba(50,83,209,.04)}
+.fb-inline-lbl{font-size:11px;font-weight:600;color:var(--t4);white-space:nowrap}
+.fb-inline .fb-pills{display:flex;gap:4px}
+.fb-inline .fb-pill{padding:4px 10px;font-size:11px}
+
+/* Integration options — uses ext-item styles (unified) */
+
+/* Canvas fallback sub-card */
+.step-fb-group{position:relative}
+.fb-conn{width:32px;position:absolute;left:100%;top:50%;transform:translateY(-50%);height:2px}
+.fb-sub-card-wrap{position:absolute;left:calc(100% + 32px);top:50%;transform:translateY(-50%)}
+.fb-conn::before{content:'';position:absolute;top:0;left:0;right:8px;border-top:1.5px dashed rgba(50,83,209,.25)}
+.fb-conn::after{content:'';position:absolute;top:-3px;right:4px;width:0;height:0;border-top:3.5px solid transparent;border-bottom:3.5px solid transparent;border-left:5px solid rgba(50,83,209,.3)}
+/* Fallback sub-card — matches step card style */
+.fb-sub-card{background:var(--white);border:1.5px solid var(--brd);border-radius:16px;cursor:pointer;transition:all .15s;flex-shrink:0;overflow:hidden;display:flex;flex-direction:column}
+.fb-sub-card:hover{border-color:#b0b6cc;box-shadow:0 4px 16px rgba(0,0,0,.07)}
+.fb-sub-badge{font-size:11px;font-weight:600;color:var(--t4);padding:8px 14px 4px;display:flex;align-items:center;gap:6px}
+.fb-sub-name{font-size:13px;font-weight:700;color:var(--t1);padding:0 14px 10px;white-space:nowrap}
+/* Unconfigured fallback */
+.fb-sub-uncfg{border-style:dashed}
+.fb-sub-uncfg .fb-sub-badge{color:var(--t5)}
+.fb-sub-uncfg .fb-sub-name{color:var(--t4)}
+.fb-sub-uncfg:hover{border-color:#b0b6cc}
+/* Configured fallback */
+.fb-sub-card:not(.fb-sub-uncfg){border-color:var(--blue-l)}
+.fb-sub-card:not(.fb-sub-uncfg) .fb-sub-badge{color:var(--blue)}
+.fb-sub-card:not(.fb-sub-uncfg):hover{border-color:var(--blue)}
+.fb-conn-uncfg::before{border-top-color:rgba(0,0,0,.1)}
+.fb-conn-uncfg::after{border-left-color:rgba(0,0,0,.1)}
 .ext-list{display:flex;flex-direction:column;gap:4px}
 .ext-item{display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:9px;cursor:pointer;transition:all .1s;border:1.5px solid var(--brd-l);background:none}
 .ext-item:hover{border-color:var(--brd);background:var(--bg)}
@@ -294,9 +360,12 @@ body.is-dragging .add-node{border-color:var(--blue);color:var(--blue);background
 .ext-item.on .ext-cb{border-color:var(--blue);background:var(--blue)}
 .ext-cb svg{width:8px;height:8px;color:var(--white);opacity:0;transition:.1s}
 .ext-item.on .ext-cb svg{opacity:1}
-.ext-item-name{flex:1;font-size:13px;font-weight:600;color:var(--t2)}
+.ext-item-info{flex:1;min-width:0}
+.ext-item-name{font-size:13px;font-weight:600;color:var(--t2)}
 .ext-item.on .ext-item-name{color:var(--blue)}
-.ext-item-tok{font-size:11px;font-weight:700;color:var(--t5)}
+.ext-item-desc{font-size:11px;color:var(--t4);margin-top:1px}
+.ext-item.on .ext-item-desc{color:var(--blue);opacity:.7}
+.ext-item-tok{font-size:11px;font-weight:700;color:var(--t5);flex-shrink:0}
 .ext-item.on .ext-item-tok{color:var(--blue)}
 .int-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--t5);margin-bottom:6px}
 .int-input{width:100%;padding:9px 12px;border:1.5px solid var(--brd-l);border-radius:8px;font-size:13px;font-family:inherit;color:var(--t1);background:var(--bg);transition:border .12s}
@@ -366,8 +435,7 @@ button.sb-item,button.ext-item,button.opt{-webkit-appearance:none;appearance:non
 .sb-item.configured:hover,.sb-item.configured:focus-visible{background:#eef0f8!important;border-color:var(--blue-l)!important}
 /* Step remove button — also visible when card is keyboard-focused */
 .step:focus .step-rm,.step:focus-within .step-rm{opacity:1}
-/* Panel preview — reduced height so config options aren't squeezed */
-.panel-preview{height:300px!important}
+/* Panel preview — compact, illustration clips at bottom */
 /* Fallback block — animate in on appearance */
 @keyframes fadeSlideIn{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}
 .fb-block{animation:fadeSlideIn .18s ease-out}
@@ -385,14 +453,58 @@ button.sb-item,button.ext-item,button.opt{-webkit-appearance:none;appearance:non
 </style>
 </head>
 <body>
+<div class="app">
+
+<aside class="side" aria-label="Primary navigation">
+  <div class="side-hd">
+    <a class="side-logo" href="workspace.html" aria-label="ShareID"><img src="illustrations/ShareID-logo.svg" alt="ShareID" draggable="false"></a>
+  </div>
+  <nav class="side-nav">
+    <a class="side-item disabled" href="#" aria-disabled="true"><svg viewBox="0 0 16 16" fill="none"><path d="M3 7.5L8 3l5 4.5V13a1 1 0 01-1 1h-2.5v-3.5h-3V14H4a1 1 0 01-1-1V7.5Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg><span>Home</span></a>
+    <button class="side-item" type="button" aria-expanded="true" aria-controls="grpWf" onclick="toggleGroup(this)">
+      <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="2" y="3" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.4"/><rect x="9" y="3" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.4"/><rect x="2" y="10" width="5" height="3" rx="1" stroke="currentColor" stroke-width="1.4"/><rect x="9" y="10" width="5" height="3" rx="1" stroke="currentColor" stroke-width="1.4"/></svg>
+      <span>Workflows</span>
+      <svg class="chev" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M4 9l3-3 3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <div class="side-group-body" id="grpWf" aria-hidden="false">
+      <a class="side-sub active" href="workspace.html" aria-current="page">My flows</a>
+      <a class="side-sub" href="plans.html">Pricing</a>
+    </div>
+    <a class="side-item disabled" href="#" aria-disabled="true"><svg viewBox="0 0 16 16" fill="none"><path d="M3 13V7m3 6V4m3 9v-6m3 6V3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg><span>Reporting</span></a>
+    <a class="side-item disabled" href="#" aria-disabled="true"><svg viewBox="0 0 16 16" fill="none"><rect x="2.5" y="2.5" width="11" height="11" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M5 6h6M5 8.5h6M5 11h3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg><span>Requests history</span></a>
+    <div class="side-sep" aria-hidden="true"></div>
+    <a class="side-item disabled" href="#" aria-disabled="true"><svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="1.4"/><path d="M8 4V2.5M8 13.5V12M4 8H2.5M13.5 8H12M4.9 4.9l-1-1M12.1 12.1l-1-1M4.9 11.1l-1 1M12.1 3.9l-1 1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg><span>Manage Businesses</span></a>
+    <a class="side-item disabled" href="#" aria-disabled="true"><svg viewBox="0 0 16 16" fill="none"><rect x="2.5" y="2.5" width="11" height="11" rx="1.5" stroke="currentColor" stroke-width="1.4"/><circle cx="8" cy="7" r="2" stroke="currentColor" stroke-width="1.3"/><path d="M5 13c.5-1.6 1.7-2.6 3-2.6s2.5 1 3 2.6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg><span>Manage Users</span></a>
+    <div class="side-sep" aria-hidden="true"></div>
+    <a class="side-item disabled" href="#" aria-disabled="true"><svg viewBox="0 0 16 16" fill="none"><rect x="2.5" y="3" width="11" height="8" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M5.5 13h5M7 11v2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><polygon points="7,5.8 10,7.3 7,8.8" fill="currentColor"/></svg><span>Product demo</span></a>
+    <a class="side-item disabled" href="#" aria-disabled="true"><svg viewBox="0 0 16 16" fill="none"><rect x="2" y="4" width="12" height="9" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M5.5 4V2.5h5V4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="8" cy="8.5" r="2" stroke="currentColor" stroke-width="1.3"/></svg><span>Run Authenticity Photo</span></a>
+    <a class="side-item disabled" href="#" aria-disabled="true"><svg viewBox="0 0 16 16" fill="none"><path d="M10 4h3v3M13 4l-5 5M6.5 6H3.5a1 1 0 00-1 1v5a1 1 0 001 1h5a1 1 0 001-1V9.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Operator platform</span></a>
+    <a class="side-item disabled" href="#" aria-disabled="true"><svg viewBox="0 0 16 16" fill="none"><rect x="2.5" y="3.5" width="11" height="9" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M2.5 5l5.5 3.5L13.5 5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Contact support</span></a>
+  </nav>
+  <div class="side-ft">
+    <div class="side-avatar" aria-hidden="true">S</div>
+    <div class="side-user"><div class="side-user-name">Demo user</div><div class="side-user-role">Admin</div></div>
+    <button class="side-exit" aria-label="Sign out" title="Sign out"><svg viewBox="0 0 16 16" fill="none"><path d="M7 3H4a1 1 0 00-1 1v8a1 1 0 001 1h3M10 5l3 3-3 3M13 8H6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+  </div>
+</aside>
+
+<div class="app-main">
 
 <!-- TOP BAR -->
 <header class="topbar">
-  <a class="logo" href="#" aria-label="ShareID Workflow Builder home">
-    <img src="illustrations/ShareID-logo.svg" alt="ShareID" style="height:32px;width:auto;display:block" draggable="false">
-  </a>
+  <div class="tb-left">
+    <a class="tb-back" href="workspace.html" aria-label="Back to all workflows">
+      <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      All workflows
+    </a>
+    <div class="tb-divider" aria-hidden="true"></div>
+    <input class="tb-wf-name" id="wfNameInput" type="text" value="" aria-label="Workflow name" maxlength="80" autocomplete="off" />
+  </div>
   <div class="tb-actions">
-    <span style="font-size:12px;color:var(--t5)" aria-hidden="true">Workflow Builder</span>
+    <span class="tb-saved" id="wfSaved" aria-live="polite" title="">
+      <svg viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M2.5 6.5l2.5 2.5L9.5 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Saved
+    </span>
   </div>
 </header>
 
@@ -401,16 +513,15 @@ button.sb-item,button.ext-item,button.opt{-webkit-appearance:none;appearance:non
 
   <!-- LEFT SIDEBAR -->
   <nav class="sidebar" aria-label="Available modules">
+    <div class="sb-hd-row">
+      <span class="sb-hd-title">Modules</span>
+      <span class="sb-hd-badge" id="sbModeBadge"></span>
+    </div>
     <div class="sb-list" id="sbList" role="list" aria-label="Module library"></div>
   </nav>
 
   <!-- CANVAS -->
   <main class="canvas-wrap" aria-label="Workflow canvas">
-    <!-- MODE SWITCHER -->
-    <div class="canvas-mode" role="group" aria-label="Workflow mode">
-      <button class="mode-b on" id="mOnb" onclick="setMode('onboarding')" aria-pressed="true">Onboarding</button>
-      <button class="mode-b" id="mAuth" onclick="setMode('auth')" aria-pressed="false">Authentication</button>
-    </div>
     <div class="bottom-bar" id="bottomBar" aria-label="Workflow summary">
       <div class="bb-tok" id="ctokBadge" aria-live="polite" aria-atomic="true" aria-label="Total token cost">
         <span class="bb-tok-n" id="ctokN">0</span>
@@ -421,8 +532,7 @@ button.sb-item,button.ext-item,button.opt{-webkit-appearance:none;appearance:non
         <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M5 3L1 8l4 5M11 3l4 5-4 5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
         API config
       </button>
-      <a href="pricing.html" class="bb-cta off" id="tbCtaTop" aria-disabled="true" onclick="savePricingData()">Calculate price</a>
-      <a href="pricing.html" class="skip-link" id="skipPricingLink" onclick="clearPricingData()">or browse pricing</a>
+      <a href="pricing.html" class="bb-cta off" id="tbCtaTop" aria-disabled="true" onclick="savePricingData();return true;">Calculate price</a>
     </div>
     <div class="canvas" id="canvas" role="region" aria-label="Workflow steps"
       ondragover="event.preventDefault()"
@@ -443,34 +553,106 @@ button.sb-item,button.ext-item,button.opt{-webkit-appearance:none;appearance:non
 
 </div><!-- /body -->
 
+</div><!-- /app-main -->
+</div><!-- /app -->
+
 <!-- Screen-reader live announcements -->
 <div id="a11y-live" aria-live="polite" aria-atomic="true" style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden"></div>
 
 <script>
 const $=id=>document.getElementById(id);
-let mode='onboarding';
-const savedPipelines={onboarding:[],auth:[]};
-const savedActiveIds={onboarding:null,auth:null};
-try{
-  if(sessionStorage.getItem('shareid_edit_flow')==='1'){
-    sessionStorage.removeItem('shareid_edit_flow');
-    const saved=JSON.parse(localStorage.getItem('shareid_workflow')||'null');
-    const editMode=sessionStorage.getItem('shareid_edit_mode');
-    sessionStorage.removeItem('shareid_edit_mode');
-    if(saved){
-      if(saved.flows){
-        if(Array.isArray(saved.flows.onboarding?.pipeline))savedPipelines.onboarding=saved.flows.onboarding.pipeline;
-        if(Array.isArray(saved.flows.auth?.pipeline))savedPipelines.auth=saved.flows.auth.pipeline;
-      }else if(Array.isArray(saved.pipeline)){
-        const savedMode=saved.mode==='auth'?'auth':'onboarding';
-        savedPipelines[savedMode]=saved.pipeline;
+
+/* ─── Sidebar group toggle ─── */
+function toggleGroup(btn){
+  const expanded=btn.getAttribute('aria-expanded')==='true';
+  const target=document.getElementById(btn.getAttribute('aria-controls'));
+  btn.setAttribute('aria-expanded',expanded?'false':'true');
+  if(target)target.setAttribute('aria-hidden',expanded?'true':'false');
+  try{localStorage.setItem('sb_grp_'+btn.getAttribute('aria-controls'),expanded?'0':'1');}catch(e){}
+}
+document.querySelectorAll('.side-item[aria-controls]').forEach(btn=>{
+  try{
+    const saved=localStorage.getItem('sb_grp_'+btn.getAttribute('aria-controls'));
+    if(saved==='0'){btn.setAttribute('aria-expanded','false');const t=document.getElementById(btn.getAttribute('aria-controls'));if(t)t.setAttribute('aria-hidden','true');}
+  }catch(e){}
+});
+
+/* ─── Workspace storage ─── */
+const WS_KEY='shareid_workspaces';
+const WS_ACTIVE='shareid_active_workspace';
+const LEGACY_KEY='shareid_workflow';
+function uid(){return 'w_'+Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-3)}
+function loadWorkspaces(){try{const a=JSON.parse(localStorage.getItem(WS_KEY)||'[]');return Array.isArray(a)?a:[]}catch(e){return[]}}
+function saveWorkspaces(list){try{localStorage.setItem(WS_KEY,JSON.stringify(list));}catch(e){}}
+function getQueryParam(k){return new URLSearchParams(location.search).get(k)}
+
+let workspaces=loadWorkspaces();
+let currentWorkspaceId=getQueryParam('w')||localStorage.getItem(WS_ACTIVE)||null;
+let currentWorkspace=currentWorkspaceId?workspaces.find(w=>w.id===currentWorkspaceId):null;
+
+/* If no workspace specified, redirect to workspace.html.
+   Migrate legacy single-workflow if present. */
+if(!currentWorkspace){
+  // Try to migrate legacy
+  try{
+    const legacy=JSON.parse(localStorage.getItem(LEGACY_KEY)||'null');
+    if(legacy&&(legacy.flows||legacy.pipeline)&&!workspaces.length){
+      const flows=legacy.flows||{};
+      const onbPipe=flows.onboarding?.pipeline||(legacy.mode!=='auth'&&Array.isArray(legacy.pipeline)?legacy.pipeline:[]);
+      const authPipe=flows.auth?.pipeline||(legacy.mode==='auth'&&Array.isArray(legacy.pipeline)?legacy.pipeline:[]);
+      if((onbPipe&&onbPipe.length)||(authPipe&&authPipe.length)){
+        const now=Date.now();
+        currentWorkspace={id:uid(),name:'Untitled workflow',createdAt:now,updatedAt:now,flows:{onboarding:{pipeline:onbPipe},auth:{pipeline:authPipe}}};
+        currentWorkspaceId=currentWorkspace.id;
+        workspaces=[currentWorkspace];
+        saveWorkspaces(workspaces);
+        try{localStorage.setItem(WS_ACTIVE,currentWorkspaceId);}catch(e){}
       }
-      if(editMode==='auth'||editMode==='onboarding')mode=editMode;
-      else if(saved.mode==='auth'||saved.mode==='onboarding')mode=saved.mode;
     }
+  }catch(e){}
+  if(!currentWorkspace){
+    location.replace('workspace.html');
   }
-}catch(e){}
+}
+
+let mode=(currentWorkspace?.flowType)||getQueryParam('mode')||'onboarding';
+const savedPipelines={
+  onboarding:(currentWorkspace?.flows?.onboarding?.pipeline)||[],
+  auth:(currentWorkspace?.flows?.auth?.pipeline)||[]
+};
+const savedActiveIds={onboarding:null,auth:null};
 let pipeline=savedPipelines[mode];
+
+try{localStorage.setItem(WS_ACTIVE,currentWorkspaceId);}catch(e){}
+
+/* ─── Auto-save (debounced) ─── */
+let _saveTimer=null, _savedFlash=null;
+function autoSave(){
+  if(!currentWorkspace)return;
+  showSaving();
+  clearTimeout(_saveTimer);
+  _saveTimer=setTimeout(()=>{
+    savedPipelines[mode]=pipeline;
+    currentWorkspace.flows={onboarding:{pipeline:savedPipelines.onboarding||[]},auth:{pipeline:savedPipelines.auth||[]}};
+    currentWorkspace.updatedAt=Date.now();
+    const idx=workspaces.findIndex(w=>w.id===currentWorkspaceId);
+    if(idx>=0)workspaces[idx]=currentWorkspace;else workspaces.unshift(currentWorkspace);
+    saveWorkspaces(workspaces);
+    // Also keep legacy key in sync so pricing.html keeps working
+    try{
+      const calcTok=(pl)=>{let x=0;(pl||[]).forEach(s=>x+=getTok(s));return x};
+      const flows={
+        onboarding:{pipeline:savedPipelines.onboarding||[],totalTok:calcTok(savedPipelines.onboarding)},
+        auth:{pipeline:savedPipelines.auth||[],totalTok:calcTok(savedPipelines.auth)}
+      };
+      let t=0;pipeline.forEach(s=>t+=getTok(s));
+      localStorage.setItem(LEGACY_KEY,JSON.stringify({pipeline,mode,totalTok:t,flows}));
+    }catch(e){}
+    showSaved();
+  },280);
+}
+function showSaving(){const el=$('wfSaved');if(!el)return;el.classList.add('saving');el.innerHTML='<svg viewBox="0 0 12 12" fill="none" aria-hidden="true"><circle cx="6" cy="6" r="4" stroke="currentColor" stroke-width="1.4" stroke-dasharray="3 3"><animateTransform attributeName="transform" type="rotate" from="0 6 6" to="360 6 6" dur="1.2s" repeatCount="indefinite"/></circle></svg>Saving…';}
+function showSaved(){const el=$('wfSaved');if(!el)return;el.classList.remove('saving');el.innerHTML='<svg viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M2.5 6.5l2.5 2.5L9.5 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Saved';}
 let activeId=null,dragType=null,canvasDragId=null,liveInsertIdx=-1,dragRaf=null;
 let lastRemoved=null,undoTimer=null;
 
@@ -489,32 +671,47 @@ const SV={
 };
 
 const MODS={
-  doc:{icon:SV.doc,name:'Doc IDV',desc:'ID scanning & NFC chip reading',
-    presets:[
-      {group:'Standard',items:[
-        {v:'basique',l:'Basique',d:'Photo capture',t:1,fb:0},
-        {v:'basique_plus',l:'Basique+',d:'Photo + anti-spoofing',t:2,fb:0,rec:1},
+  doc:{icon:SV.doc,name:'Identity',desc:'Verify user identity',
+    paths:{
+      document:{label:'Document',presets:[
+        {group:'Standard',items:[
+          {v:'basique',l:'Basique',d:'Photo capture',t:1,fb:0,fbLevel:0},
+          {v:'basique_plus',l:'Basique+',d:'Photo + anti-spoofing',t:2,fb:0,rec:1,fbLevel:1},
+        ]},
+        {group:'NFC-Enabled',items:[
+          {v:'substantial',l:'Substantiel',d:'NFC + video fallback',t:4,fb:1,fbLevel:3,fbOpts:['none','video','photo']},
+          {v:'substantial_plus',l:'Substantiel+',d:'NFC + injection detection',t:5,fb:1,fbLevel:3,fbOpts:['none','photo']},
+          {v:'advanced',l:'Advanced',d:'NFC only, no fallback',t:3,fb:0,fbLevel:3},
+        ]}
       ]},
-      {group:'NFC-Enabled',items:[
-        {v:'substantial',l:'Substantiel',d:'NFC + video fallback',t:4,fb:1},
-        {v:'substantial_plus',l:'Substantiel+',d:'NFC + injection detection',t:5,fb:1},
-        {v:'advanced',l:'Advanced',d:'NFC only, no fallback',t:3,fb:0},
+      wallet:{label:'Wallet',presets:[
+        {group:null,items:[
+          {v:'trusted_source',l:'Trusted Source',d:'Document or selfie as reference',t:1},
+          {v:'eudiw_verify',l:'EUDIW Verification',d:'EAA, QEAA attestation',t:2},
+          {v:'gov_digital_id',l:'Gov Digital ID',d:'Government integration',t:1},
+        ]}
       ]}
-    ]},
+    },
+    get presets(){return this.paths.document.presets}
+  },
   face:{icon:SV.face,name:'Face IDV',desc:'Liveness & face matching',
     presets:[{group:null,items:[
       {v:'basic',l:'Basic',d:'Passive liveness',t:1},
       {v:'substantial',l:'Substantiel',d:'Active liveness',t:2},
       {v:'high',l:'High',d:'Max assurance',t:5},
     ]}]},
-  ext:{icon:SV.ext,name:'Extensions',desc:'Add-on modules',
+  ext:{icon:SV.ext,name:'Issuance',desc:'Issue credentials & attestations',
     chips:[
-      {key:'trusted_source',l:'Trusted Source',t:1},
-      {key:'eudiw_verify',l:'EUDIW Verify',t:1},
-      {key:'eudiw_issue',l:'EUDIW Issue',t:2},
-      {key:'gov_digital_id',l:'Gov Digital ID',t:1},
+      {key:'eudiw_issue',l:'EUDIW Attestation',t:2},
+      {key:'other_attestation',l:'Other Attestation',t:1},
     ]},
-  int:{icon:SV.int,name:'Integration',desc:'Webhook callback URL'},
+  int:{icon:SV.int,name:'Integration',desc:'Webhook & data options',
+    options:[
+      {key:'audit_trail',l:'Request audit trail',d:'Full verification log'},
+      {key:'request_assets',l:'Request assets',d:'Videos, photos & recordings'},
+      {key:'id_data_extract',l:'ID data extraction',d:'Structured identity fields'},
+      {key:'risk_scoring',l:'Risk scoring',d:'Fraud probability score'},
+    ]},
   auth:{icon:SV.auth,name:'Auth',desc:'Re-verify returning users',
     presets:[{group:null,items:[
       {v:'mfa_3',l:'MFA 3.0',d:'Active liveness auth',t:1,type:'mfa',rec:1},
@@ -523,9 +720,13 @@ const MODS={
 };
 
 function getTok(s){if(s.type==='ext'){let t=0;for(const v of Object.values(s.addons||{}))t+=v.t;return t}return s.config?s.config.t||0:0}
+function switchPath(sid,path){const s=pipeline.find(x=>x.id===sid);if(!s)return;s.path=path;s.config=null;s.fb=null;renderAll()}
+function togIntOpt(sid,key){const s=pipeline.find(x=>x.id===sid);if(!s)return;if(!s.intOpts)s.intOpts={};if(s.intOpts[key])delete s.intOpts[key];else s.intOpts[key]=true;renderAll()}
 function stepSub(s){
+  if(s.type==='doc'&&s.config){const pathLabel=s.path==='wallet'?'Wallet':'Document';return pathLabel+' \u00B7 '+s.config.l;}
   if(s.config)return s.config.l;
-  if(s.type==='ext'){const n=Object.keys(s.addons||{}).length;return n?n+' add-on'+(n>1?'s':''):'No add-ons'}
+  if(s.type==='ext'){const n=Object.keys(s.addons||{}).length;return n?n+' option'+(n>1?'s':''):'No options'}
+  if(s.type==='int'){const n=Object.keys(s.intOpts||{}).length;const cb=document.querySelector('.int-input');const hasCb=cb&&cb.value;return (hasCb?'URL set':'No URL')+(n?' + '+n+' opt'+(n>1?'s':''):'');}
   return 'Not configured';
 }
 
@@ -563,6 +764,9 @@ const ILLUST={
   'doc:substantial':     'illustrations/doc/Substantial.svg',
   'doc:substantial_plus':'illustrations/doc/Substantial+.svg',
   'doc:advanced':        'illustrations/doc/Advanced.svg',
+  'doc:trusted_source':  'illustrations/Trusted source.svg',
+  'doc:eudiw_verify':    'illustrations/EUDIW Attestation verification.svg',
+  'doc:gov_digital_id':  'illustrations/Governement Digital Identities.svg',
   'doc':                 'illustrations/doc/Basic.svg',
   'face:basic':          'illustrations/face/Basic.svg',
   'face:substantial':    'illustrations/face/Substantial.svg',
@@ -749,8 +953,8 @@ function buildStepHTML(s,i,dragging,isAddon){
   let h=`<div class="step${extraCls}${on?' active':''}${done?' done':''}${draggingCls}" role="button" tabindex="0" aria-pressed="${on}" aria-label="${ariaLabel}" data-sid="${s.id}" ${dragAttrs} onclick="setActive('${s.id}')" ${kbAttrs}>`;
   h+=`<div class="step-grip" aria-hidden="true" onclick="event.stopPropagation()" title="Drag to reorder · Alt+↑↓ with keyboard">${GRIP_SVG}</div>`;
   h+=`<button class="step-rm" onclick="event.stopPropagation();removeMod('${s.id}')" aria-label="Remove ${d.name}" title="Remove step">${SV.x}</button>`;
-  const statusInner=(done&&!on)?`<svg viewBox="0 0 14 14" fill="none"><path d="M3.5 7.3l2.3 2.3 4.7-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`:'';
-  h+=`<div class="step-body"><div class="step-ico" aria-hidden="true">${d.icon}</div><div class="step-info"><div class="step-name" aria-hidden="true">${d.name}</div><div class="step-sub" aria-hidden="true">${stepSub(s)}</div></div><div class="step-status ${statusCls}" aria-hidden="true" title="${statusLabel}">${statusInner}</div></div>`;
+  const checkHTML=done?`<div class="step-status" aria-hidden="true" title="Configured"><svg viewBox="0 0 14 14" fill="none"><path d="M3.5 7.3l2.3 2.3 4.7-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>`:'';
+  h+=`<div class="step-body"><div class="step-ico" aria-hidden="true">${d.icon}</div><div class="step-info"><div class="step-name" aria-hidden="true">${d.name}</div><div class="step-sub" aria-hidden="true">${stepSub(s)}</div></div>${checkHTML}</div>`;
   if(done&&tok>0){
     const lbl=s.type==='ext'?Object.keys(s.addons).length+' add-on'+(Object.keys(s.addons).length>1?'s':''):'Configured';
     h+=`<div class="step-foot" aria-hidden="true"><span style="font-size:11px;color:var(--t5);font-weight:500">${lbl}</span><div style="display:flex;align-items:baseline;gap:2px"><span class="step-tok-val">${tok}</span><span class="step-tok-lbl">tok</span></div></div>`;
@@ -767,7 +971,19 @@ function _renderFlowHTML(items,draggingId){
   h+=`<div class="flow-cap start" aria-hidden="true">Start</div>`;
   coreItems.forEach((s,i)=>{
     h+=`<div class="conn" aria-hidden="true" data-di="${i}" ondragover="cConnOver(event,${i})" ondrop="cConnDrop(event,${i})"></div>`;
-    h+=buildStepHTML(s,i,s.id===draggingId,false);
+    const presetHasFb=s.type==='doc'&&s.config&&s.config.fb;
+    if(presetHasFb){
+      const fbChosen=s.fb&&s.fb!=='none';
+      const fbLabel=fbChosen?(s.fb==='video'?'Video capture':'Photo capture'):'Not selected';
+      const fbCls=fbChosen?'':'fb-sub-uncfg';
+      h+=`<div class="step-fb-group">`;
+      h+=buildStepHTML(s,i,s.id===draggingId,false);
+      h+=`<div class="fb-conn${fbChosen?'':' fb-conn-uncfg'}" aria-hidden="true"></div>`;
+      h+=`<div class="fb-sub-card-wrap"><div class="fb-sub-card ${fbCls}" onclick="focusFallback('${s.id}')"><div class="fb-sub-badge">Fallback</div><div class="fb-sub-name">${fbLabel}</div></div></div>`;
+      h+=`</div>`;
+    } else {
+      h+=buildStepHTML(s,i,s.id===draggingId,false);
+    }
   });
   if(addonItems.length){
     addonItems.forEach((s,i)=>{
@@ -927,6 +1143,13 @@ function undoRemove(){
 }
 function pickPreset(sid,p){const s=pipeline.find(x=>x.id===sid);if(!s)return;s.config={...p};s.fb=null;renderAll()}
 function pickFb(sid,v){const s=pipeline.find(x=>x.id===sid);if(s){s.fb=v;renderAll()}}
+function focusFallback(sid){
+  setActive(sid);
+  setTimeout(()=>{
+    const fbEl=document.querySelector('.fb-inline');
+    if(fbEl)fbEl.scrollIntoView({behavior:'smooth',block:'nearest'});
+  },60);
+}
 function togAddon(sid,k,t,l){const s=pipeline.find(x=>x.id===sid);if(!s)return;if(s.addons[k])delete s.addons[k];else s.addons[k]={t,l};renderAll()}
 function setActive(id){activeId=activeId===id?null:id;renderAll()}
 function setActiveByType(t){const s=pipeline.find(x=>x.type===t);if(s){activeId=s.id;renderAll();}}
@@ -978,12 +1201,10 @@ function moveStep(id,dir){
 }
 
 function renderAll(){
-  const mOnb=$('mOnb'),mAuth=$('mAuth');
-  mOnb.className='mode-b'+(mode==='onboarding'?' on':'');
-  mAuth.className='mode-b'+(mode==='auth'?' on':'');
-  mOnb.setAttribute('aria-pressed',mode==='onboarding'?'true':'false');
-  mAuth.setAttribute('aria-pressed',mode==='auth'?'true':'false');
+  const badge=$('modeBadge');
+  if(badge)badge.textContent=mode==='auth'?'Authentication':'Onboarding';
   renderSidebar();renderCanvas();renderPanel();renderTopbar();
+  autoSave();
 }
 
 function renderTopbar(){
@@ -991,13 +1212,12 @@ function renderTopbar(){
   const empty=pipeline.length===0;
   const ok=!empty&&pipeline.filter(s=>s.type!=='int').every(s=>s.type==='ext'?Object.keys(s.addons||{}).length>0:!!s.config);
   const topCta=$('tbCtaTop');
-  const skipLink=$('skipPricingLink');
+  const pricingHref='pricing.html'+(currentWorkspaceId?('?w='+encodeURIComponent(currentWorkspaceId)):'');
   if(topCta){
     topCta.className='bb-cta'+(ok?'':' off');
     topCta.setAttribute('aria-disabled',ok?'false':'true');
-    if(ok)topCta.setAttribute('href','pricing.html');else topCta.removeAttribute('href');
+    if(ok)topCta.setAttribute('href',pricingHref);else topCta.removeAttribute('href');
   }
-  if(skipLink)skipLink.style.display='';
   const tEl=$('ctokN');
   if(tEl.textContent!==String(t)){
     tEl.textContent=t;
@@ -1014,11 +1234,21 @@ function savePricingData(){
       auth:{pipeline:savedPipelines.auth||[],totalTok:calcTok(savedPipelines.auth)}
     };
     localStorage.setItem('shareid_workflow',JSON.stringify({pipeline,mode,totalTok:t,flows}));
+    // Also persist to active workspace
+    if(currentWorkspace){
+      currentWorkspace.flows=flows;
+      currentWorkspace.updatedAt=Date.now();
+      const idx=workspaces.findIndex(w=>w.id===currentWorkspaceId);
+      if(idx>=0)workspaces[idx]=currentWorkspace;
+      saveWorkspaces(workspaces);
+    }
   }catch(e){}
 }
 function clearPricingData(){try{localStorage.removeItem('shareid_workflow');}catch(e){}}
 
 function renderSidebar(){
+  const badge=$('sbModeBadge');
+  if(badge)badge.textContent=mode==='auth'?'Authentication':'Onboarding';
   const added=new Set(pipeline.map(s=>s.type));
   const activeType=activeId?pipeline.find(s=>s.id===activeId)?.type:null;
   function renderGroup(types,label,extraCls=''){
@@ -1047,8 +1277,7 @@ function renderSidebar(){
       else h+=`<div class="sb-desc" aria-hidden="true">${d.desc}</div>`;
       h+=`</div>`;
       if(used&&isCfgd&&!isActive)h+=`<div class="sb-check" aria-hidden="true"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>`;
-      else if(used)h+=`<div class="sb-pending-dot${isCfgd?' editing':''}" aria-hidden="true"></div>`;
-      else h+=`<div class="sb-drag" aria-hidden="true">${SV.dots}</div>`;
+      else if(!used)h+=`<div class="sb-drag" aria-hidden="true">${SV.dots}</div>`;
       h+=`</button></div>`;
     });
     return h+'</div></div>';
@@ -1132,10 +1361,10 @@ function renderPanel(){
   if(panel)panel.classList.add('open');
   $('panelHd').style.borderBottom='';
   const def=MODS[s.type];
-  const hasOpts=def.presets||def.chips||s.type==='int';
+  const hasOpts=def.presets||def.chips||def.options||def.paths||s.type==='int';
   if(!hasOpts){$('panelHd').innerHTML='';$('panelBody').innerHTML='';return;}
-  const icoBg=s.type==='ext'?'var(--blue)':s.type==='int'?'var(--bg2)':'var(--blue)';
-  const icoColor=s.type==='int'?'var(--t4)':'white';
+  const icoBg='var(--blue)';
+  const icoColor='white';
   const illust=getIllust(s.type,s.type==='ext'?null:s.config?.v);
   $('panelHd').innerHTML=`
     <button class="panel-close-btn" onclick="closePanel()" aria-label="Close configuration panel" title="Close panel">${SV.x}</button>
@@ -1155,11 +1384,42 @@ function renderPanel(){
     def.chips.forEach(c=>{
       const isOn=!!(s.addons||{})[c.key];
       const stateLabel=isOn?'enabled':'disabled';
-      h+=`<button class="ext-item${isOn?' on':''}" onclick="togAddon('${s.id}','${c.key}',${c.t},'${c.l}')" aria-pressed="${isOn}" aria-label="${c.l}, ${c.t} tokens, ${stateLabel}"><div class="ext-cb" aria-hidden="true">${SV.chk}</div><div class="ext-item-name" aria-hidden="true">${c.l}</div><div class="ext-item-tok" aria-hidden="true">+${c.t} tok</div></button>`;
+      h+=`<button class="ext-item${isOn?' on':''}" onclick="togAddon('${s.id}','${c.key}',${c.t},'${c.l}')" aria-pressed="${isOn}" aria-label="${c.l}, ${c.t} tokens, ${stateLabel}"><div class="ext-cb" aria-hidden="true">${SV.chk}</div><div class="ext-item-info"><div class="ext-item-name" aria-hidden="true">${c.l}</div></div><div class="ext-item-tok" aria-hidden="true">+${c.t} tok</div></button>`;
     });
     h+='</div>';
   }else if(s.type==='int'){
     h+=`<label for="callbackUrl" class="int-label">Callback URL</label><input class="int-input" id="callbackUrl" type="url" placeholder="https://yourdomain.com/callback" autocomplete="url" oninput="renderTopbar()">`;
+    if(def.options){
+      h+=`<div class="ext-list" style="margin-top:12px" role="group" aria-label="Integration options">`;
+      def.options.forEach(o=>{
+        const isOn=!!(s.intOpts&&s.intOpts[o.key]);
+        const stateLabel=isOn?'enabled':'disabled';
+        h+=`<button class="ext-item${isOn?' on':''}" onclick="togIntOpt('${s.id}','${o.key}')" aria-pressed="${isOn}" aria-label="${o.l}, ${stateLabel}"><div class="ext-cb" aria-hidden="true">${SV.chk}</div><div class="ext-item-info"><div class="ext-item-name" aria-hidden="true">${o.l}</div><div class="ext-item-desc" aria-hidden="true">${o.d}</div></div></button>`;
+      });
+      h+=`</div>`;
+    }
+  }else if(s.type==='doc'&&def.paths){
+    const curPath=s.path||'document';
+    h+=`<div class="path-toggle" role="group" aria-label="Verification path"><button class="path-btn${curPath==='document'?' on':''}" onclick="switchPath('${s.id}','document')">Document</button><button class="path-btn${curPath==='wallet'?' on':''}" onclick="switchPath('${s.id}','wallet')">Wallet</button></div>`;
+    const activePresets=def.paths[curPath].presets;
+    activePresets.forEach(g=>{
+      if(g.group)h+=`<div class="pgrp" role="heading" aria-level="3">${g.group}</div>`;
+      h+=`<div role="radiogroup" aria-label="${g.group||'Options'}">`;
+      g.items.forEach(p=>{
+        const isOn=!!(s.config&&s.config.v===p.v);
+        const optLabel=`${p.l}: ${p.d}, ${p.t} token${p.t!==1?'s':''}${p.rec?' (recommended)':''}`;
+        const hasFbInline=isOn&&p.fb;
+        if(hasFbInline)h+=`<div class="opt-fb-wrap on">`;
+        h+=`<button class="opt${isOn?' on':''}${hasFbInline?' no-bottom-radius':''}" onclick="pickPreset('${s.id}',${JSON.stringify(p).replace(/"/g,'&quot;')})" role="radio" aria-checked="${isOn}" aria-label="${optLabel}"><div class="ri" aria-hidden="true"><i></i></div><div class="opt-body"><div class="opt-name" aria-hidden="true">${p.l}${p.rec?' <span class="rec" aria-hidden="true">Rec</span>':''}</div><div class="opt-desc" aria-hidden="true">${p.d}</div></div><div class="opt-tok" aria-hidden="true">${p.t} tok</div></button>`;
+        if(hasFbInline){
+          const fbOpts=p.fbOpts||['none','video','photo'];
+          const fbLabels={none:'None',video:'Video',photo:'Photo'};
+          const fbPills=fbOpts.map(o=>{const isOn=o==='none'?(!s.fb||s.fb==='none'):s.fb===o;return`<button class="fb-pill${isOn?' on':''}" onclick="pickFb('${s.id}','${o}')">${fbLabels[o]}</button>`;}).join('');
+          h+=`<div class="fb-inline"><div class="fb-inline-lbl">If NFC fails:</div><div class="fb-pills">${fbPills}</div></div></div>`;
+        }
+      });
+      h+=`</div>`;
+    });
   }else if(def.presets){
     def.presets.forEach(g=>{
       if(g.group)h+=`<div class="pgrp" role="heading" aria-level="3">${g.group}</div>`;
@@ -1171,10 +1431,6 @@ function renderPanel(){
       });
       h+=`</div>`;
     });
-    const hasFb=s.type==='doc'&&s.config&&s.config.fb;
-    if(hasFb){
-      h+=`<div class="fb-block"><div class="fb-lbl" aria-hidden="true">${SV.branch} Fallback if NFC fails</div><div class="fb-pills" role="group" aria-label="Fallback if NFC fails"><button class="fb-pill${s.fb==='video'?' on':''}" aria-pressed="${s.fb==='video'}" onclick="pickFb('${s.id}','video')">Video</button><button class="fb-pill${s.fb==='alt'?' on':''}" aria-pressed="${s.fb==='alt'}" onclick="pickFb('${s.id}','alt')">Alt path</button><button class="fb-pill${!s.fb||s.fb==='none'?' on':''}" aria-pressed="${!s.fb||s.fb==='none'}" onclick="pickFb('${s.id}','none')">None</button></div></div>`;
-    }
   }
   $('panelBody').innerHTML=h;
   const pf=$('panelFoot');
@@ -1195,7 +1451,7 @@ function buildJSON(){
   });
   const cfg={credentials:{business_hash:"YOUR_HASH",api_key:"YOUR_KEY"},levels,options:{callback:{urls:[cbUrl]}}};
   const ds=pipeline.find(s=>s.type==='doc'&&s.config);
-  if(ds&&ds.config.fb&&ds.fb&&ds.fb!=='none')cfg.options.fallback={enabled:true,method:ds.fb==='video'?'video_capture':'alternative_path'};
+  if(ds&&ds.config.fb&&ds.fb&&ds.fb!=='none')cfg.options.fallback={enabled:true,method:ds.fb==='video'?'video_capture':'photo_capture'};
   return cfg;
 }
 function showJSON(){
@@ -1213,6 +1469,28 @@ function showJSON(){
   document.addEventListener('keydown',window._modalEsc);
   setTimeout(()=>{const x=d.querySelector('.modal-x');if(x)x.focus();},50);
 }
+/* ─── Workflow name (top bar) ─── */
+function initWfName(){
+  const inp=$('wfNameInput');
+  if(!inp||!currentWorkspace)return;
+  inp.value=currentWorkspace.name||'Untitled workflow';
+  document.title='ShareID — '+(currentWorkspace.name||'Workflow');
+  let last=inp.value;
+  inp.addEventListener('focus',()=>{last=inp.value;inp.select();});
+  inp.addEventListener('keydown',(e)=>{
+    if(e.key==='Enter'){e.preventDefault();inp.blur();}
+    if(e.key==='Escape'){e.preventDefault();inp.value=last;inp.blur();}
+  });
+  inp.addEventListener('blur',()=>{
+    const v=(inp.value||'').trim();
+    if(!v){inp.value=last;return;}
+    if(v===currentWorkspace.name)return;
+    currentWorkspace.name=v;
+    document.title='ShareID — '+v;
+    autoSave();
+  });
+}
+initWfName();
 renderAll();
 </script>
 
