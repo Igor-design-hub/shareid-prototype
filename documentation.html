@@ -939,7 +939,7 @@ const GRIP_SVG=`<svg viewBox="0 0 18 8" fill="currentColor"><circle cx="3" cy="2
 
 function buildStepHTML(s,i,dragging,isAddon){
   const d=MODS[s.type];
-  const done=s.config||Object.keys(s.addons||{}).length>0;
+  const done=s.config||Object.keys(s.addons||{}).length>0||Object.keys(s.intOpts||{}).length>0;
   const on=s.id===activeId;
   const tok=getTok(s);
   const statusCls=(done&&!on)?'cfgd':(done&&on?'editing':'uncfg');
@@ -1259,7 +1259,7 @@ function renderSidebar(){
       const used=added.has(t);
       const isActive=used&&t===activeType;
       const stepInPipeline=pipeline.find(s=>s.type===t);
-      const isCfgd=used&&stepInPipeline&&(stepInPipeline.config||Object.keys(stepInPipeline.addons||{}).length>0);
+      const isCfgd=used&&stepInPipeline&&(stepInPipeline.config||Object.keys(stepInPipeline.addons||{}).length>0||Object.keys(stepInPipeline.intOpts||{}).length>0);
       let cls='sb-item';
       if(used&&isCfgd)cls+=' configured';
       else if(used)cls+=' used';

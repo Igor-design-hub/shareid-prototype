@@ -98,6 +98,22 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 
 .modules-list{display:flex;flex-direction:column;gap:10px}
 .addons-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--t5);margin-top:8px;margin-bottom:2px;padding:0 2px}
+.addon-opts{display:flex;flex-direction:column;gap:4px;margin-top:6px}
+.addon-opt{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;border:1px solid var(--brd-l);background:var(--white);cursor:pointer;transition:border-color .12s,background .12s;user-select:none}
+.addon-opt:has(input:checked){border-color:var(--blue-l);background:var(--blue-bg)}
+.addon-opt input[type=checkbox]{position:absolute;opacity:0;width:0;height:0;pointer-events:none}
+.ao-box{width:16px;height:16px;border-radius:4px;border:1.5px solid var(--brd);background:var(--white);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .12s}
+.addon-opt:has(input:checked) .ao-box{background:var(--blue);border-color:var(--blue)}
+.ao-box svg{opacity:0;width:10px;height:10px;color:#fff;transition:opacity .1s}
+.addon-opt:has(input:checked) .ao-box svg{opacity:1}
+.addon-opt-info{flex:1;min-width:0}
+.addon-opt-name{font-size:12px;font-weight:600;color:var(--t2)}
+.addon-opt-desc{font-size:11px;color:var(--t5);margin-top:1px}
+.addon-opt-tok{font-size:11px;font-weight:700;color:var(--t4);white-space:nowrap;flex-shrink:0}
+.addon-opt:has(input:checked) .addon-opt-tok{color:var(--blue)}
+.addon-url{width:100%;margin-top:6px;padding:8px 10px;border-radius:8px;border:1px solid var(--brd-l);font:500 12px/1 Inter,sans-serif;color:var(--t2);background:var(--white);outline:none;transition:border-color .12s,box-shadow .12s}
+.addon-url:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(50,83,209,.10)}
+.addon-url::placeholder{color:var(--t5)}
 .module-row{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:12px;border:1px solid var(--brd-l)}
 .module-row.core-doc{background:var(--white);border-color:var(--brd-l)}
 .module-row.core-face,.module-row.core-auth{background:var(--white);border-color:var(--brd-l)}
@@ -443,9 +459,21 @@ function authIcon(){return`<svg width="16" height="16" viewBox="0 0 18 18" fill=
 const TYPE_META={
   doc: {name:'Doc IDV',   cls:'mi-doc', icon:docIcon},
   face:{name:'Face IDV',  cls:'mi-face',icon:faceIcon},
-  ext: {name:'Extensions',cls:'mi-ext', icon:extIcon},
+  ext: {name:'Issuance',  cls:'mi-ext', icon:extIcon},
   int: {name:'Integration',cls:'mi-int',icon:intIcon},
   auth:{name:'Auth',      cls:'mi-auth',icon:authIcon},
+};
+const ADDON_DEFS={
+  ext:[
+    {key:'eudiw_issue',       l:'EUDIW Attestation',  d:'EU Digital Identity credential',  t:2},
+    {key:'other_attestation', l:'Other Attestation',  d:'Custom credential issuance',       t:1},
+  ],
+  int:[
+    {key:'audit_trail',    l:'Request audit trail',  d:'Full verification log',          t:0},
+    {key:'request_assets', l:'Request assets',       d:'Videos, photos & recordings',    t:0},
+    {key:'id_data_extract',l:'ID data extraction',   d:'Structured identity fields',     t:0},
+    {key:'risk_scoring',   l:'Risk scoring',         d:'Fraud probability score',        t:0},
+  ],
 };
 
 /* ── MODULE PRESET OPTIONS (for in-place editing) ── */
@@ -483,6 +511,21 @@ function changeModulePreset(idx,label){
   renderModuleRows(currentModules);
   if(selectedPackTokens===null)syncActivePick();
   calc();
+}
+function toggleAddonOpt(idx,key,tok){
+  const m=currentModules[idx];if(!m)return;
+  if(!m.addons)m.addons={};
+  if(m.addons[key])delete m.addons[key];
+  else m.addons[key]=true;
+  if(tok)m.tok=Object.entries(m.addons).reduce((s,[k])=>{const d=ADDON_DEFS[m.type]?.find(o=>o.key===k);return s+(d?.t||0);},0);
+  recomputeTPV();
+  renderModuleRows(currentModules);
+  if(selectedPackTokens===null)syncActivePick();
+  calc();
+}
+function setAddonUrl(idx,val){
+  const m=currentModules[idx];if(!m)return;
+  m.callbackUrl=val;
 }
 const MOD_LABELS={doc:'Doc IDV',face:'Face IDV',auth:'Auth'};
 function addModule(type){
@@ -536,12 +579,33 @@ function renderModuleRows(modules){
   const core=modules.filter(m=>coreTypes.includes(m.type));
   const addons=modules.filter(m=>!coreTypes.includes(m.type));
   const rowHTML=(m,isAddon)=>{
+    if(!m.addons)m.addons={};
     const meta=TYPE_META[m.type]||TYPE_META.int;
     const rowCls=isAddon?'addon-row':(m.type==='doc'?'core-doc':m.type==='face'||m.type==='auth'?'core-face':'');
     const idx=modules.indexOf(m);
     const opts=!isAddon&&isCustomFlow&&MOD_PRESETS[m.type];
-    const presetHTML=opts?`<select class="module-preset-sel" onchange="changeModulePreset(${idx},this.value)" aria-label="${m.name} preset">${opts.map(o=>`<option value="${o.l}"${o.l===m.preset?' selected':''}>${o.l}</option>`).join('')}</select>`:`<div class="module-preset">${m.preset}</div>`;
+    const presetHTML=opts?`<select class="module-preset-sel" onchange="changeModulePreset(${idx},this.value)" aria-label="${m.name} preset">${opts.map(o=>`<option value="${o.l}"${o.l===m.preset?' selected':''}>${o.l}</option>`).join('')}</select>`:`<div class="module-preset">${m.preset||''}</div>`;
     const rmBtn=isCustomFlow&&!isAddon?`<button class="module-rm" onclick="removeModule(${idx})" aria-label="Remove ${m.name}" title="Remove"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 3l6 6M9 3l-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>`:'';
+    if(isAddon&&ADDON_DEFS[m.type]){
+      const defs=ADDON_DEFS[m.type];
+      const optsHTML=defs.map(o=>{
+        const checked=!!m.addons[o.key];
+        const tokBadge=o.t?`<span class="addon-opt-tok">+${o.t} tok</span>`:'';
+        const chkSvg=`<svg viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5L8.5 2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+        return`<label class="addon-opt"><input type="checkbox"${checked?' checked':''} onchange="toggleAddonOpt(${idx},'${o.key}',${o.t})"><div class="ao-box">${chkSvg}</div><div class="addon-opt-info"><div class="addon-opt-name">${o.l}</div><div class="addon-opt-desc">${o.d}</div></div>${tokBadge}</label>`;
+      }).join('');
+      const urlField=m.type==='int'?`<input class="addon-url" type="url" placeholder="https://yourdomain.com/callback" value="${m.callbackUrl||''}" oninput="setAddonUrl(${idx},this.value)" aria-label="Callback URL">`:'';
+      const tokDisplay=m.tok?`${m.tok} tok`:'—';
+      return`<div class="module-row ${rowCls}" style="align-items:flex-start;padding:12px 14px">
+        <div class="module-icon ${meta.cls}" style="margin-top:2px">${meta.icon()}</div>
+        <div class="module-info" style="flex:1">
+          <div class="module-name">${m.name}</div>
+          ${urlField}
+          <div class="addon-opts">${optsHTML}</div>
+        </div>
+        <span class="module-tok" style="margin-top:2px">${tokDisplay}</span>
+      </div>`;
+    }
     return`<div class="module-row ${rowCls}">
       <div class="module-icon ${meta.cls}">${meta.icon()}</div>
       <div class="module-info"><div class="module-name">${m.name}</div>${presetHTML}</div>
