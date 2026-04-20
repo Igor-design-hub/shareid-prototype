@@ -98,37 +98,43 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 
 .modules-list{display:flex;flex-direction:column;gap:10px}
 .addons-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--t5);margin-top:8px;margin-bottom:2px;padding:0 2px}
-.addon-opts{display:flex;flex-direction:column;gap:4px;margin-top:6px}
-.addon-opt{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;border:1px solid var(--brd-l);background:var(--white);cursor:pointer;transition:border-color .12s,background .12s;user-select:none}
-.addon-opt:has(input:checked){border-color:var(--blue-l);background:var(--blue-bg)}
-.addon-opt input[type=checkbox]{position:absolute;opacity:0;width:0;height:0;pointer-events:none}
+.addon-hd{display:flex;align-items:center;justify-content:space-between;cursor:pointer;gap:8px;border-radius:6px;transition:background .1s}
+.addon-hd:hover{background:var(--bg)}
+.addon-hd-info{display:flex;align-items:center;gap:8px}
+.addon-summary{font-size:11px;color:var(--t5);font-weight:500}
+.addon-summary.has-sel{color:var(--blue)}
+.addon-chev{width:14px;height:14px;color:var(--t5);flex-shrink:0}
+/* Floating addon popup */
+#addonPopup{position:fixed;z-index:9999;background:#fff;border:1px solid var(--brd-l);border-radius:12px;box-shadow:0 8px 28px rgba(0,0,0,.13);min-width:268px;max-width:320px;padding:6px;display:none}
+#addonPopup .addon-opts{display:flex;flex-direction:column;gap:3px}
+.addon-opt{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;border:1px solid transparent;background:transparent;cursor:pointer;transition:border-color .12s,background .12s;user-select:none}
+.addon-opt:hover{background:var(--bg)}
+.addon-opt.on{border-color:var(--blue-l);background:var(--blue-bg)}
 .ao-box{width:16px;height:16px;border-radius:4px;border:1.5px solid var(--brd);background:var(--white);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .12s}
-.addon-opt:has(input:checked) .ao-box{background:var(--blue);border-color:var(--blue)}
+.addon-opt.on .ao-box{background:var(--blue);border-color:var(--blue)}
 .ao-box svg{opacity:0;width:10px;height:10px;color:#fff;transition:opacity .1s}
-.addon-opt:has(input:checked) .ao-box svg{opacity:1}
+.addon-opt.on .ao-box svg{opacity:1}
 .addon-opt-info{flex:1;min-width:0}
 .addon-opt-name{font-size:12px;font-weight:600;color:var(--t2)}
 .addon-opt-desc{font-size:11px;color:var(--t5);margin-top:1px}
 .addon-opt-tok{font-size:11px;font-weight:700;color:var(--t4);white-space:nowrap;flex-shrink:0}
-.addon-opt:has(input:checked) .addon-opt-tok{color:var(--blue)}
-.addon-url{width:100%;margin-top:6px;padding:8px 10px;border-radius:8px;border:1px solid var(--brd-l);font:500 12px/1 Inter,sans-serif;color:var(--t2);background:var(--white);outline:none;transition:border-color .12s,box-shadow .12s}
-.addon-url:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(50,83,209,.10)}
-.addon-url::placeholder{color:var(--t5)}
+.addon-opt.on .addon-opt-tok{color:var(--blue)}
+.addon-popup-url{width:100%;box-sizing:border-box;margin-top:2px;margin-bottom:2px;padding:8px 10px;border-radius:8px;border:1px solid var(--brd-l);font:500 12px/1 Inter,sans-serif;color:var(--t2);background:var(--white);outline:none;transition:border-color .12s,box-shadow .12s}
+.addon-popup-url:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(50,83,209,.10)}
+.addon-popup-url::placeholder{color:var(--t5)}
 .module-row{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:12px;border:1px solid var(--brd-l)}
 .module-row.core-doc{background:var(--white);border-color:var(--brd-l)}
 .module-row.core-face,.module-row.core-auth{background:var(--white);border-color:var(--brd-l)}
 .module-row.addon-row{background:var(--white);border-style:dashed}
 .module-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.mi-doc{background:var(--blue-bg)}
-.mi-face,.mi-auth{background:var(--blue-bg)}
-.mi-ext{background:#f0f2f8}
-.mi-int{background:var(--bg);border:1px solid var(--brd)}
+.mi-doc,.mi-face,.mi-auth,.mi-ext,.mi-int{background:var(--blue-bg)}
 .module-info{flex:1;min-width:0}
 .module-name{font-size:13px;font-weight:700;color:var(--t1)}
 .module-preset{font-size:11px;color:var(--t5);margin-top:1px}
-.module-preset-sel{font-size:11px;color:var(--blue);font-weight:600;margin-top:4px;background:var(--blue-bg);border:1px solid transparent;border-radius:6px;padding:4px 24px 4px 10px;font-family:inherit;cursor:pointer;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10' fill='none'><path d='M2.5 4 5 6.5 7.5 4' stroke='%233253d1' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'/></svg>");background-repeat:no-repeat;background-position:right 8px center;transition:border-color .12s;position:relative}
-.module-preset-sel:hover{border-color:var(--blue)}
-.module-preset-sel:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 2px var(--blue-l)}
+.module-preset-btn{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--blue);font-weight:600;margin-top:4px;background:var(--blue-bg);border:1px solid transparent;border-radius:6px;padding:4px 8px 4px 10px;cursor:pointer;user-select:none;transition:border-color .12s}
+.module-preset-btn:hover{border-color:var(--blue-l)}
+.module-preset-btn svg{flex-shrink:0;color:var(--blue)}
+.module-preset-btn.has-sel{color:var(--blue)}
 .module-tok{font-size:12px;font-weight:700;color:var(--t4);white-space:nowrap}
 .module-rm{margin-left:4px;width:24px;height:24px;border-radius:50%;border:1px solid var(--brd-l);background:var(--white);color:var(--t5);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all .12s;padding:0}
 .module-rm:hover{background:#fef2f2;border-color:#fca5a5;color:#dc2626}
@@ -453,7 +459,7 @@ function eur(n){return '€'+n.toLocaleString('en-US',{minimumFractionDigits:0,m
 function docIcon(){return`<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2.5" y="1.5" width="9" height="12" rx="1.5" stroke="#3253d1" stroke-width="1.3"/><line x1="4.5" y1="5" x2="9.5" y2="5" stroke="#3253d1" stroke-width="1.2" stroke-linecap="round"/><line x1="4.5" y1="7.5" x2="8.5" y2="7.5" stroke="#3253d1" stroke-width="1.2" stroke-linecap="round"/><line x1="4.5" y1="10" x2="9" y2="10" stroke="#3253d1" stroke-width="1.2" stroke-linecap="round"/></svg>`}
 function faceIcon(){return`<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="5.5" stroke="#3253d1" stroke-width="1.3"/><circle cx="6.2" cy="7.2" r="1.1" fill="#3253d1"/><circle cx="9.8" cy="7.2" r="1.1" fill="#3253d1"/><path d="M6 10.2 Q8 11.5 10 10.2" stroke="#3253d1" stroke-width="1.2" stroke-linecap="round" fill="none"/></svg>`}
 function extIcon(){return`<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="4.5" width="9" height="2" rx="1" fill="#3253d1" fill-opacity=".2"/><rect x="11" y="4" width="3" height="3" rx="1.5" fill="#3253d1" fill-opacity=".5"/><rect x="2" y="9.5" width="6" height="2" rx="1" fill="#3253d1" fill-opacity=".15"/><rect x="9" y="9" width="5" height="3" rx="1.5" fill="#3253d1" fill-opacity=".3"/></svg>`}
-function intIcon(){return`<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M5 4L3 8l2 4M11 4l2 4-2 4" stroke="#606880" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="8" cy="8" r="1.2" fill="#606880" fill-opacity=".4"/></svg>`}
+function intIcon(){return`<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M5 4L3 8l2 4M11 4l2 4-2 4" stroke="#3253d1" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="8" cy="8" r="1.2" fill="#3253d1" fill-opacity=".5"/></svg>`}
 function authIcon(){return`<svg width="16" height="16" viewBox="0 0 18 18" fill="none"><path d="M9 1.8 2.8 4v4.2c0 3.6 2.5 6.6 6.2 8 3.7-1.4 6.2-4.4 6.2-8V4L9 1.8Z" stroke="#3253d1" stroke-width="1.3" stroke-linejoin="round" fill="#3253d1" fill-opacity=".06"/><path d="m6.3 9 2 2 3.6-3.8" stroke="#3253d1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`}
 
 const TYPE_META={
@@ -512,16 +518,86 @@ function changeModulePreset(idx,label){
   if(selectedPackTokens===null)syncActivePick();
   calc();
 }
+/* ── PRESET POPUP (single-select, white) ── */
+let _presetPopupIdx=null;
+function openPresetPopup(idx,event){
+  event.stopPropagation();
+  const popup=document.getElementById('presetPopup');
+  if(_presetPopupIdx===idx){closePresetPopup();return;}
+  closeAddonPopup();
+  _presetPopupIdx=idx;
+  const m=currentModules[idx];
+  const opts=MOD_PRESETS[m.type]||[];
+  const chkSvg=`<svg viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5L8.5 2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  popup.innerHTML=`<div class="addon-opts">${opts.map(o=>{
+    const on=o.l===m.preset;
+    return`<div class="addon-opt${on?' on':''}" onclick="event.stopPropagation();applyModulePreset(${idx},'${o.l}')"><div class="ao-box">${chkSvg}</div><div class="addon-opt-info"><div class="addon-opt-name">${o.l}</div></div><span class="addon-opt-tok" style="${on?'':'opacity:0'}">${o.t} tok</span></div>`;
+  }).join('')}</div>`;
+  popup.style.display='block';
+  const btn=event.currentTarget;
+  const rect=btn.getBoundingClientRect();
+  let left=rect.left;
+  if(left+240>window.innerWidth-12)left=window.innerWidth-252;
+  popup.style.left=left+'px';
+  popup.style.top=(rect.bottom+4)+'px';
+}
+function applyModulePreset(idx,val){
+  changeModulePreset(idx,val);
+  closePresetPopup();
+}
+function closePresetPopup(){
+  _presetPopupIdx=null;
+  const popup=document.getElementById('presetPopup');
+  if(popup)popup.style.display='none';
+}
+/* ── ADDON POPUP (multi-select, white) ── */
+let _popupIdx=null;
+function buildAddonPopupHTML(idx){
+  const m=currentModules[idx];if(!m)return'';
+  const defs=ADDON_DEFS[m.type]||[];
+  const chkSvg=`<svg viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5L8.5 2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  const optsHTML=defs.map(o=>{
+    const on=!!(m.addons||{})[o.key];
+    const tokBadge=o.t?`<span class="addon-opt-tok">+${o.t} tok</span>`:'';
+    return`<div class="addon-opt${on?' on':''}" onclick="event.stopPropagation();toggleAddonOpt(${idx},'${o.key}',${o.t})"><div class="ao-box">${chkSvg}</div><div class="addon-opt-info"><div class="addon-opt-name">${o.l}</div><div class="addon-opt-desc">${o.d}</div></div>${tokBadge}</div>`;
+  }).join('');
+  const urlField=m.type==='int'?`<input class="addon-popup-url" type="url" placeholder="https://yourdomain.com/callback" value="${m.callbackUrl||''}" oninput="event.stopPropagation();setAddonUrl(${idx},this.value)" aria-label="Callback URL">`:'';
+  return`<div class="addon-opts">${optsHTML}</div>${urlField}`;
+}
+function openAddonPopup(idx,event){
+  event.stopPropagation();
+  const popup=document.getElementById('addonPopup');
+  if(_popupIdx===idx){closeAddonPopup();return;}
+  closePresetPopup();
+  _popupIdx=idx;
+  popup.innerHTML=buildAddonPopupHTML(idx);
+  popup.style.display='block';
+  const btn=event.currentTarget;
+  const rect=btn.getBoundingClientRect();
+  let left=rect.left;
+  if(left+280>window.innerWidth-12)left=window.innerWidth-292;
+  popup.style.left=left+'px';
+  popup.style.top=(rect.bottom+4)+'px';
+}
+function closeAddonPopup(){
+  _popupIdx=null;
+  const popup=document.getElementById('addonPopup');
+  if(popup)popup.style.display='none';
+}
 function toggleAddonOpt(idx,key,tok){
   const m=currentModules[idx];if(!m)return;
   if(!m.addons)m.addons={};
   if(m.addons[key])delete m.addons[key];
   else m.addons[key]=true;
-  if(tok)m.tok=Object.entries(m.addons).reduce((s,[k])=>{const d=ADDON_DEFS[m.type]?.find(o=>o.key===k);return s+(d?.t||0);},0);
+  m.tok=Object.entries(m.addons).reduce((s,[k])=>{const d=ADDON_DEFS[m.type]?.find(o=>o.key===k);return s+(d?.t||0);},0);
   recomputeTPV();
   renderModuleRows(currentModules);
   if(selectedPackTokens===null)syncActivePick();
   calc();
+  if(_popupIdx===idx){
+    const popup=document.getElementById('addonPopup');
+    if(popup)popup.innerHTML=buildAddonPopupHTML(idx);
+  }
 }
 function setAddonUrl(idx,val){
   const m=currentModules[idx];if(!m)return;
@@ -583,27 +659,23 @@ function renderModuleRows(modules){
     const meta=TYPE_META[m.type]||TYPE_META.int;
     const rowCls=isAddon?'addon-row':(m.type==='doc'?'core-doc':m.type==='face'||m.type==='auth'?'core-face':'');
     const idx=modules.indexOf(m);
+    const chevDown=`<svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2.5 4 5 6.5 7.5 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
     const opts=!isAddon&&isCustomFlow&&MOD_PRESETS[m.type];
-    const presetHTML=opts?`<select class="module-preset-sel" onchange="changeModulePreset(${idx},this.value)" aria-label="${m.name} preset">${opts.map(o=>`<option value="${o.l}"${o.l===m.preset?' selected':''}>${o.l}</option>`).join('')}</select>`:`<div class="module-preset">${m.preset||''}</div>`;
+    const presetHTML=opts
+      ?`<div class="module-preset-btn" onclick="event.stopPropagation();openPresetPopup(${idx},event)">${m.preset||''}${chevDown}</div>`
+      :`<div class="module-preset">${m.preset||''}</div>`;
     const rmBtn=isCustomFlow&&!isAddon?`<button class="module-rm" onclick="removeModule(${idx})" aria-label="Remove ${m.name}" title="Remove"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 3l6 6M9 3l-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>`:'';
     if(isAddon&&ADDON_DEFS[m.type]){
-      const defs=ADDON_DEFS[m.type];
-      const optsHTML=defs.map(o=>{
-        const checked=!!m.addons[o.key];
-        const tokBadge=o.t?`<span class="addon-opt-tok">+${o.t} tok</span>`:'';
-        const chkSvg=`<svg viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5L8.5 2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-        return`<label class="addon-opt"><input type="checkbox"${checked?' checked':''} onchange="toggleAddonOpt(${idx},'${o.key}',${o.t})"><div class="ao-box">${chkSvg}</div><div class="addon-opt-info"><div class="addon-opt-name">${o.l}</div><div class="addon-opt-desc">${o.d}</div></div>${tokBadge}</label>`;
-      }).join('');
-      const urlField=m.type==='int'?`<input class="addon-url" type="url" placeholder="https://yourdomain.com/callback" value="${m.callbackUrl||''}" oninput="setAddonUrl(${idx},this.value)" aria-label="Callback URL">`:'';
+      const selCount=Object.keys(m.addons).filter(k=>m.addons[k]).length;
+      const summary=selCount?`${selCount} selected`:'Not configured';
       const tokDisplay=m.tok?`${m.tok} tok`:'—';
-      return`<div class="module-row ${rowCls}" style="align-items:flex-start;padding:12px 14px">
-        <div class="module-icon ${meta.cls}" style="margin-top:2px">${meta.icon()}</div>
-        <div class="module-info" style="flex:1">
+      return`<div class="module-row ${rowCls}">
+        <div class="module-icon ${meta.cls}">${meta.icon()}</div>
+        <div class="module-info">
           <div class="module-name">${m.name}</div>
-          ${urlField}
-          <div class="addon-opts">${optsHTML}</div>
+          <div class="module-preset-btn${selCount?' has-sel':''}" onclick="openAddonPopup(${idx},event)">${summary}${chevDown}</div>
         </div>
-        <span class="module-tok" style="margin-top:2px">${tokDisplay}</span>
+        <span class="module-tok">${tokDisplay}</span>
       </div>`;
     }
     return`<div class="module-row ${rowCls}">
@@ -757,6 +829,12 @@ function toggleBd(){
 
 renderQuickPicks();
 initPlans();
+document.addEventListener('click',function(e){
+  if(!e.target.closest('#addonPopup')&&!e.target.closest('.module-preset-btn'))closeAddonPopup();
+  if(!e.target.closest('#presetPopup')&&!e.target.closest('.module-preset-btn'))closePresetPopup();
+});
 </script>
+<div id="addonPopup"></div>
+<div id="presetPopup" style="position:fixed;z-index:9999;background:#fff;border:1px solid var(--brd-l);border-radius:12px;box-shadow:0 8px 28px rgba(0,0,0,.13);min-width:200px;max-width:280px;padding:6px;display:none"></div>
 </body>
 </html>
