@@ -164,8 +164,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .qp{padding:6px 14px;border-radius:8px;border:1px solid var(--brd);font-size:12px;font-weight:600;color:var(--t4);background:var(--white);cursor:pointer;transition:all .12s}
 .qp:hover{border-color:var(--blue);color:var(--blue);transform:translateY(-1px)}
 .qp.on{border-color:var(--blue);color:var(--blue);background:var(--blue-bg)}
-.qp.on{animation:qpPop .3s cubic-bezier(.3,1.4,.4,1)}
-@keyframes qpPop{0%{transform:scale(1)}50%{transform:scale(1.08)}100%{transform:scale(1)}}
+.qp.on{}
 
 /* Volume slider */
 .vol-slider-wrap{margin-top:18px;padding:0 2px}
@@ -196,7 +195,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .empty-state p{font-size:13px;color:var(--t5);line-height:1.6}
 
 .result{display:none;flex-direction:column;gap:14px}
-.result.show{display:flex;animation:fadeUp .25s ease}
+.result.show{display:flex}
 
 /* Price hero */
 .price-hero{background:#1f3bb8;border-radius:14px;padding:32px 28px;color:var(--white);box-shadow:0 10px 30px rgba(31,59,184,.3),0 2px 8px rgba(31,59,184,.18);position:relative;overflow:hidden;isolation:isolate}
@@ -515,8 +514,6 @@ function changeModulePreset(idx,label){
   m.preset=pick.l;m.tok=pick.t;
   recomputeTPV();syncCustomFlow();
   renderModuleRows(currentModules);
-  if(selectedPackTokens===null)syncActivePick();
-  calc();
 }
 /* ── PRESET POPUP (single-select, white) ── */
 let _presetPopupIdx=null;
@@ -592,8 +589,6 @@ function toggleAddonOpt(idx,key,tok){
   m.tok=Object.entries(m.addons).reduce((s,[k])=>{const d=ADDON_DEFS[m.type]?.find(o=>o.key===k);return s+(d?.t||0);},0);
   recomputeTPV();
   renderModuleRows(currentModules);
-  if(selectedPackTokens===null)syncActivePick();
-  calc();
   if(_popupIdx===idx){
     const popup=document.getElementById('addonPopup');
     if(popup)popup.innerHTML=buildAddonPopupHTML(idx);
@@ -611,16 +606,12 @@ function addModule(type){
   currentModules.push({type,name:MOD_LABELS[type],preset:def.l,tok:def.t});
   recomputeTPV();syncCustomFlow();
   renderModuleRows(currentModules);
-  if(selectedPackTokens===null)syncActivePick();
-  calc();
 }
 function removeModule(idx){
   if(!currentModules[idx])return;
   currentModules.splice(idx,1);
   recomputeTPV();syncCustomFlow();
   renderModuleRows(currentModules);
-  if(selectedPackTokens===null)syncActivePick();
-  calc();
   // If flow became empty, switch to "no custom flow" state so Build-your-own appears
   if(currentModules.length===0&&currentCustomKey){
     customFlows[currentCustomKey]=null;
@@ -698,8 +689,9 @@ function renderModuleRows(modules){
   if(selectedPackTokens!==null){
     volume=Math.floor(selectedPackTokens/TPV);
     document.getElementById('volInput').value=volume.toLocaleString('en-US');
-    syncActivePick();calc();
   }
+  syncActivePick();
+  calc();
 }
 
 /* ── PRESET PICKER ── */
