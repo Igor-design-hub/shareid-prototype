@@ -31,13 +31,9 @@ export default function App() {
   const [testModal, setTestModal]           = useState(null); // workflowId or 'current'
   const [integrateModal, setIntegrateModal] = useState(null);
 
-  // On mount: restore active workspace
+  // Always start from dashboard
   useEffect(() => {
-    const aid = localStorage.getItem('shareid_active_workspace');
-    if (aid) {
-      const list = JSON.parse(localStorage.getItem('shareid_workspaces') || '[]');
-      if (list.find((w) => w.id === aid)) { loadWorkflow(aid); setPage('builder'); return; }
-    }
+    localStorage.removeItem('shareid_active_workspace');
     setPage('dashboard');
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
