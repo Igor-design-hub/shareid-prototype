@@ -107,7 +107,7 @@ export default function TemplatesPanel() {
         </div>
 
         {/* Footer */}
-        {!confirmTpl && obPipeline.length > 0 && (
+        {!confirmTpl && (
           <div className="tpl-panel-footer">
             {savedOk ? (
               <div className="tpl-saved-ok">
@@ -115,7 +115,11 @@ export default function TemplatesPanel() {
                 Template saved
               </div>
             ) : (
-              <button className="tpl-save-btn" onClick={() => { setSavingName(''); setShowSaveModal(true); }}>
+              <button
+                className="tpl-save-btn"
+                disabled={obPipeline.length === 0}
+                onClick={() => { setSavingName(''); setShowSaveModal(true); }}
+              >
                 + Save current as template
               </button>
             )}

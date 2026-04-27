@@ -38,18 +38,6 @@ export default function Sidenav() {
             >
               My flows
             </button>
-            <button
-              className={`side-sub${page === 'demo' ? ' active' : ''}`}
-              onClick={() => setPage('demo')}
-            >
-              Product demo
-            </button>
-            <button
-              className={`side-sub${page === 'developer' ? ' active' : ''}`}
-              onClick={() => setPage('developer')}
-            >
-              Developer
-            </button>
           </div>
         )}
 

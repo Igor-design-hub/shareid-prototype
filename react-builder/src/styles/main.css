@@ -478,7 +478,8 @@ input:focus-visible,textarea:focus-visible,select:focus-visible{outline:none!imp
 .tpl-panel-empty{font-size:12px;color:var(--t5);padding:4px 10px 8px}
 .tpl-panel-footer{padding:10px 8px;border-top:1px solid var(--brd-l);flex-shrink:0}
 .tpl-save-btn{width:100%;padding:8px 10px;border-radius:8px;border:1.5px solid var(--brd-l);background:var(--white);font-size:12px;font-weight:600;color:var(--t3);cursor:pointer;transition:all .12s;text-align:left}
-.tpl-save-btn:hover{border-color:var(--blue);color:var(--blue)}
+.tpl-save-btn:hover:not(:disabled){border-color:var(--blue);color:var(--blue)}
+.tpl-save-btn:disabled{opacity:.38;cursor:not-allowed}
 .tpl-save-input-row{display:flex;gap:6px}
 .tpl-save-input{flex:1;padding:7px 10px;border-radius:8px;border:1.5px solid var(--blue);background:var(--white);font-size:12px;font-weight:500;color:var(--t1);outline:none}
 .tpl-save-confirm{padding:7px 12px;border-radius:8px;border:none;background:var(--blue);color:#fff;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap}
