@@ -212,6 +212,36 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;color:var(-
 .toast button:hover{background:rgba(255,255,255,.08)}
 
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+/* Demo/Developer view */
+.card-test-btn{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:8px;border:1.5px solid var(--brd-l);background:var(--white);font-size:12px;font-weight:600;color:var(--t2);cursor:pointer;font-family:inherit;transition:all .12s;margin-top:8px}
+.card-test-btn:hover{border-color:var(--blue);color:var(--blue)}
+.card-test-btn svg{width:12px;height:12px}
+.card-code-btn{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:8px;border:1.5px solid var(--brd-l);background:var(--white);font-size:12px;font-weight:600;color:var(--t2);cursor:pointer;font-family:inherit;transition:all .12s;margin-top:8px}
+.card-code-btn:hover{border-color:var(--blue);color:var(--blue)}
+.card-code-btn svg{width:12px;height:12px}
+
+/* Test/Integrate modal styles */
+.test-modal-overlay{position:fixed;inset:0;background:rgba(12,15,26,.4);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;z-index:300;padding:20px}
+.test-modal-overlay.open{display:flex}
+.test-modal-box{background:var(--white);border-radius:16px;padding:28px;width:100%;max-width:440px;box-shadow:0 24px 64px rgba(0,0,0,.2);max-height:90vh;overflow-y:auto}
+.int-modal-box{max-width:560px}
+.test-modal-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.test-modal-t{font-size:17px;font-weight:700;color:var(--t1);letter-spacing:-.01em}
+.test-modal-x{width:28px;height:28px;border-radius:7px;border:1.5px solid var(--brd-l);background:var(--white);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--t4)}
+.test-modal-x:hover{background:var(--bg)}
+.dev-tabs{display:flex;gap:4px;background:var(--bg);border-radius:9px;padding:4px;margin-bottom:20px}
+.dev-tab{flex:1;padding:7px;border-radius:6px;border:none;font-size:12px;font-weight:600;color:var(--t4);cursor:pointer;font-family:inherit;transition:all .12s;background:none}
+.dev-tab.on{background:var(--white);color:var(--t1);box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.qr-box{display:flex;flex-direction:column;align-items:center;gap:12px;padding:24px;background:var(--bg);border-radius:12px;border:1.5px solid var(--brd-l)}
+.mobile-section{display:flex;flex-direction:column;gap:12px}
+.mobile-card{padding:16px;background:var(--bg);border-radius:12px;border:1.5px solid var(--brd-l)}
+.mobile-card-title{font-size:13px;font-weight:700;color:var(--t1);margin-bottom:6px}
+.mobile-card-desc{font-size:12px;color:var(--t4);line-height:1.5;margin-bottom:12px}
+.int-code-block{background:#0f1320;border-radius:10px;padding:14px 16px;overflow-x:auto;font:500 11.5px/1.6 ui-monospace,SFMono-Regular,Menlo,monospace;color:#d7dcea;white-space:pre;margin-top:10px;max-height:260px;overflow-y:auto}
+.int-code-block::-webkit-scrollbar{width:6px;height:6px}
+.int-code-block::-webkit-scrollbar-thumb{background:#2a2f45;border-radius:3px}
+.modal-act-row{display:flex;gap:10px;justify-content:flex-end;margin-top:16px}
 </style>
 </head>
 <body>
@@ -235,8 +265,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;color:var(-
       <svg class="chev" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M4 9l3-3 3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </button>
     <div class="side-group-body" id="grpWf" aria-hidden="false">
-      <a class="side-sub active" href="workspace.html" aria-current="page">My flows</a>
-      <a class="side-sub" href="plans.html">Pricing</a>
+      <a class="side-sub" href="workspace.html" id="sideMyFlows">My flows</a>
     </div>
     <a class="side-item disabled" href="#" aria-disabled="true">
       <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 13V7m3 6V4m3 9v-6m3 6V3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
@@ -256,9 +285,13 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;color:var(-
       <span>Manage Users</span>
     </a>
     <div class="side-sep" aria-hidden="true"></div>
-    <a class="side-item disabled" href="#" aria-disabled="true">
+    <a class="side-item" href="workspace.html?view=demo" id="sideDemo">
       <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="2.5" y="3" width="11" height="8" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M5.5 13h5M7 11v2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><polygon points="7,5.8 10,7.3 7,8.8" fill="currentColor"/></svg>
       <span>Product demo</span>
+    </a>
+    <a class="side-item" href="workspace.html?view=developer" id="sideDev">
+      <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M5 3L1 8l4 5M11 3l4 5-4 5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span>Developer</span>
     </a>
     <a class="side-item disabled" href="#" aria-disabled="true">
       <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="2" y="4" width="12" height="9" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M5.5 4V2.5h5V4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="8" cy="8.5" r="2" stroke="currentColor" stroke-width="1.3"/></svg>
@@ -288,7 +321,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;color:var(-
 <div class="main">
 
 <header class="topbar">
-  <span class="tb-page-title">Workflows</span>
+  <span class="tb-page-title" id="topbarTitle">Workflows</span>
   <div class="tb-actions">
     <span class="tb-meta">Workspace</span>
   </div>
@@ -391,6 +424,38 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;color:var(-
   </div>
 </div>
 
+<!-- Test Modal -->
+<div class="test-modal-overlay" id="wsTestModal" role="dialog" aria-modal="true" aria-labelledby="wsTestTitle">
+  <div class="test-modal-box">
+    <div class="test-modal-hd">
+      <div class="test-modal-t" id="wsTestTitle">Test your flow</div>
+      <button class="test-modal-x" onclick="closeWsTestModal()" aria-label="Close"><svg viewBox="0 0 10 10" fill="none"><path d="M2 2l6 6M8 2l-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
+    </div>
+    <div class="dev-tabs">
+      <button class="dev-tab on" id="wsDevTabWeb" onclick="switchWsTestDevice('web')">Web</button>
+      <button class="dev-tab" id="wsDevTabIos" onclick="switchWsTestDevice('ios')">iOS</button>
+      <button class="dev-tab" id="wsDevTabAndroid" onclick="switchWsTestDevice('android')">Android</button>
+    </div>
+    <div id="wsTestContent"></div>
+  </div>
+</div>
+
+<!-- Integrate Modal -->
+<div class="test-modal-overlay" id="wsIntegrateModal" role="dialog" aria-modal="true" aria-labelledby="wsIntTitle">
+  <div class="test-modal-box int-modal-box">
+    <div class="test-modal-hd">
+      <div class="test-modal-t" id="wsIntTitle">Integrate your flow</div>
+      <button class="test-modal-x" onclick="closeWsIntegrateModal()" aria-label="Close"><svg viewBox="0 0 10 10" fill="none"><path d="M2 2l6 6M8 2l-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
+    </div>
+    <div class="dev-tabs">
+      <button class="dev-tab on" id="wsIntTabWeb" onclick="switchWsIntPlatform('web')">Web</button>
+      <button class="dev-tab" id="wsIntTabIos" onclick="switchWsIntPlatform('ios')">iOS</button>
+      <button class="dev-tab" id="wsIntTabAndroid" onclick="switchWsIntPlatform('android')">Android</button>
+    </div>
+    <div id="wsIntContent"></div>
+  </div>
+</div>
+
 <!-- Toast -->
 <div class="toast" id="toast" role="status" aria-live="polite">
   <span id="toastMsg"></span>
@@ -400,6 +465,9 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;color:var(-
 <div id="a11y-live" aria-live="polite" class="sr-only"></div>
 
 <script>
+/* ─── View state ─── */
+const currentView = new URLSearchParams(location.search).get('view') || 'workflows';
+
 /* ─── Sidebar group toggle ─── */
 function toggleGroup(btn){
   const expanded=btn.getAttribute('aria-expanded')==='true';
@@ -652,6 +720,14 @@ function copyApi(){
 }
 
 function render(){
+  // Update sidebar active states and page title based on view
+  updateSidebarActiveState();
+  updatePageHeader();
+
+  if(currentView === 'demo') { renderDemoView(); return; }
+  if(currentView === 'developer') { renderDevView(); return; }
+
+  // Default: workflows view
   const arr=filterSort();
   const sub=$('pageSub');
   const total=workspaces.length;
@@ -693,6 +769,284 @@ function render(){
     if(inp){inp.focus();inp.select();}
   }
   initDrag();
+}
+
+function updateSidebarActiveState(){
+  // My flows
+  const myFlows=$('sideMyFlows');
+  if(myFlows){
+    myFlows.classList.toggle('active', currentView==='workflows');
+    if(currentView==='workflows') myFlows.setAttribute('aria-current','page');
+    else myFlows.removeAttribute('aria-current');
+  }
+  // Demo
+  const demoItem=$('sideDemo');
+  if(demoItem) demoItem.classList.toggle('active', currentView==='demo');
+  // Developer
+  const devItem=$('sideDev');
+  if(devItem) devItem.classList.toggle('active', currentView==='developer');
+}
+
+function updatePageHeader(){
+  const titleBar=$('topbarTitle');
+  const h1=document.querySelector('.page-title');
+  const sub=$('pageSub');
+  if(currentView==='demo'){
+    if(titleBar) titleBar.textContent='Demo';
+    if(h1) h1.textContent='Demo';
+    if(sub) sub.textContent='Test your workflows';
+  } else if(currentView==='developer'){
+    if(titleBar) titleBar.textContent='Developer';
+    if(h1) h1.textContent='Developer';
+    if(sub) sub.textContent='Integration code for your workflows';
+  } else {
+    if(titleBar) titleBar.textContent='Workflows';
+    if(h1) h1.textContent='Workflows';
+  }
+  // Show/hide new workflow button
+  const newBtn=document.querySelector('.btn.primary[onclick="createWorkspace()"]');
+  if(newBtn) newBtn.style.display=(currentView==='workflows'?'':'none');
+  // Show/hide toolbar
+  const toolbar=document.querySelector('.toolbar');
+  if(toolbar) toolbar.style.display=(currentView==='workflows'?'':'none');
+}
+
+function renderDemoView(){
+  const c=$('content');
+  const sub=$('pageSub');
+  const arr=workspaces.slice();
+  arr.sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0));
+  if(sub) sub.textContent=arr.length?`${arr.length} workflow${arr.length>1?'s':''}`:' ';
+  if(!arr.length){
+    c.innerHTML=`<div class="empty">
+      <div class="empty-icon"><svg viewBox="0 0 56 48" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="1" y="8" width="18" height="14" rx="4" stroke-dasharray="3 3"/><rect x="19" y="8" width="18" height="14" rx="4" stroke-dasharray="3 3"/><rect x="37" y="8" width="18" height="14" rx="4" stroke-dasharray="3 3"/><path d="M10 22v8c0 2 1 3 3 3h30c2 0 3-1 3-3v-8" stroke-linecap="round"/><path d="M28 33v8M22 41h12" stroke-linecap="round"/></svg></div>
+      <h2>No workflows yet</h2>
+      <p>Create a workflow first, then test it here.</p>
+      <a class="btn primary" href="workspace.html">Go to Workflows</a>
+    </div>`;
+    return;
+  }
+  let html='<div class="grid">';
+  arr.forEach(w=>{
+    const updated=relTime(w.updatedAt);
+    const flowType=w.flowType||(w.flows?.auth?.pipeline?.length&&!w.flows?.onboarding?.pipeline?.length?'auth':'onboarding');
+    const badgeLabel=flowType==='auth'?'Authentication':'Onboarding';
+    const pipe=[...(w.flows?.onboarding?.pipeline||[]),...(w.flows?.auth?.pipeline||[])];
+    const names=pipe.map(st=>MOD_NAMES[st.type]||st.type).join(' · ');
+    const modsHtml=names
+      ?`<div class="c-mods-line"><span class="c-mods-names">${escapeHtml(names)}</span></div>`
+      :`<div class="c-empty-hint">Empty flow</div>`;
+    html+=`<div class="card" tabindex="0" role="article" style="cursor:default">
+      <div class="c-top">
+        <span class="c-badge${flowType==='auth'?' auth':''}">${badgeLabel}</span>
+      </div>
+      <h3 class="c-title">${escapeHtml(w.name||'Untitled')}</h3>
+      ${modsHtml}
+      <div class="c-footer" style="flex-direction:column;align-items:flex-start;gap:8px">
+        <button class="card-test-btn" onclick="openWsTestModal('${w.id}')">
+          <svg viewBox="0 0 16 16" fill="none"><polygon points="4,3 13,8 4,13" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" fill="none"/></svg>
+          Test
+        </button>
+        <span class="c-updated">${escapeHtml(updated)}</span>
+      </div>
+    </div>`;
+  });
+  html+='</div>';
+  c.innerHTML=html;
+}
+
+function renderDevView(){
+  const c=$('content');
+  const sub=$('pageSub');
+  const arr=workspaces.slice();
+  arr.sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0));
+  if(sub) sub.textContent=arr.length?`${arr.length} workflow${arr.length>1?'s':''}`:' ';
+  if(!arr.length){
+    c.innerHTML=`<div class="empty">
+      <div class="empty-icon"><svg viewBox="0 0 56 48" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="1" y="8" width="18" height="14" rx="4" stroke-dasharray="3 3"/><rect x="19" y="8" width="18" height="14" rx="4" stroke-dasharray="3 3"/><rect x="37" y="8" width="18" height="14" rx="4" stroke-dasharray="3 3"/><path d="M10 22v8c0 2 1 3 3 3h30c2 0 3-1 3-3v-8" stroke-linecap="round"/><path d="M28 33v8M22 41h12" stroke-linecap="round"/></svg></div>
+      <h2>No workflows yet</h2>
+      <p>Create a workflow first to get integration code.</p>
+      <a class="btn primary" href="workspace.html">Go to Workflows</a>
+    </div>`;
+    return;
+  }
+  let html='<div class="grid">';
+  arr.forEach(w=>{
+    const updated=relTime(w.updatedAt);
+    const flowType=w.flowType||(w.flows?.auth?.pipeline?.length&&!w.flows?.onboarding?.pipeline?.length?'auth':'onboarding');
+    const badgeLabel=flowType==='auth'?'Authentication':'Onboarding';
+    const pipe=[...(w.flows?.onboarding?.pipeline||[]),...(w.flows?.auth?.pipeline||[])];
+    const names=pipe.map(st=>MOD_NAMES[st.type]||st.type).join(' · ');
+    const modsHtml=names
+      ?`<div class="c-mods-line"><span class="c-mods-names">${escapeHtml(names)}</span></div>`
+      :`<div class="c-empty-hint">Empty flow</div>`;
+    html+=`<div class="card" tabindex="0" role="article" style="cursor:default">
+      <div class="c-top">
+        <span class="c-badge${flowType==='auth'?' auth':''}">${badgeLabel}</span>
+      </div>
+      <h3 class="c-title">${escapeHtml(w.name||'Untitled')}</h3>
+      ${modsHtml}
+      <div class="c-footer" style="flex-direction:column;align-items:flex-start;gap:8px">
+        <button class="card-code-btn" onclick="openWsIntegrateModal('${w.id}')">
+          <svg viewBox="0 0 16 16" fill="none"><path d="M5 3L1 8l4 5M11 3l4 5-4 5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          View integration code
+        </button>
+        <span class="c-updated">${escapeHtml(updated)}</span>
+      </div>
+    </div>`;
+  });
+  html+='</div>';
+  c.innerHTML=html;
+}
+
+/* ─── Workspace Test/Integrate modals ─── */
+let _wsTestDevice='web';
+let _wsIntPlatform='web';
+let _wsModalWorkspaceId=null;
+
+function openWsTestModal(wid){
+  _wsModalWorkspaceId=wid||null;
+  _wsTestDevice='web';
+  renderWsTestModal();
+  $('wsTestModal').classList.add('open');
+}
+function closeWsTestModal(){ $('wsTestModal').classList.remove('open'); }
+function switchWsTestDevice(d){
+  _wsTestDevice=d;
+  ['web','ios','android'].forEach(x=>{
+    const tab=$('wsDevTab'+x.charAt(0).toUpperCase()+x.slice(1));
+    if(tab) tab.classList.toggle('on',x===d);
+  });
+  renderWsTestModal();
+}
+function renderWsTestModal(){
+  const el=$('wsTestContent');
+  if(!el) return;
+  ['web','ios','android'].forEach(x=>{
+    const tab=$('wsDevTab'+x.charAt(0).toUpperCase()+x.slice(1));
+    if(tab) tab.classList.toggle('on',x===_wsTestDevice);
+  });
+  if(_wsTestDevice==='web'){
+    el.innerHTML=`
+      <div class="qr-box">
+        <svg style="width:80px;height:80px;opacity:.25" viewBox="0 0 80 80" fill="none">
+          <rect x="4" y="4" width="28" height="28" rx="3" stroke="currentColor" stroke-width="3"/>
+          <rect x="10" y="10" width="16" height="16" rx="1" fill="currentColor"/>
+          <rect x="48" y="4" width="28" height="28" rx="3" stroke="currentColor" stroke-width="3"/>
+          <rect x="54" y="10" width="16" height="16" rx="1" fill="currentColor"/>
+          <rect x="4" y="48" width="28" height="28" rx="3" stroke="currentColor" stroke-width="3"/>
+          <rect x="10" y="54" width="16" height="16" rx="1" fill="currentColor"/>
+          <rect x="48" y="48" width="8" height="8" rx="1" fill="currentColor"/>
+          <rect x="62" y="48" width="8" height="8" rx="1" fill="currentColor"/>
+          <rect x="48" y="62" width="8" height="8" rx="1" fill="currentColor"/>
+          <rect x="62" y="62" width="8" height="8" rx="1" fill="currentColor"/>
+        </svg>
+        <div style="font-size:13px;font-weight:600;color:var(--t2);text-align:center">Scan to open the SDK in your browser</div>
+        <div style="font-size:11px;color:var(--t5);text-align:center">Use your camera to scan this code</div>
+      </div>
+      <div class="modal-act-row">
+        <button class="btn" onclick="navigator.clipboard.writeText(location.href).then(()=>{this.textContent='Copied!';setTimeout(()=>this.textContent='Copy link',1400)})">Copy link</button>
+      </div>`;
+  } else {
+    el.innerHTML=`
+      <div class="mobile-section">
+        <div class="mobile-card">
+          <div class="mobile-card-title">Already have the Pilote app?</div>
+          <div class="mobile-card-desc">Open the app and refresh your profile to load the updated flow.</div>
+          <button class="btn" style="width:100%">Open app and refresh profile</button>
+        </div>
+        <div class="mobile-card">
+          <div class="mobile-card-title">Don't have it yet?</div>
+          <div class="mobile-card-desc">Use your professional email to connect. You should have received your login and password by text message or email.</div>
+          <button class="btn" style="width:100%">Download Pilote app</button>
+        </div>
+      </div>`;
+  }
+}
+
+function openWsIntegrateModal(wid){
+  _wsModalWorkspaceId=wid||null;
+  _wsIntPlatform='web';
+  renderWsIntegrateModal();
+  $('wsIntegrateModal').classList.add('open');
+}
+function closeWsIntegrateModal(){ $('wsIntegrateModal').classList.remove('open'); }
+function switchWsIntPlatform(p){
+  _wsIntPlatform=p;
+  ['web','ios','android'].forEach(x=>{
+    const tab=$('wsIntTab'+x.charAt(0).toUpperCase()+x.slice(1));
+    if(tab) tab.classList.toggle('on',x===p);
+  });
+  renderWsIntegrateModal();
+}
+function renderWsIntegrateModal(){
+  const el=$('wsIntContent');
+  if(!el) return;
+  ['web','ios','android'].forEach(x=>{
+    const tab=$('wsIntTab'+x.charAt(0).toUpperCase()+x.slice(1));
+    if(tab) tab.classList.toggle('on',x===_wsIntPlatform);
+  });
+  // Build API config for selected workspace
+  const w=_wsModalWorkspaceId?workspaces.find(x=>x.id===_wsModalWorkspaceId):null;
+  const cfg=w?buildApiJson(w):{credentials:{business_hash:'YOUR_HASH',api_key:'YOUR_KEY'},levels:{},options:{callback:{urls:['https://yourdomain.com/shareid/callback']}}};
+  const tokenJson=JSON.stringify({credentials:cfg.credentials},null,2);
+  let sdkCode='';
+  if(_wsIntPlatform==='web'){
+    sdkCode=`import { ShareIDSDK } from '@shareid/sdk-web';
+
+const sdk = new ShareIDSDK({
+  apiKey: 'YOUR_KEY',
+  businessHash: 'YOUR_HASH',
+  onSuccess: (result) => console.log('Verified', result),
+  onError: (err) => console.error('Error', err),
+});
+
+sdk.start();`;
+  } else if(_wsIntPlatform==='ios'){
+    sdkCode=`import ShareIDSDK
+
+let config = ShareIDConfig(
+    apiKey: "YOUR_KEY",
+    businessHash: "YOUR_HASH"
+)
+
+let sdk = ShareIDSDK(config: config)
+sdk.start(from: self) { result in
+    switch result {
+    case .success(let data): print("Verified:", data)
+    case .failure(let error): print("Error:", error)
+    }
+}`;
+  } else {
+    sdkCode=`import com.shareid.sdk.ShareIDSDK
+import com.shareid.sdk.ShareIDConfig
+
+val config = ShareIDConfig(
+    apiKey = "YOUR_KEY",
+    businessHash = "YOUR_HASH"
+)
+
+val sdk = ShareIDSDK(config)
+sdk.start(this) { result ->
+    when (result) {
+        is Result.Success -> Log.d("ShareID", "Verified: \${result.data}")
+        is Result.Failure -> Log.e("ShareID", "Error: \${result.error}")
+    }
+}`;
+  }
+  const escHtml=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  el.innerHTML=`
+    <div style="margin-bottom:12px">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--t5);margin-bottom:6px">API Token</div>
+      <pre class="int-code-block">${escHtml(tokenJson)}</pre>
+    </div>
+    <div>
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--t5);margin-bottom:6px">SDK Integration${_wsIntPlatform==='web'?' (React)':_wsIntPlatform==='ios'?' (Swift)':' (Kotlin)'}</div>
+      <pre class="int-code-block">${escHtml(sdkCode)}</pre>
+    </div>
+    <div class="modal-act-row">
+      <button class="btn" onclick="const t=document.getElementById('wsIntegrateModal').querySelectorAll('.int-code-block');let txt='';t.forEach(b=>txt+=b.textContent+'\\n\\n');navigator.clipboard.writeText(txt.trim()).then(()=>{this.textContent='Copied!';setTimeout(()=>this.textContent='Copy code',1400)})">Copy code</button>
+    </div>`;
 }
 
 let dragSrcId=null;
@@ -737,19 +1091,10 @@ const $=id=>document.getElementById(id);
 
 /* ─── Actions ─── */
 let _pendingFlowType='onboarding';
-function createWorkspace(){
-  _pendingFlowType='onboarding';
-  selectType('onboarding');
-  document.getElementById('typeModal').classList.add('open');
-}
-function selectType(type){
-  _pendingFlowType=type;
-  document.getElementById('typeOnb').classList.toggle('selected',type==='onboarding');
-  document.getElementById('typeAuth').classList.toggle('selected',type==='auth');
-}
+function createWorkspace(){confirmCreateWorkspace();}
+function selectType(type){_pendingFlowType=type;}
 function closeTypeModal(){document.getElementById('typeModal').classList.remove('open');}
 function confirmCreateWorkspace(){
-  closeTypeModal();
   const now=Date.now();
   const id=uid();
   const existingNames=workspaces.map(w=>w.name);
@@ -914,6 +1259,8 @@ document.addEventListener('keydown',(e)=>{
   }
   // Escape — close modal / menu / clear search / cancel rename
   if(e.key==='Escape'){
+    if($('wsTestModal').classList.contains('open')){closeWsTestModal();return;}
+    if($('wsIntegrateModal').classList.contains('open')){closeWsIntegrateModal();return;}
     if($('apiModal').classList.contains('open')){closeApi();return;}
     if($('delModal').classList.contains('open')){closeDelete();return;}
     if(openMenuFor){closeMenu();return;}
@@ -955,6 +1302,8 @@ document.addEventListener('click',e=>{if(!e.target.closest('.sort')){$('sortPane
 // Modal: backdrop click
 $('delModal').addEventListener('click',(e)=>{if(e.target.id==='delModal')closeDelete();});
 $('apiModal').addEventListener('click',(e)=>{if(e.target.id==='apiModal')closeApi();});
+$('wsTestModal').addEventListener('click',(e)=>{if(e.target.id==='wsTestModal')closeWsTestModal();});
+$('wsIntegrateModal').addEventListener('click',(e)=>{if(e.target.id==='wsIntegrateModal')closeWsIntegrateModal();});
 
 // Initial render
 render();
