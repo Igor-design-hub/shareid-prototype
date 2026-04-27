@@ -31,9 +31,13 @@ export default function App() {
   const [testModal, setTestModal]           = useState(null); // workflowId or 'current'
   const [integrateModal, setIntegrateModal] = useState(null);
 
-  // Always start from dashboard
+  // On mount: restore active workspace from session (persists on refresh, clears on new tab/window)
   useEffect(() => {
-    localStorage.removeItem('shareid_active_workspace');
+    const aid = sessionStorage.getItem('shareid_active_workspace');
+    if (aid) {
+      const list = JSON.parse(localStorage.getItem('shareid_workspaces') || '[]');
+      if (list.find((w) => w.id === aid)) { loadWorkflow(aid); setPage('builder'); return; }
+    }
     setPage('dashboard');
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -49,7 +53,7 @@ export default function App() {
 
   const handleOpen   = (id) => { loadWorkflow(id); setPage('builder'); };
   const handleCreate = (name) => { createWorkflow(name); setPage('builder'); };
-  const handleBack   = () => { saveWorkflow(); localStorage.removeItem('shareid_active_workspace'); setPage('dashboard'); };
+  const handleBack   = () => { saveWorkflow(); sessionStorage.removeItem('shareid_active_workspace'); setPage('dashboard'); };
 
   // Get workflow data for modals (from dashboard = by id, from builder = current)
   const getWorkflowData = (id) => {

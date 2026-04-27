@@ -303,7 +303,7 @@ export const useStore = create((set, get) => ({
     const list = readWorkspaces();
     const wf = list.find((w) => w.id === id);
     if (!wf) return;
-    localStorage.setItem('shareid_active_workspace', id);
+    sessionStorage.setItem('shareid_active_workspace', id);
     set({
       workflowId: wf.id,
       workflowName: wf.name,
@@ -349,7 +349,7 @@ export const useStore = create((set, get) => ({
     };
     const list = readWorkspaces();
     writeWorkspaces([...list, entry]);
-    localStorage.setItem('shareid_active_workspace', id);
+    sessionStorage.setItem('shareid_active_workspace', id);
     set({
       workflowId: id,
       workflowName: entry.name,
