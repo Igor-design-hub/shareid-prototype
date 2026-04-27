@@ -1,0 +1,32 @@
+.marker-node {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 32px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  position: relative;
+}
+
+.marker-node.start {
+  background: #e8edfb;
+  color: #3253d1;
+  border: 1.5px solid #c4cef5;
+}
+
+.marker-node.end {
+  background: #e6f4ee;
+  color: #1b9764;
+  border: 1.5px solid #b8dece;
+}
+
+.rf-handle {
+  width: 10px !important;
+  height: 10px !important;
+  background: #c8cad0 !important;
+  border: 2px solid #fff !important;
+  border-radius: 50% !important;
+}

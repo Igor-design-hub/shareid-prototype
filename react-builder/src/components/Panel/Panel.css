@@ -1,0 +1,262 @@
+.panel {
+  width: 280px;
+  min-width: 280px;
+  height: 100%;
+  background: #fff;
+  border-left: 1px solid #e4e6eb;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+.panel--empty {
+  align-items: center;
+  justify-content: center;
+  color: #9ea3b0;
+  font-size: 13px;
+}
+
+/* ── Header ─────────────────────────────────────────────────────────────────── */
+.panel__header {
+  padding: 20px 20px 14px;
+  border-bottom: 1px solid #f0f2f7;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.panel__title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #0d1122;
+}
+
+.panel__desc {
+  font-size: 12px;
+  color: #9ea3b0;
+}
+
+/* ── Body & Sections ─────────────────────────────────────────────────────────── */
+.panel__body {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.panel__section {
+  padding: 16px 16px 8px;
+  border-bottom: 1px solid #f0f2f7;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.panel__section:last-child {
+  border-bottom: none;
+}
+
+.panel__section-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #9ea3b0;
+  margin-bottom: 6px;
+}
+
+/* ── Preset groups ───────────────────────────────────────────────────────────── */
+.pgrp-block {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-bottom: 8px;
+}
+
+.pgrp-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: #b0b4c0;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin: 4px 0 2px;
+}
+
+.preset-item {
+  width: 100%;
+  text-align: left;
+  padding: 10px 12px;
+  border: 1.5px solid #e8eaef;
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
+  transition: border-color 0.12s, background 0.12s;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.preset-item:hover {
+  border-color: #c8cce8;
+  background: #f8f9fd;
+}
+
+.preset-item.on {
+  border-color: #3253d1;
+  background: rgba(50, 83, 209, 0.05);
+}
+
+.preset-item__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.preset-item__label {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #0d1122;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.rec-badge {
+  font-size: 10px;
+  font-weight: 600;
+  color: #1b9764;
+  background: #e6f4ee;
+  padding: 1px 6px;
+  border-radius: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.preset-item__tok {
+  font-size: 11px;
+  font-weight: 600;
+  color: #3253d1;
+  background: rgba(50, 83, 209, 0.08);
+  padding: 2px 7px;
+  border-radius: 10px;
+  white-space: nowrap;
+}
+
+.preset-item__desc {
+  font-size: 11px;
+  color: #8a8f9e;
+  line-height: 1.4;
+}
+
+/* ── Ext / Int items ─────────────────────────────────────────────────────────── */
+.ext-item {
+  width: 100%;
+  text-align: left;
+  padding: 10px 12px;
+  border: 1.5px solid #e8eaef;
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
+  transition: border-color 0.12s, background 0.12s;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.ext-item:hover {
+  border-color: #c8cce8;
+  background: #f8f9fd;
+}
+
+.ext-item.on {
+  border-color: #3253d1;
+  background: rgba(50, 83, 209, 0.05);
+}
+
+.ext-item__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.ext-item__label {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #0d1122;
+}
+
+.ext-item__tok {
+  font-size: 11px;
+  font-weight: 600;
+  color: #3253d1;
+  background: rgba(50, 83, 209, 0.08);
+  padding: 2px 7px;
+  border-radius: 10px;
+}
+
+.ext-item__desc {
+  font-size: 11px;
+  color: #8a8f9e;
+  line-height: 1.4;
+}
+
+/* ── Path toggle ─────────────────────────────────────────────────────────────── */
+.path-toggle {
+  display: flex;
+  gap: 4px;
+  background: #f0f2f7;
+  border-radius: 8px;
+  padding: 3px;
+}
+
+.path-btn {
+  flex: 1;
+  padding: 5px 0;
+  font-size: 12px;
+  font-weight: 600;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  color: #6b7080;
+  transition: background 0.15s, color 0.15s;
+}
+
+.path-btn.active {
+  background: #fff;
+  color: #0d1122;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+/* ── Fallback row ────────────────────────────────────────────────────────────── */
+.fallback-row {
+  display: flex;
+  gap: 4px;
+}
+
+.fallback-btn {
+  flex: 1;
+  padding: 7px 4px;
+  font-size: 11.5px;
+  font-weight: 500;
+  border: 1.5px solid #e8eaef;
+  border-radius: 7px;
+  background: #fff;
+  cursor: pointer;
+  color: #5a5f70;
+  transition: border-color 0.12s, background 0.12s, color 0.12s;
+}
+
+.fallback-btn.active {
+  border-color: #3253d1;
+  background: rgba(50, 83, 209, 0.05);
+  color: #3253d1;
+}
+
+.fallback-btn:hover:not(.active) {
+  border-color: #c8cce8;
+}
