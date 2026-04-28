@@ -125,6 +125,10 @@ export default function Checklist() {
 
       {allDone && (
         <div className="checklist-done-msg">
+          <svg viewBox="0 0 16 16" fill="none" width="16" height="16">
+            <circle cx="8" cy="8" r="7" fill="var(--blue)" fillOpacity=".15"/>
+            <path d="M5 8l2.5 2.5L11 5.5" stroke="var(--blue)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
           Your flow is ready to test
         </div>
       )}

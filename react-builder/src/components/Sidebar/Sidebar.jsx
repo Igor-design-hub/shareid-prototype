@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { MODS, Icons } from '../../data/modules';
 import { useStore } from '../../store/useStore';
 import TemplatesPanel from '../TemplatesPanel/TemplatesPanel';
@@ -26,6 +26,7 @@ function Tile({ iconHtml, name, added, active, disabled, draggable, onClick, onD
 }
 
 export default function Sidebar() {
+  const [tab, setTab] = useState('modules');
   const obPipeline   = useStore((s) => s.obPipeline);
   const authPipeline = useStore((s) => s.authPipeline);
   const activeId     = useStore((s) => s.activeId);
@@ -123,38 +124,45 @@ export default function Sidebar() {
 
   return (
     <aside className="sidebar">
-      <div className="sb-body">
-
-        <div className="sb-section">
-          <div className="sb-section-title">Onboarding</div>
-          <div className="sb-grid sb-grid--ob">
-            {renderIdentityCard()}
-            {renderTile('face')}
-          </div>
-        </div>
-
-        <div className="sb-divider" />
-
-        <div className="sb-section">
-          <div className="sb-section-title">Authentication</div>
-          <div className="sb-grid sb-grid--auth">
-            {renderTile('auth')}
-          </div>
-        </div>
-
-        <div className="sb-divider" />
-
-        <div className="sb-section">
-          <div className="sb-section-title">Add-ons</div>
-          <div className="sb-grid">
-            {renderTile('ext')}
-            {renderTile('int')}
-          </div>
-        </div>
-
-        <TemplatesPanel />
-
+      <div className="sb-tabs">
+        <button className={`sb-tab${tab === 'modules' ? ' active' : ''}`} onClick={() => setTab('modules')}>Modules</button>
+        <button className={`sb-tab${tab === 'templates' ? ' active' : ''}`} onClick={() => setTab('templates')}>Templates</button>
       </div>
+
+      {tab === 'modules' ? (
+        <div className="sb-body">
+          <div className="sb-section">
+            <div className="sb-section-title">Onboarding</div>
+            <div className="sb-grid sb-grid--ob">
+              {renderIdentityCard()}
+              {renderTile('face')}
+            </div>
+          </div>
+
+          <div className="sb-divider" />
+
+          <div className="sb-section">
+            <div className="sb-section-title">Authentication</div>
+            <div className="sb-grid sb-grid--auth">
+              {renderTile('auth')}
+            </div>
+          </div>
+
+          <div className="sb-divider" />
+
+          <div className="sb-section">
+            <div className="sb-section-title">Add-ons</div>
+            <div className="sb-grid">
+              {renderTile('ext')}
+              {renderTile('int')}
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="sb-body">
+          <TemplatesPanel />
+        </div>
+      )}
     </aside>
   );
 }

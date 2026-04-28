@@ -59,60 +59,65 @@ export default function TemplatesPanel() {
 
   return (
     <>
-      {/* Divider before templates */}
-      <div className="sb-divider" />
-
-      <div className="sb-section sb-section--tpl">
-        <div className="sb-section-title">Templates</div>
-
+      <div className="sb-section">
+        <div className="sb-section-title">Built-in</div>
         <div className="tpl-group">
-          {savedTemplates.length > 0 && <div className="tpl-group-label">Built-in</div>}
           {TEMPLATES.map((tpl) => (
             <button key={tpl.name} className="tpl-item"
               onClick={() => handleApply('builtin', tpl)}
-              title={tpl.desc}
             >
-              {tpl.name}
+              <span className="tpl-item-name">{tpl.name}</span>
+              {tpl.desc && <span className="tpl-item-desc">{tpl.desc}</span>}
+              {tpl.forWho?.length > 0 && (
+                <div className="tpl-item-tags">
+                  {tpl.forWho.map((tag) => (
+                    <span key={tag} className="tpl-item-tag">{tag}</span>
+                  ))}
+                </div>
+              )}
             </button>
           ))}
         </div>
+      </div>
 
+      <div className="sb-divider" />
+
+      <div className="tpl-footer">
         {savedTemplates.length > 0 && (
-          <div className="tpl-group">
-            <div className="tpl-group-label">Saved</div>
-            {savedTemplates.map((entry) => (
-              <button key={entry.name} className="tpl-item"
-                onClick={() => handleApply('saved', entry)}
-              >
-                <span style={{ flex: 1, textAlign: 'left' }}>{entry.name}</span>
-                <span className="tpl-item-del" role="button" title="Delete"
-                  onClick={(e) => { e.stopPropagation(); deleteSavedTemplate(entry.name); }}
+          <>
+            <div className="sb-section-title">Saved</div>
+            <div className="tpl-group">
+              {savedTemplates.map((entry) => (
+                <button key={entry.name} className="tpl-item"
+                  onClick={() => handleApply('saved', entry)}
                 >
-                  <svg viewBox="0 0 12 12" fill="none" width="10" height="10">
-                    <path d="M1 1l10 10M11 1L1 11" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
-                  </svg>
-                </span>
-              </button>
-            ))}
-          </div>
-        )}
-
-        <div className="tpl-footer">
-          {savedOk ? (
-            <div className="tpl-saved-ok">
-              <svg viewBox="0 0 14 14" fill="none" width="13" height="13"><circle cx="7" cy="7" r="6" fill="#1b9764" fillOpacity=".15"/><path d="M4 7l2 2 4-4" stroke="#1b9764" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-              Saved
+                  <span className="tpl-item-name">{entry.name}</span>
+                  <span className="tpl-item-del" role="button" title="Delete"
+                    onClick={(e) => { e.stopPropagation(); deleteSavedTemplate(entry.name); }}
+                  >
+                    <svg viewBox="0 0 12 12" fill="none" width="10" height="10">
+                      <path d="M1 1l10 10M11 1L1 11" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
+                    </svg>
+                  </span>
+                </button>
+              ))}
             </div>
-          ) : (
-            <button
-              className="tpl-save-btn"
-              disabled={obPipeline.length === 0}
-              onClick={() => { setSavingName(''); setShowSaveModal(true); }}
-            >
-              + Save current as template
-            </button>
-          )}
-        </div>
+          </>
+        )}
+        {savedOk ? (
+          <div className="tpl-saved-ok">
+            <svg viewBox="0 0 14 14" fill="none" width="13" height="13"><circle cx="7" cy="7" r="6" fill="#1b9764" fillOpacity=".15"/><path d="M4 7l2 2 4-4" stroke="#1b9764" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            Saved
+          </div>
+        ) : (
+          <button
+            className="tpl-save-btn"
+            disabled={obPipeline.length === 0}
+            onClick={() => { setSavingName(''); setShowSaveModal(true); }}
+          >
+            + Save current as template
+          </button>
+        )}
       </div>
 
       {/* Confirm overwrite modal */}

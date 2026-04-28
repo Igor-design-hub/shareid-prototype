@@ -160,6 +160,29 @@ export function getIllust(type, variant) {
   return ILLUST_MAP[type] || null;
 }
 
+// ─── Preset icon map (designed icons from Figma, node 202:4108) ───────────────
+const PRESET_ICON_MAP = {
+  'doc:basic':        'preset-icons/doc-basic.svg',
+  'doc:standard':     'preset-icons/doc-standard.svg',
+  'doc:nfc_basic':    'preset-icons/doc-nfc-basic.svg',
+  'doc:nfc_liveness': 'preset-icons/doc-nfc-liveness.svg',
+  'doc:nfc_passive':  'preset-icons/doc-nfc-passive.svg',
+  'doc:advanced':     'preset-icons/doc-advanced.svg',
+  'doc:trusted':      'preset-icons/doc-trusted.svg',
+  'doc:eudiw':        'preset-icons/wallet-eudiw.svg',
+  'doc:mdl':          'preset-icons/wallet-mdl.svg',
+  'face:passive':     'preset-icons/face-basic.svg',
+  'face:active':      'preset-icons/face-liveness.svg',
+  'face:match':       'preset-icons/face-basic.svg',
+  'auth:mfa_3':       null,
+  'auth:eudiw_pid':   'preset-icons/wallet-eudiw.svg',
+};
+
+export function getPresetIcon(type, variant) {
+  const key = variant ? `${type}:${variant}` : type;
+  return PRESET_ICON_MAP[key] ?? null;
+}
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 export function getTok(step) {
   if (step.type === 'ext') {

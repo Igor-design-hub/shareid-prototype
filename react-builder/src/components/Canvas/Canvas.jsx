@@ -1,7 +1,28 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useStore } from '../../store/useStore';
-import { MODS } from '../../data/modules';
+import { MODS, getTok } from '../../data/modules';
 import StepCard from './StepCard';
+
+function DragHandle({ onDragStart, onDragEnd }) {
+  return (
+    <div
+      className="step-drag-handle"
+      draggable
+      onDragStart={onDragStart}
+      onDragEnd={onDragEnd}
+      onClick={(e) => e.stopPropagation()}
+    >
+      <svg viewBox="0 0 8 14" fill="none" width="8" height="14">
+        <circle cx="2" cy="2"  r="1.5" fill="currentColor"/>
+        <circle cx="6" cy="2"  r="1.5" fill="currentColor"/>
+        <circle cx="2" cy="7"  r="1.5" fill="currentColor"/>
+        <circle cx="6" cy="7"  r="1.5" fill="currentColor"/>
+        <circle cx="2" cy="12" r="1.5" fill="currentColor"/>
+        <circle cx="6" cy="12" r="1.5" fill="currentColor"/>
+      </svg>
+    </div>
+  );
+}
 
 function Connector({ dashed }) {
   return <div className={`conn${dashed ? ' dashed' : ''}`} />;
@@ -46,9 +67,12 @@ export default function Canvas() {
   const canvasHighlight    = useStore((s) => s.canvasHighlight);
   const clearCanvasHighlight = useStore((s) => s.clearCanvasHighlight);
   const dragHint           = useStore((s) => s.dragHint);
+  const reorderSteps       = useStore((s) => s.reorderSteps);
   const canvasRef          = useRef(null);
   const [backupPickerOpen, setBackupPickerOpen] = useState(false);
   const [dragZone, setDragZone] = useState(null); // 'ob' | 'auth' | null
+  const [reorderFrom, setReorderFrom] = useState(null); // idx being dragged
+  const [reorderOver, setReorderOver] = useState(null); // gap idx (0..n)
   const dragCountOb   = useRef(0);
   const dragCountAuth = useRef(0);
 
@@ -56,6 +80,9 @@ export default function Canvas() {
   const secondDocStep = docSteps[1] ?? null;
   const docCount    = docSteps.length;
   const authStep    = authPipeline[0] ?? null;
+
+  const obTok   = obPipeline.reduce((sum, s) => sum + getTok(s), 0);
+  const authTok = authStep ? getTok(authStep) : 0;
 
   const usedObTypes = new Set(obPipeline.map((s) => s.type));
   // Available types to add in order
@@ -180,12 +207,58 @@ export default function Canvas() {
             <div className="flow-section-label">
               <span className="flow-section-pill ob-pill">Onboarding</span>
             </div>
+            {obTok > 0 && (
+              <div className="zone-tok-badge">
+                <span className="zone-tok-val">{obTok}</span>
+                <span className="zone-tok-lbl">tok</span>
+              </div>
+            )}
 
             {obPipeline.map((step, idx) => {
               const showBackupBtn = step.type === 'doc' && isBackupDoc;
+              const isDraggingThis = reorderFrom === idx;
+              const showDropLineBefore = reorderFrom !== null
+                && reorderOver === idx
+                && reorderFrom !== idx
+                && reorderFrom !== idx - 1;
               return (
                 <React.Fragment key={step.id}>
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                  {showDropLineBefore && <div className="step-drop-line" />}
+                  <div
+                    className={`step-reorder-wrap${isDraggingThis ? ' is-dragging' : ''}`}
+                    onDragOver={(e) => {
+                      if (!e.dataTransfer.types.includes('reorder')) return;
+                      e.preventDefault();
+                      e.stopPropagation();
+                      const rect = e.currentTarget.getBoundingClientRect();
+                      setReorderOver(e.clientY < rect.top + rect.height / 2 ? idx : idx + 1);
+                    }}
+                    onDrop={(e) => {
+                      if (!e.dataTransfer.types.includes('reorder')) return;
+                      e.preventDefault();
+                      e.stopPropagation();
+                      const from = parseInt(e.dataTransfer.getData('reorder'));
+                      if (!isNaN(from) && from !== reorderOver && from + 1 !== reorderOver) {
+                        const to = reorderOver > from ? reorderOver - 1 : reorderOver;
+                        reorderSteps(from, to, 'ob');
+                      }
+                      setReorderFrom(null);
+                      setReorderOver(null);
+                    }}
+                  >
+                    <DragHandle
+                      onDragStart={(e) => {
+                        e.stopPropagation();
+                        e.dataTransfer.setData('reorder', String(idx));
+                        e.dataTransfer.effectAllowed = 'move';
+                        setTimeout(() => setReorderFrom(idx), 0);
+                      }}
+                      onDragEnd={(e) => {
+                        e.stopPropagation();
+                        setReorderFrom(null);
+                        setReorderOver(null);
+                      }}
+                    />
                     <StepCard
                       step={step}
                       isSecondDoc={step === secondDocStep}
@@ -240,6 +313,12 @@ export default function Canvas() {
                   )}
                   {!(idx === obPipeline.length - 1 && !addBtnLabel && !showBackupBtn) &&
                    !(showBackupBtn && idx === obPipeline.length - 1) && <Connector />}
+                  {/* Drop line after last card */}
+                  {idx === obPipeline.length - 1
+                    && reorderFrom !== null
+                    && reorderOver === obPipeline.length
+                    && reorderFrom !== obPipeline.length - 1
+                    && <div className="step-drop-line" style={{ marginTop: 8 }} />}
                 </React.Fragment>
               );
             })}
@@ -263,6 +342,12 @@ export default function Canvas() {
             <div className="flow-section-label">
               <span className="flow-section-pill auth-pill">Authentication</span>
             </div>
+            {authTok > 0 && (
+              <div className="zone-tok-badge zone-tok-badge--auth">
+                <span className="zone-tok-val">{authTok}</span>
+                <span className="zone-tok-lbl">tok</span>
+              </div>
+            )}
 
             {authStep ? (
               <StepCard
