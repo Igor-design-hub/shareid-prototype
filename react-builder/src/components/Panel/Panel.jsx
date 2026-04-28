@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { MODS, Icons, getTok } from '../../data/modules';
+import { MODS, Icons, getTok, getIllust } from '../../data/modules';
 import { useStore } from '../../store/useStore';
 
 // ── Section wrapper (gray card with title above) ──────────────────────────────
@@ -12,22 +12,25 @@ function PSection({ title, children }) {
   );
 }
 
-// ── Radio option ──────────────────────────────────────────────────────────────
-function Opt({ item, isOn, onPick }) {
+// ── Preset tile ───────────────────────────────────────────────────────────────
+function Opt({ item, isOn, onPick, modType }) {
+  const illust = modType ? getIllust(modType, item.v) : null;
   return (
     <button
       className={`opt${isOn ? ' on' : ''}`}
       onClick={() => onPick(item)}
     >
-      <div className="ri"><i /></div>
-      <div className="opt-icon-placeholder" />
-      <div className="opt-body">
-        <div className="opt-name">
-          {item.l}
-          {item.rec && <span className="rec">Rec.</span>}
-        </div>
-        {item.d && <div className="opt-desc">{item.d}</div>}
+      <div className="opt-tile-illust">
+        {illust
+          ? <img src={illust} alt="" width="48" height="48" style={{ objectFit: 'contain', width: 48, height: 48 }} />
+          : <div className="opt-icon-placeholder" />
+        }
       </div>
+      <div className="opt-name">
+        {item.l}
+        {item.rec && <span className="rec">Rec.</span>}
+      </div>
+      {item.d && <div className="opt-desc">{item.d}</div>}
       {item.t > 0 && <div className="opt-tok">{item.t} tok</div>}
     </button>
   );
@@ -130,7 +133,7 @@ function DocPanel({ step, isSecondDoc }) {
               {pg.group && <div className="doc-group-title">{pg.group}</div>}
               {pg.items.map((item) => (
                 <div key={item.v} className="opt-shell">
-                  <Opt item={item} isOn={step.config?.v === item.v} onPick={pickConfig} />
+                  <Opt item={item} isOn={step.config?.v === item.v} onPick={pickConfig} modType="doc" />
                 </div>
               ))}
             </div>
@@ -191,6 +194,7 @@ function FacePanel({ step }) {
               item={item}
               isOn={step.config?.v === item.v}
               onPick={(item) => updateStep(step.id, { config: item })}
+              modType="face"
             />
           ))}
         </PSection>
@@ -287,6 +291,7 @@ function AuthPanel({ step }) {
               item={item}
               isOn={step.config?.v === item.v}
               onPick={(item) => updateStep(step.id, { config: item })}
+              modType="auth"
             />
           ))}
         </PSection>

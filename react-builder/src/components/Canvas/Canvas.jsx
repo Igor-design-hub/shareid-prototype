@@ -372,8 +372,11 @@ export default function Canvas() {
               </div>
             </div>
 
+            {/* ── Section separator ── */}
+            <Connector dashed />
+
             {/* ── Auth section ── */}
-            <div className="flow-section" style={{ marginTop: 48 }}>
+            <div className="flow-section" style={{ marginTop: 8 }}>
               <div className="flow-section-box">
                 <div className="flow-section-label">
                   <span className="flow-section-pill auth-pill">If user returns</span>
