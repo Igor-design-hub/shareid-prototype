@@ -242,8 +242,15 @@ input:focus-visible,textarea:focus-visible,select:focus-visible{outline:none!imp
 .add-backup-btn:hover{background:var(--brd);color:var(--t2)}
 .add-backup-btn svg{width:11px;height:11px;flex-shrink:0}
 /* ── Drag-to-reorder ─────────────────────────────────────────────────────────── */
+/* ── Drag-to-reorder ─────────────────────────────────────────────────────────── */
 .step-reorder-wrap{position:relative;display:flex;flex-direction:column;align-items:center}
 .step-reorder-wrap.is-dragging .step{opacity:.25;pointer-events:none}
+@keyframes cardLand{
+  0%  {transform:scale(1.025);box-shadow:0 10px 32px rgba(50,83,209,.14)}
+  60% {transform:scale(.99)}
+  100%{transform:scale(1);box-shadow:none}
+}
+.step-reorder-wrap.just-landed .step{animation:cardLand .35s cubic-bezier(.2,.9,.3,1.1) both}
 .step-drag-handle{position:absolute;left:-30px;top:50%;transform:translateY(-50%);width:24px;height:36px;display:flex;align-items:center;justify-content:center;opacity:0;cursor:grab;color:var(--t6);transition:opacity .14s,color .12s;border-radius:7px;z-index:2;user-select:none}
 .step-reorder-wrap:hover .step-drag-handle{opacity:1}
 .step-drag-handle:hover{color:var(--t3);background:var(--bg2)}

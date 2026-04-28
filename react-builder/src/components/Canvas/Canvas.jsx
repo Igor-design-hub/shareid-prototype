@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useStore } from '../../store/useStore';
 import { MODS, getTok } from '../../data/modules';
 import StepCard from './StepCard';
@@ -70,9 +70,12 @@ export default function Canvas() {
   const reorderSteps       = useStore((s) => s.reorderSteps);
   const canvasRef          = useRef(null);
   const [backupPickerOpen, setBackupPickerOpen] = useState(false);
-  const [dragZone, setDragZone] = useState(null); // 'ob' | 'auth' | null
-  const [reorderFrom, setReorderFrom] = useState(null); // idx being dragged
-  const [reorderOver, setReorderOver] = useState(null); // gap idx (0..n)
+  const [dragZone, setDragZone] = useState(null);
+  const [reorderFrom, setReorderFrom] = useState(null);
+  const [reorderOver, setReorderOver] = useState(null);
+  const [justDroppedId, setJustDroppedId] = useState(null);
+  const cardRefs  = useRef({});   // step.id → wrapper DOM el
+  const flipState = useRef(null); // { positions: {id: top}, droppedId }
   const dragCountOb   = useRef(0);
   const dragCountAuth = useRef(0);
 
@@ -90,6 +93,46 @@ export default function Canvas() {
     if (t === 'doc') return docCount < 2;
     return !usedObTypes.has(t);
   });
+
+  // FLIP animation after reorder
+  useLayoutEffect(() => {
+    if (!flipState.current) return;
+    const { positions, droppedId } = flipState.current;
+    flipState.current = null;
+
+    Object.entries(positions).forEach(([id, oldTop]) => {
+      const el = cardRefs.current[id];
+      if (!el) return;
+      const delta = oldTop - el.getBoundingClientRect().top;
+      if (Math.abs(delta) < 2) return;
+      el.style.transition = 'none';
+      el.style.transform = `translateY(${delta}px)`;
+      requestAnimationFrame(() => {
+        el.style.transition = 'transform 0.28s cubic-bezier(0.2,0.9,0.3,1)';
+        el.style.transform = '';
+        el.addEventListener('transitionend', () => {
+          el.style.transform = '';
+          el.style.transition = '';
+        }, { once: true });
+      });
+    });
+
+    if (droppedId) {
+      setJustDroppedId(droppedId);
+      setTimeout(() => setJustDroppedId(null), 400);
+    }
+  }, [obPipeline]);
+
+  const doReorderDrop = useCallback((from, to) => {
+    if (to === from) return;
+    const positions = {};
+    obPipeline.forEach((step, i) => {
+      const el = cardRefs.current[step.id];
+      if (el) positions[step.id] = el.getBoundingClientRect().top;
+    });
+    flipState.current = { positions, droppedId: obPipeline[from]?.id ?? null };
+    reorderSteps(from, to, 'ob');
+  }, [obPipeline, reorderSteps]);
 
   // For the add button: skip face (added from sidebar only)
   const nextType     = obAddTypes[0] ?? null;
@@ -229,7 +272,7 @@ export default function Canvas() {
                 const from = parseInt(e.dataTransfer.getData('reorder'));
                 if (!isNaN(from) && reorderOver !== null) {
                   const to = reorderOver > from ? reorderOver - 1 : reorderOver;
-                  if (to !== from) reorderSteps(from, to, 'ob');
+                  doReorderDrop(from, to);
                 }
                 setReorderFrom(null);
                 setReorderOver(null);
@@ -256,7 +299,10 @@ export default function Canvas() {
               return (
                 <React.Fragment key={step.id}>
                   {showDropLineBefore && <div className="step-drop-line" />}
-                  <div className={`step-reorder-wrap${isDraggingThis ? ' is-dragging' : ''}`}>
+                  <div
+                    className={`step-reorder-wrap${isDraggingThis ? ' is-dragging' : ''}${justDroppedId === step.id ? ' just-landed' : ''}`}
+                    ref={el => { cardRefs.current[step.id] = el; }}
+                  >
                     <DragHandle
                       onDragStart={(e) => {
                         e.stopPropagation();
