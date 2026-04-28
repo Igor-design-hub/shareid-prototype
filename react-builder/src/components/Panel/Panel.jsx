@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { MODS, Icons, getTok, getIllust } from '../../data/modules';
+import { MODS, Icons, getTok } from '../../data/modules';
 import { useStore } from '../../store/useStore';
 
 // ── Section wrapper (gray card with title above) ──────────────────────────────
@@ -12,25 +12,18 @@ function PSection({ title, children }) {
   );
 }
 
-// ── Preset tile ───────────────────────────────────────────────────────────────
-function Opt({ item, isOn, onPick, modType }) {
-  const illust = modType ? getIllust(modType, item.v) : null;
+// ── Radio option ──────────────────────────────────────────────────────────────
+function Opt({ item, isOn, onPick }) {
   return (
-    <button
-      className={`opt${isOn ? ' on' : ''}`}
-      onClick={() => onPick(item)}
-    >
-      <div className="opt-tile-illust">
-        {illust
-          ? <img src={illust} alt="" width="48" height="48" style={{ objectFit: 'contain', width: 48, height: 48 }} />
-          : <div className="opt-icon-placeholder" />
-        }
+    <button className={`opt${isOn ? ' on' : ''}`} onClick={() => onPick(item)}>
+      <div className="ri"><i /></div>
+      <div className="opt-body">
+        <div className="opt-name">
+          {item.l}
+          {item.rec && <span className="rec">Rec.</span>}
+        </div>
+        {item.d && <div className="opt-desc">{item.d}</div>}
       </div>
-      <div className="opt-name">
-        {item.l}
-        {item.rec && <span className="rec">Rec.</span>}
-      </div>
-      {item.d && <div className="opt-desc">{item.d}</div>}
       {item.t > 0 && <div className="opt-tok">{item.t} tok</div>}
     </button>
   );
@@ -64,9 +57,6 @@ function DocPanel({ step, isSecondDoc }) {
     if (item.v === 'trusted') update.secOpts = {};
     updateStep(step.id, update);
   }, [step.id, step.fb, updateStep]);
-
-  const pickPath = useCallback((path) =>
-    updateStep(step.id, { path, config: null, fb: null, secOpts: {} }), [step.id, updateStep]);
 
   const pickRole = useCallback((role) =>
     updateStep(step.id, { docRole: role }), [step.id, updateStep]);
@@ -108,32 +98,16 @@ function DocPanel({ step, isSecondDoc }) {
         </div>
       )}
 
-      {/* Document / Wallet top-level toggle */}
-      <div className={`doc-path-toggle${!currentPath ? ' needs-action' : ''}`}>
-        {Object.keys(mod.paths).map((p) => (
-          <button
-            key={p}
-            className={`doc-path-tab${currentPath === p ? ' on' : ''}`}
-            onClick={() => pickPath(p)}
-          >
-            {p.charAt(0).toUpperCase() + p.slice(1)}
-          </button>
-        ))}
-      </div>
-
       {/* Presets */}
-      <div className={`doc-group${!currentPath ? ' doc-group-disabled' : ''}`}>
+      <div className="doc-group">
         <div className="p-section-title">Verification level</div>
-        {!currentPath && (
-          <div className="doc-group-hint doc-group-hint--center">Select document type above</div>
-        )}
         <div className="doc-group-presets">
           {(pathDef ?? mod.paths[mod.defaultPath]).presets.map((pg, gi) => (
             <div key={gi} className="doc-group-section">
               {pg.group && <div className="doc-group-title">{pg.group}</div>}
               {pg.items.map((item) => (
                 <div key={item.v} className="opt-shell">
-                  <Opt item={item} isOn={step.config?.v === item.v} onPick={pickConfig} modType="doc" />
+                  <Opt item={item} isOn={step.config?.v === item.v} onPick={pickConfig} />
                 </div>
               ))}
             </div>
@@ -141,14 +115,14 @@ function DocPanel({ step, isSecondDoc }) {
         </div>
       </div>
 
-      {(currentPath === 'document' || (!currentPath)) && (() => {
+      {currentPath === 'document' && (() => {
         const isTrusted = step.config?.v === 'trusted';
         const noConfig = !step.config;
-        const disabled = isTrusted || noConfig || !currentPath;
+        const disabled = isTrusted || noConfig;
         const hint = isTrusted
           ? 'Not available with Trusted Source'
           : noConfig
-          ? 'Select a document type first'
+          ? 'Select verification level first'
           : null;
         return (
           <div className={`doc-group${disabled ? ' doc-group-disabled' : ''}`}>
@@ -194,7 +168,7 @@ function FacePanel({ step }) {
               item={item}
               isOn={step.config?.v === item.v}
               onPick={(item) => updateStep(step.id, { config: item })}
-              modType="face"
+             
             />
           ))}
         </PSection>
@@ -291,7 +265,7 @@ function AuthPanel({ step }) {
               item={item}
               isOn={step.config?.v === item.v}
               onPick={(item) => updateStep(step.id, { config: item })}
-              modType="auth"
+             
             />
           ))}
         </PSection>
@@ -351,34 +325,40 @@ export default function Panel() {
     <div className="panel-zone">
       <div className="panel">
 
+        {/* ── Close btn — on the left border of the panel ── */}
+        <button className="panel-close-btn" onClick={() => setActive(null)} title="Close">
+          <svg viewBox="0 0 10 10" fill="none">
+            <path d="M1 1l8 8M9 1L1 9" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
+          </svg>
+        </button>
+
         {/* ── Header ── */}
         <div className="panel-hd">
           <div className="panel-hd-info">
             <div className="panel-ico" dangerouslySetInnerHTML={{ __html: Icons[mod.iconKey] }} />
-            <div>
+            <div className="panel-hd-text">
               <div className="panel-name">{mod.name}</div>
               <div className="panel-desc">{mod.desc}</div>
             </div>
           </div>
-          <button className="panel-close-btn" onClick={() => setActive(null)} title="Close">
-            <svg viewBox="0 0 10 10" fill="none">
-              <path d="M1 1l8 8M9 1L1 9" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
-            </svg>
-          </button>
+          {done ? (
+            <div className="panel-status panel-status--done">
+              <svg viewBox="0 0 12 12" fill="none" width="11" height="11">
+                <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              Configured
+            </div>
+          ) : (
+            <div className="panel-status panel-status--pending">
+              Add configuration
+            </div>
+          )}
         </div>
 
         {renderBody()}
 
         {/* ── Footer ── */}
         <div className="panel-foot">
-          {done ? (
-            <button className="panel-done-btn" onClick={() => setActive(null)}>
-              <svg viewBox="0 0 12 12" fill="none" width="12" height="12">
-                <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              Done
-            </button>
-          ) : null}
           <button className="panel-rm-btn" onClick={handleRemove}>
             <svg viewBox="0 0 11 11" fill="none">
               <path d="M1 1l9 9M10 1L1 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>

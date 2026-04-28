@@ -33,6 +33,7 @@ export const useStore = create((set, get) => ({
   workflowName: 'Untitled workflow',
   canvasTrigger: null,  // 'ob' | 'auth' | null
   canvasHighlight: null, // stepId | 'ob-add' | 'auth-add' | null
+  dragHint: null, // 'ob' | 'auth' | null
   past: [],
   future: [],
   zoom: 1,
@@ -168,6 +169,7 @@ export const useStore = create((set, get) => ({
   clearCanvasTrigger: () => set({ canvasTrigger: null }),
   setCanvasHighlight: (id) => set({ canvasHighlight: id }),
   clearCanvasHighlight: () => set({ canvasHighlight: null }),
+  setDragHint: (v) => set({ dragHint: v }),
   setScratchMode: (v) => set({ scratchMode: v }),
 
   reorderSteps: (fromIdx, toIdx, flow = 'ob') => {

@@ -87,10 +87,11 @@ const StepCard = memo(function StepCard({ step, isSecondDoc, index, isDragOver, 
   const cardName = mod.name;
 
   let cls = 'step';
-  if (isActive) cls += ' active';
-  if (done)     cls += ' done';
-  if (isAddon)  cls += ` ${step.type}-step addon-step`;
-  if (isSecondDoc) cls += ' second-doc';
+  if (isActive)      cls += ' active';
+  if (done)          cls += ' done';
+  if (!done)         cls += ' needs-config';
+  if (isAddon)       cls += ` ${step.type}-step addon-step`;
+  if (isSecondDoc)   cls += ' second-doc';
   if (isDragOver)    cls += ' drag-over';
   if (isHighlighted) cls += ' canvas-highlight';
 

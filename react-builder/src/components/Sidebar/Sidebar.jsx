@@ -1,125 +1,160 @@
 import { useCallback } from 'react';
-import { MODS, Icons, TEMPLATES } from '../../data/modules';
+import { MODS, Icons } from '../../data/modules';
 import { useStore } from '../../store/useStore';
-import { getStepSub } from '../../data/modules';
+import TemplatesPanel from '../TemplatesPanel/TemplatesPanel';
 
-const CORE = ['doc', 'face'];
-const ADDONS = ['ext', 'int'];
-// auth shown only in auth mode
-const AUTH = ['auth'];
+const setDragHint = (v) => useStore.getState().setDragHint(v);
+
+function Tile({ iconHtml, name, added, active, disabled, draggable, onClick, onDragStart, onDragEnd, fullWidth }) {
+  let cls = 'sb-tile';
+  if (active || added) cls += ' sb-added';
+  if (disabled)        cls += ' used';
+  if (fullWidth)       cls += ' sb-tile-full';
+  return (
+    <button className={cls} draggable={draggable} onClick={onClick} onDragStart={onDragStart} onDragEnd={onDragEnd}>
+      {added && (
+        <span className="sb-tile-check">
+          <svg viewBox="0 0 8 8" fill="none" width="15" height="15">
+            <path d="M1.5 4l2 2 3-3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </span>
+      )}
+      <span className="sb-tile-ico" dangerouslySetInnerHTML={{ __html: iconHtml }} />
+      <span className="sb-tile-name">{name}</span>
+    </button>
+  );
+}
 
 export default function Sidebar() {
-  const pipeline = useStore((s) => s.pipeline);
-  const mode = useStore((s) => s.mode);
-  const activeId = useStore((s) => s.activeId);
-  const addStep = useStore((s) => s.addStep);
-  const setActive = useStore((s) => s.setActive);
-  const applyTemplate = useStore((s) => s.applyTemplate);
+  const obPipeline   = useStore((s) => s.obPipeline);
+  const authPipeline = useStore((s) => s.authPipeline);
+  const activeId     = useStore((s) => s.activeId);
+  const addStep      = useStore((s) => s.addStep);
+  const setActive    = useStore((s) => s.setActive);
 
-  const usedTypes = new Set(pipeline.map((s) => s.type));
-  const docCount = pipeline.filter((s) => s.type === 'doc').length;
+  const docSteps    = obPipeline.filter((s) => s.type === 'doc');
+  const docStep     = docSteps[0] ?? null;
+  const authStep    = authPipeline[0] ?? null;
+  const usedObTypes = new Set(obPipeline.map((s) => s.type));
 
-  const handleClick = useCallback((type) => {
-    const step = pipeline.find((s) => s.type === type);
-    if (step) {
-      setActive(step.id);
-    } else {
-      if (type === 'doc' && docCount >= 2) return;
-      if (type !== 'doc' && usedTypes.has(type)) return;
-      addStep(type);
-    }
-  }, [pipeline, addStep, setActive, usedTypes, docCount]);
+  // ── Identity card ────────────────────────────────────────────────────────
+  const handleDocClick = useCallback((path) => {
+    if (docStep) { setActive(docStep.id); return; }
+    addStep('doc', 'ob', { path });
+  }, [docStep, addStep, setActive]);
 
-  const handleDragStart = useCallback((e, type) => {
-    e.dataTransfer.setData('moduleType', type);
-    e.dataTransfer.effectAllowed = 'copy';
-  }, []);
-
-  const renderItem = (type) => {
-    const mod = MODS[type];
-    const docMaxed = type === 'doc' && docCount >= 2;
-    const step = pipeline.find((s) => s.type === type);
-    const isAdded = !!step;                      // any step in pipeline
-    const isActive = step && step.id === activeId;
-    const isDisabled = docMaxed && !step;        // doc maxed out, can't add more
-    const isConfigured = step && (step.config || Object.keys(step.addons || {}).length > 0 || Object.keys(step.intOpts || {}).length > 0);
-
-    let cls = 'sb-item';
-    if (isActive) cls += ' type-active';
-    else if (isAdded) cls += ' sb-added';
-    if (isDisabled) cls += ' used';
-
+  const renderIdentityCard = () => {
+    const chosenPath = docStep?.path ?? null;
     return (
-      <button
-        key={type}
-        className={cls}
-        draggable={!isAdded && !isDisabled}
-        onClick={!isDisabled ? () => handleClick(type) : undefined}
-        onDragStart={(e) => !isAdded && !isDisabled && handleDragStart(e, type)}
-      >
-        <span className="sb-ico" dangerouslySetInnerHTML={{ __html: Icons[mod.iconKey] }} />
-        <span className="sb-info">
-          <span className="sb-name">{mod.name}</span>
-          <span className="sb-desc">{mod.desc}</span>
-        </span>
-        {isAdded ? (
-          <svg viewBox="0 0 10 10" fill="none" width="13" height="13" style={{ flexShrink: 0, color: 'var(--green)' }}>
-            <path d="M2 5l2.5 2.5 3.5-4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-        ) : (
-          <span className="sb-drag">
-            <svg viewBox="0 0 16 10" fill="none" width="16" height="10">
-              <circle cx="5" cy="2" r="1.2" fill="currentColor"/><circle cx="11" cy="2" r="1.2" fill="currentColor"/>
-              <circle cx="5" cy="5" r="1.2" fill="currentColor"/><circle cx="11" cy="5" r="1.2" fill="currentColor"/>
-              <circle cx="5" cy="8" r="1.2" fill="currentColor"/><circle cx="11" cy="8" r="1.2" fill="currentColor"/>
-            </svg>
-          </span>
-        )}
-      </button>
+      <>
+        <div className="sb-identity-card">
+          <div className="sb-identity-card-row">
+            {[{ path: 'document', name: 'Document' }, { path: 'wallet', name: 'Wallet' }].map(({ path, name }) => {
+              const isChosen = chosenPath === path;
+              const isOther  = chosenPath !== null && !isChosen;
+              const isActive = isChosen && docStep?.id === activeId;
+              return (
+                <Tile
+                  key={path}
+                  iconHtml={Icons.doc}
+                  name={name}
+                  added={isChosen}
+                  active={isActive}
+                  disabled={isOther}
+                  draggable={!isChosen && !isOther}
+                  onClick={!isOther ? () => handleDocClick(path) : undefined}
+                  onDragStart={!isChosen && !isOther ? (e) => {
+                    e.dataTransfer.setData('moduleType', 'doc');
+                    e.dataTransfer.setData('modulePath', path);
+                    e.dataTransfer.setData('zone:ob', '');
+                    e.dataTransfer.effectAllowed = 'copy';
+                    setDragHint('ob');
+                  } : undefined}
+                  onDragEnd={() => setDragHint(null)}
+                />
+              );
+            })}
+          </div>
+        </div>
+      </>
     );
   };
 
-  const coreModules = mode === 'auth' ? AUTH : CORE;
-  const addonModules = mode === 'auth' ? [] : ADDONS;
+  // ── Generic tile ─────────────────────────────────────────────────────────
+  const handleClick = useCallback((type) => {
+    if (type === 'auth') {
+      if (authStep) { setActive(authStep.id); return; }
+      addStep('auth', 'auth');
+      return;
+    }
+    const step = obPipeline.find((s) => s.type === type);
+    if (step) { setActive(step.id); return; }
+    if (usedObTypes.has(type)) return;
+    addStep(type, 'ob');
+  }, [obPipeline, authStep, addStep, setActive, usedObTypes]);
+
+  const renderTile = (type, { fullWidth = false } = {}) => {
+    const mod      = MODS[type];
+    const step     = type === 'auth' ? authStep : obPipeline.find((s) => s.type === type);
+    const isAdded  = !!step;
+    const isActive = step && step.id === activeId;
+    const isDisabled = !isAdded && type !== 'auth' && usedObTypes.has(type);
+    return (
+      <Tile
+        key={type}
+        iconHtml={Icons[mod.iconKey]}
+        name={mod.name}
+        added={isAdded}
+        active={isActive}
+        disabled={isDisabled}
+        fullWidth={fullWidth}
+        draggable={!isAdded && !isDisabled}
+        onClick={!isDisabled ? () => handleClick(type) : undefined}
+        onDragStart={!isAdded && !isDisabled ? (e) => {
+          e.dataTransfer.setData('moduleType', type);
+          e.dataTransfer.setData(type === 'auth' ? 'zone:auth' : 'zone:ob', '');
+          e.dataTransfer.effectAllowed = 'copy';
+          setDragHint(type === 'auth' ? 'auth' : 'ob');
+        } : undefined}
+        onDragEnd={() => setDragHint(null)}
+      />
+    );
+  };
 
   return (
     <aside className="sidebar">
-      <div className="sb-hd-row">
-        <span className="sb-hd-title">Modules</span>
-        <span className="sb-hd-badge">{mode === 'auth' ? 'Auth' : 'Onboarding'}</span>
-      </div>
+      <div className="sb-body">
 
-      <div className="sb-list">
-        <div className="sb-group">
-          <div className="sb-label">Core modules</div>
-          {coreModules.map(renderItem)}
+        <div className="sb-section">
+          <div className="sb-section-title">Onboarding</div>
+          <div className="sb-grid sb-grid--ob">
+            {renderIdentityCard()}
+            {renderTile('face')}
+          </div>
         </div>
 
-        {addonModules.length > 0 && (
-          <div className="sb-group">
-            <div className="sb-label">Add-ons</div>
-            {addonModules.map(renderItem)}
-          </div>
-        )}
-      </div>
+        <div className="sb-divider" />
 
-      {mode !== 'auth' && (
-        <>
-          <div className="sb-sep"/>
-          <div className="sb-templates">
-            <div className="sb-tpl-lbl">Templates</div>
-            {TEMPLATES.map((tpl) => (
-              <button
-                key={tpl.name}
-                className="sb-tpl-btn"
-                onClick={() => applyTemplate(tpl.name)}
-              >
-                {tpl.name}
-              </button>
-            ))}
+        <div className="sb-section">
+          <div className="sb-section-title">Authentication</div>
+          <div className="sb-grid sb-grid--auth">
+            {renderTile('auth')}
           </div>
-        </>
-      )}
+        </div>
+
+        <div className="sb-divider" />
+
+        <div className="sb-section">
+          <div className="sb-section-title">Add-ons</div>
+          <div className="sb-grid">
+            {renderTile('ext')}
+            {renderTile('int')}
+          </div>
+        </div>
+
+        <TemplatesPanel />
+
+      </div>
     </aside>
   );
 }

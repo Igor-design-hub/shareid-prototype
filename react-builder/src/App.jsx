@@ -8,7 +8,7 @@ import Canvas from './components/Canvas/Canvas';
 import Panel from './components/Panel/Panel';
 import Checklist from './components/Checklist/Checklist';
 import BottomBar from './components/BottomBar/BottomBar';
-import TemplatesPanel from './components/TemplatesPanel/TemplatesPanel';
+import Sidebar from './components/Sidebar/Sidebar';
 import Dashboard from './components/Dashboard/Dashboard';
 import TestModal from './components/Modals/TestModal';
 import IntegrateModal from './components/Modals/IntegrateModal';
@@ -95,6 +95,9 @@ export default function App() {
         onIntegrate={() => setIntegrateModal('current')}
       />
       <div className="builder">
+        <div className="sidebar-zone">
+          <Sidebar />
+        </div>
         <div className="builder-center">
           <Canvas />
           <BottomBar />
@@ -103,7 +106,6 @@ export default function App() {
       <div className="right-sidebar">
         {activeId !== null ? <Panel /> : <Checklist />}
       </div>
-      <TemplatesPanel />
       {testModal && createPortal(
         <TestModal data={getWorkflowData(testModal)} onClose={() => setTestModal(null)} />,
         document.body

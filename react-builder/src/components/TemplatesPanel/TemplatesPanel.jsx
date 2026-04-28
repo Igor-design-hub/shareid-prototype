@@ -11,7 +11,6 @@ export default function TemplatesPanel() {
   const deleteSavedTemplate   = useStore((s) => s.deleteSavedTemplate);
   const applySavedTemplate    = useStore((s) => s.applySavedTemplate);
 
-  const [open, setOpen]                   = useState(false);
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [savingName, setSavingName]       = useState('');
   const [savedOk, setSavedOk]            = useState(false);
@@ -59,75 +58,64 @@ export default function TemplatesPanel() {
   };
 
   return (
-    <div className={`tpl-panel${open ? ' tpl-panel--open' : ''}`}>
-      <button className="tpl-panel-toggle" onClick={() => setOpen((v) => !v)}>
-        <svg viewBox="0 0 14 14" fill="none" width="13" height="13">
-          <rect x="1" y="1" width="5" height="5" rx="1.5" stroke="currentColor" strokeWidth="1.3"/>
-          <rect x="8" y="1" width="5" height="5" rx="1.5" stroke="currentColor" strokeWidth="1.3"/>
-          <rect x="1" y="8" width="5" height="5" rx="1.5" stroke="currentColor" strokeWidth="1.3"/>
-          <rect x="8" y="8" width="5" height="5" rx="1.5" stroke="currentColor" strokeWidth="1.3"/>
-        </svg>
-        Templates
-        <svg viewBox="0 0 10 6" fill="none" width="9" height="9" className={`tpl-panel-chevron${open ? ' open' : ''}`}>
-          <path d="M1 1l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
-      </button>
+    <>
+      {/* Divider before templates */}
+      <div className="sb-divider" />
 
-      {open && <>
-        <div className="tpl-panel-section">
-          <div className="tpl-panel-label">Built-in</div>
+      <div className="sb-section sb-section--tpl">
+        <div className="sb-section-title">Templates</div>
+
+        <div className="tpl-group">
+          {savedTemplates.length > 0 && <div className="tpl-group-label">Built-in</div>}
           {TEMPLATES.map((tpl) => (
-            <button key={tpl.name} className="tpl-panel-item"
+            <button key={tpl.name} className="tpl-item"
               onClick={() => handleApply('builtin', tpl)}
               title={tpl.desc}
             >
-              <span className="tpl-panel-item-name">{tpl.name}</span>
+              {tpl.name}
             </button>
           ))}
         </div>
 
-        <div className="tpl-panel-section">
-          <div className="tpl-panel-label">Saved</div>
-          {savedTemplates.length === 0 ? (
-            <div className="tpl-panel-empty">No saved templates yet</div>
-          ) : savedTemplates.map((entry) => (
-            <button key={entry.name} className="tpl-panel-item"
-              onClick={() => handleApply('saved', entry)}
-            >
-              <span className="tpl-panel-item-name">{entry.name}</span>
-              <span className="tpl-panel-item-del" role="button" title="Delete"
-                onClick={(e) => { e.stopPropagation(); deleteSavedTemplate(entry.name); }}
+        {savedTemplates.length > 0 && (
+          <div className="tpl-group">
+            <div className="tpl-group-label">Saved</div>
+            {savedTemplates.map((entry) => (
+              <button key={entry.name} className="tpl-item"
+                onClick={() => handleApply('saved', entry)}
               >
-                <svg viewBox="0 0 12 12" fill="none" width="10" height="10">
-                  <path d="M1 1l10 10M11 1L1 11" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
-                </svg>
-              </span>
-            </button>
-          ))}
-        </div>
-
-        {/* Footer */}
-        {!confirmTpl && (
-          <div className="tpl-panel-footer">
-            {savedOk ? (
-              <div className="tpl-saved-ok">
-                <svg viewBox="0 0 14 14" fill="none" width="13" height="13"><circle cx="7" cy="7" r="6" fill="#1b9764" fillOpacity=".15"/><path d="M4 7l2 2 4-4" stroke="#1b9764" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                Template saved
-              </div>
-            ) : (
-              <button
-                className="tpl-save-btn"
-                disabled={obPipeline.length === 0}
-                onClick={() => { setSavingName(''); setShowSaveModal(true); }}
-              >
-                + Save current as template
+                <span style={{ flex: 1, textAlign: 'left' }}>{entry.name}</span>
+                <span className="tpl-item-del" role="button" title="Delete"
+                  onClick={(e) => { e.stopPropagation(); deleteSavedTemplate(entry.name); }}
+                >
+                  <svg viewBox="0 0 12 12" fill="none" width="10" height="10">
+                    <path d="M1 1l10 10M11 1L1 11" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
+                  </svg>
+                </span>
               </button>
-            )}
+            ))}
           </div>
         )}
-      </>}
 
-      {/* Confirm overwrite — full-screen modal */}
+        <div className="tpl-footer">
+          {savedOk ? (
+            <div className="tpl-saved-ok">
+              <svg viewBox="0 0 14 14" fill="none" width="13" height="13"><circle cx="7" cy="7" r="6" fill="#1b9764" fillOpacity=".15"/><path d="M4 7l2 2 4-4" stroke="#1b9764" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              Saved
+            </div>
+          ) : (
+            <button
+              className="tpl-save-btn"
+              disabled={obPipeline.length === 0}
+              onClick={() => { setSavingName(''); setShowSaveModal(true); }}
+            >
+              + Save current as template
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Confirm overwrite modal */}
       {confirmTpl && createPortal(
         <div className="tpl-modal-overlay" onClick={() => setConfirmTpl(null)}>
           <div className="tpl-modal" onClick={(e) => e.stopPropagation()}>
@@ -160,7 +148,7 @@ export default function TemplatesPanel() {
         document.body
       )}
 
-      {/* Save modal — rendered in body via portal */}
+      {/* Save modal */}
       {showSaveModal && createPortal(
         <div className="tpl-modal-overlay" onClick={() => setShowSaveModal(false)}>
           <div className="tpl-modal" onClick={(e) => e.stopPropagation()}>
@@ -185,6 +173,6 @@ export default function TemplatesPanel() {
         </div>,
         document.body
       )}
-    </div>
+    </>
   );
 }

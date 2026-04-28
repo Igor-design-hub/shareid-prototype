@@ -2,20 +2,20 @@ import { useStore } from '../../store/useStore';
 
 const Check = ({ done, warn }) => {
   if (done) return (
-    <svg viewBox="0 0 16 16" fill="none" width="16" height="16">
+    <svg viewBox="0 0 16 16" fill="none" width="20" height="20">
       <rect x="1" y="1" width="14" height="14" rx="4" fill="#3253d1" fillOpacity=".12"/>
       <path d="M5 8l2.5 2.5L11 5.5" stroke="#3253d1" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
   );
   if (warn) return (
-    <svg viewBox="0 0 16 16" fill="none" width="16" height="16">
+    <svg viewBox="0 0 16 16" fill="none" width="20" height="20">
       <rect x="1" y="1" width="14" height="14" rx="4" fill="#f97316" fillOpacity=".12"/>
       <path d="M8 5v3.5" stroke="#f97316" strokeWidth="1.6" strokeLinecap="round"/>
       <circle cx="8" cy="11" r=".8" fill="#f97316"/>
     </svg>
   );
   return (
-    <svg viewBox="0 0 16 16" fill="none" width="16" height="16">
+    <svg viewBox="0 0 16 16" fill="none" width="20" height="20">
       <rect x="1" y="1" width="14" height="14" rx="4" stroke="var(--brd)" strokeWidth="1.4"/>
     </svg>
   );
@@ -52,7 +52,7 @@ export default function Checklist() {
           : 'Add an identity document to your flow',
       done: docDone,
       warn: !docDone && docSteps.length > 0,
-      onClick: docSteps[0] ? () => { setActive(docSteps[0].id); setCanvasHighlight(docSteps[0].id); } : () => setCanvasHighlight('ob-add'),
+      onClick: docDone ? null : docSteps[0] ? () => { setActive(docSteps[0].id); setCanvasHighlight(docSteps[0].id); } : () => setCanvasHighlight('ob-add'),
     },
     {
       label: 'Set up Authentication',
@@ -63,7 +63,7 @@ export default function Checklist() {
           : 'Choose how returning users log in',
       done: authDone,
       warn: !authDone && authStep !== null,
-      onClick: authStep ? () => { setActive(authStep.id); setCanvasHighlight(authStep.id); } : () => setCanvasHighlight('auth-add'),
+      onClick: authDone ? null : authStep ? () => { setActive(authStep.id); setCanvasHighlight(authStep.id); } : () => setCanvasHighlight('auth-add'),
     },
     {
       label: 'Configure all modules',
@@ -74,7 +74,7 @@ export default function Checklist() {
           : 'Add modules to your flow first',
       done: allConfigured,
       warn: unconfigured.length > 0,
-      onClick: unconfigured[0] ? () => { setActive(unconfigured[0].id); setCanvasHighlight(unconfigured[0].id); } : null,
+      onClick: allConfigured ? null : unconfigured[0] ? () => { setActive(unconfigured[0].id); setCanvasHighlight(unconfigured[0].id); } : null,
     },
   ];
 
@@ -125,10 +125,6 @@ export default function Checklist() {
 
       {allDone && (
         <div className="checklist-done-msg">
-          <svg viewBox="0 0 16 16" fill="none" width="18" height="18">
-            <rect x="1" y="1" width="14" height="14" rx="4" fill="#3253d1" fillOpacity=".12"/>
-            <path d="M4.5 8l2.5 2.5L11.5 5" stroke="#3253d1" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
           Your flow is ready to test
         </div>
       )}
