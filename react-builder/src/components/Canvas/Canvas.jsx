@@ -203,7 +203,41 @@ export default function Canvas() {
       >
         {/* ── Onboarding section ── */}
         <div className="flow-section">
-          <div className={`flow-section-box${dragHint === 'ob' || dragZone === 'ob' ? ' drag-active' : ''}${canvasHighlight === 'ob-add' ? ' canvas-highlight' : ''}`} {...obZone}>
+          <div
+            className={`flow-section-box${dragHint === 'ob' || dragZone === 'ob' ? ' drag-active' : ''}${canvasHighlight === 'ob-add' ? ' canvas-highlight' : ''}`}
+            {...obZone}
+            onDragOver={(e) => {
+              if (e.dataTransfer.types.includes('reorder')) {
+                e.preventDefault();
+                e.stopPropagation();
+                // find closest gap by querying all card wrappers
+                const wraps = e.currentTarget.querySelectorAll('.step-reorder-wrap');
+                let gap = obPipeline.length;
+                for (let i = 0; i < wraps.length; i++) {
+                  const r = wraps[i].getBoundingClientRect();
+                  if (e.clientY < r.top + r.height / 2) { gap = i; break; }
+                }
+                setReorderOver(gap);
+              } else {
+                obZone.onDragOver(e);
+              }
+            }}
+            onDrop={(e) => {
+              if (e.dataTransfer.types.includes('reorder')) {
+                e.preventDefault();
+                e.stopPropagation();
+                const from = parseInt(e.dataTransfer.getData('reorder'));
+                if (!isNaN(from) && reorderOver !== null) {
+                  const to = reorderOver > from ? reorderOver - 1 : reorderOver;
+                  if (to !== from) reorderSteps(from, to, 'ob');
+                }
+                setReorderFrom(null);
+                setReorderOver(null);
+              } else {
+                obZone.onDrop(e);
+              }
+            }}
+          >
             <div className="flow-section-label">
               <span className="flow-section-pill ob-pill">Onboarding</span>
             </div>
@@ -217,38 +251,18 @@ export default function Canvas() {
             {obPipeline.map((step, idx) => {
               const showBackupBtn = step.type === 'doc' && isBackupDoc;
               const isDraggingThis = reorderFrom === idx;
-              const showDropLineBefore = reorderFrom !== null
-                && reorderOver === idx
-                && reorderFrom !== idx
-                && reorderFrom !== idx - 1;
+              const isNoOp = reorderFrom === reorderOver || reorderFrom + 1 === reorderOver;
+              const showDropLineBefore = reorderFrom !== null && !isNoOp && reorderOver === idx;
               return (
                 <React.Fragment key={step.id}>
                   {showDropLineBefore && <div className="step-drop-line" />}
-                  <div
-                    className={`step-reorder-wrap${isDraggingThis ? ' is-dragging' : ''}`}
-                    onDragOver={(e) => {
-                      if (!e.dataTransfer.types.includes('reorder')) return;
-                      e.preventDefault();
-                      e.stopPropagation();
-                      const rect = e.currentTarget.getBoundingClientRect();
-                      setReorderOver(e.clientY < rect.top + rect.height / 2 ? idx : idx + 1);
-                    }}
-                    onDrop={(e) => {
-                      if (!e.dataTransfer.types.includes('reorder')) return;
-                      e.preventDefault();
-                      e.stopPropagation();
-                      const from = parseInt(e.dataTransfer.getData('reorder'));
-                      if (!isNaN(from) && from !== reorderOver && from + 1 !== reorderOver) {
-                        const to = reorderOver > from ? reorderOver - 1 : reorderOver;
-                        reorderSteps(from, to, 'ob');
-                      }
-                      setReorderFrom(null);
-                      setReorderOver(null);
-                    }}
-                  >
+                  <div className={`step-reorder-wrap${isDraggingThis ? ' is-dragging' : ''}`}>
                     <DragHandle
                       onDragStart={(e) => {
                         e.stopPropagation();
+                        // use the card element as drag image
+                        const cardEl = e.currentTarget.parentElement?.querySelector('.step');
+                        if (cardEl) e.dataTransfer.setDragImage(cardEl, cardEl.offsetWidth / 2, 30);
                         e.dataTransfer.setData('reorder', String(idx));
                         e.dataTransfer.effectAllowed = 'move';
                         setTimeout(() => setReorderFrom(idx), 0);
@@ -314,10 +328,8 @@ export default function Canvas() {
                   {!(idx === obPipeline.length - 1 && !addBtnLabel && !showBackupBtn) &&
                    !(showBackupBtn && idx === obPipeline.length - 1) && <Connector />}
                   {/* Drop line after last card */}
-                  {idx === obPipeline.length - 1
-                    && reorderFrom !== null
+                  {idx === obPipeline.length - 1 && reorderFrom !== null && !isNoOp
                     && reorderOver === obPipeline.length
-                    && reorderFrom !== obPipeline.length - 1
                     && <div className="step-drop-line" style={{ marginTop: 8 }} />}
                 </React.Fragment>
               );
