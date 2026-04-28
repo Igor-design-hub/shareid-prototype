@@ -79,6 +79,8 @@ export default function Canvas() {
   const dragCountOb   = useRef(0);
   const dragCountAuth = useRef(0);
 
+  const coreSteps   = obPipeline.filter((s) => s.type !== 'ext' && s.type !== 'int');
+  const addonSteps  = obPipeline.filter((s) => s.type === 'ext' || s.type === 'int');
   const docSteps    = obPipeline.filter((s) => s.type === 'doc');
   const secondDocStep = docSteps[1] ?? null;
   const docCount    = docSteps.length;
@@ -88,7 +90,6 @@ export default function Canvas() {
   const authTok = authStep ? getTok(authStep) : 0;
 
   const usedObTypes = new Set(obPipeline.map((s) => s.type));
-  // Available types to add in order
   const obAddTypes = ['doc', 'face', 'ext', 'int'].filter((t) => {
     if (t === 'doc') return docCount < 2;
     return !usedObTypes.has(t);
@@ -253,14 +254,18 @@ export default function Canvas() {
               if (e.dataTransfer.types.includes('reorder')) {
                 e.preventDefault();
                 e.stopPropagation();
-                // find closest gap by querying all card wrappers
                 const wraps = e.currentTarget.querySelectorAll('.step-reorder-wrap');
-                let gap = obPipeline.length;
+                let coreGap = coreSteps.length;
                 for (let i = 0; i < wraps.length; i++) {
                   const r = wraps[i].getBoundingClientRect();
-                  if (e.clientY < r.top + r.height * 0.25) { gap = i; break; }
+                  if (e.clientY < r.top + r.height * 0.25) { coreGap = i; break; }
                 }
-                setReorderOver(gap);
+                const obGap = coreGap < coreSteps.length
+                  ? obPipeline.findIndex(s => s.id === coreSteps[coreGap].id)
+                  : coreSteps.length > 0
+                    ? obPipeline.findIndex(s => s.id === coreSteps[coreSteps.length - 1].id) + 1
+                    : 0;
+                setReorderOver(obGap);
               } else {
                 obZone.onDragOver(e);
               }
@@ -284,18 +289,15 @@ export default function Canvas() {
             <div className="flow-section-label">
               <span className="flow-section-pill ob-pill">Onboarding</span>
             </div>
-            {obTok > 0 && (
-              <div className="zone-tok-badge">
-                <span className="zone-tok-val">{obTok}</span>
-                <span className="zone-tok-lbl">tok</span>
-              </div>
-            )}
 
-            {obPipeline.map((step, idx) => {
+            {/* ── Core steps (vertical) ── */}
+            {coreSteps.map((step, coreIdx) => {
+              const obIdx = obPipeline.findIndex(s => s.id === step.id);
               const showBackupBtn = step.type === 'doc' && isBackupDoc;
-              const isDraggingThis = reorderFrom === idx;
+              const isDraggingThis = reorderFrom === obIdx;
               const isNoOp = reorderFrom === reorderOver || reorderFrom + 1 === reorderOver;
-              const showDropLineBefore = reorderFrom !== null && !isNoOp && reorderOver === idx;
+              const showDropLineBefore = reorderFrom !== null && !isNoOp && reorderOver === obIdx;
+              const isLastCore = coreIdx === coreSteps.length - 1;
               return (
                 <React.Fragment key={step.id}>
                   {showDropLineBefore && <div className="step-drop-slot" />}
@@ -306,12 +308,11 @@ export default function Canvas() {
                     <DragHandle
                       onDragStart={(e) => {
                         e.stopPropagation();
-                        // use the card element as drag image
                         const cardEl = e.currentTarget.parentElement?.querySelector('.step');
                         if (cardEl) e.dataTransfer.setDragImage(cardEl, cardEl.offsetWidth / 2, 30);
-                        e.dataTransfer.setData('reorder', String(idx));
+                        e.dataTransfer.setData('reorder', String(obIdx));
                         e.dataTransfer.effectAllowed = 'move';
-                        setTimeout(() => setReorderFrom(idx), 0);
+                        setTimeout(() => setReorderFrom(obIdx), 0);
                       }}
                       onDragEnd={(e) => {
                         e.stopPropagation();
@@ -322,9 +323,9 @@ export default function Canvas() {
                     <StepCard
                       step={step}
                       isSecondDoc={step === secondDocStep}
-                      index={idx}
+                      index={coreIdx}
                       isDragOver={false}
-                      isFirst={idx === 0}
+                      isFirst={coreIdx === 0}
                       isHighlighted={canvasHighlight === step.id}
                     />
                   </div>
@@ -364,29 +365,50 @@ export default function Canvas() {
                           </div>
                         </div>
                       ) : (
-                        <AddBtn
-                          label="Add backup document"
-                          onClick={() => setBackupPickerOpen(true)}
-                        />
+                        <AddBtn label="Add backup document" onClick={() => setBackupPickerOpen(true)} />
                       )}
                     </div>
                   )}
-                  {!(idx === obPipeline.length - 1 && !addBtnLabel && !showBackupBtn) &&
-                   !(showBackupBtn && idx === obPipeline.length - 1) && <Connector />}
-                  {/* Drop line after last card */}
-                  {idx === obPipeline.length - 1 && reorderFrom !== null && !isNoOp
-                    && reorderOver === obPipeline.length
+                  {!isLastCore && <Connector />}
+                  {isLastCore && reorderFrom !== null && !isNoOp
+                    && reorderOver > obIdx
                     && <div className="step-drop-slot" style={{ marginTop: 8 }} />}
                 </React.Fragment>
               );
             })}
 
-            {obPipeline.length === 0 && <ZoneHint />}
-            {addBtnLabel && addBtnLabel !== 'Add Identity' && !isBackupDoc && (
-              <AddBtn
-                label={addBtnLabel}
-                onClick={handleAddOb}
-              />
+            {coreSteps.length === 0 && addonSteps.length === 0 && <ZoneHint />}
+
+            {/* ── Add-ons (horizontal) ── */}
+            {addonSteps.length > 0 && (
+              <>
+                <div className="addon-sep">
+                  <div className="addon-sep-label">
+                    <span className="addon-sep-pill">Add-ons</span>
+                  </div>
+                </div>
+                <div className="addon-row">
+                  {addonSteps.map((step) => (
+                    <StepCard
+                      key={step.id}
+                      step={step}
+                      isSecondDoc={false}
+                      index={0}
+                      isDragOver={false}
+                      isFirst={false}
+                      isHighlighted={canvasHighlight === step.id}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
+
+            {/* ── Token total ── */}
+            {obTok > 0 && (
+              <div className="zone-tok-total">
+                <span className="zone-tok-total-val">{obTok}</span>
+                <span className="zone-tok-total-lbl">tok</span>
+              </div>
             )}
           </div>
         </div>
@@ -400,12 +422,6 @@ export default function Canvas() {
             <div className="flow-section-label">
               <span className="flow-section-pill auth-pill">Authentication</span>
             </div>
-            {authTok > 0 && (
-              <div className="zone-tok-badge zone-tok-badge--auth">
-                <span className="zone-tok-val">{authTok}</span>
-                <span className="zone-tok-lbl">tok</span>
-              </div>
-            )}
 
             {authStep ? (
               <StepCard
@@ -417,6 +433,12 @@ export default function Canvas() {
               />
             ) : (
               <ZoneHint variant="auth" />
+            )}
+            {authTok > 0 && (
+              <div className="zone-tok-total zone-tok-total--auth">
+                <span className="zone-tok-total-val">{authTok}</span>
+                <span className="zone-tok-total-lbl">tok</span>
+              </div>
             )}
           </div>
         </div>
