@@ -258,7 +258,7 @@ export default function Canvas() {
                 let gap = obPipeline.length;
                 for (let i = 0; i < wraps.length; i++) {
                   const r = wraps[i].getBoundingClientRect();
-                  if (e.clientY < r.top + r.height / 2) { gap = i; break; }
+                  if (e.clientY < r.top + r.height * 0.25) { gap = i; break; }
                 }
                 setReorderOver(gap);
               } else {
@@ -298,7 +298,7 @@ export default function Canvas() {
               const showDropLineBefore = reorderFrom !== null && !isNoOp && reorderOver === idx;
               return (
                 <React.Fragment key={step.id}>
-                  {showDropLineBefore && <div className="step-drop-line" />}
+                  {showDropLineBefore && <div className="step-drop-slot" />}
                   <div
                     className={`step-reorder-wrap${isDraggingThis ? ' is-dragging' : ''}${justDroppedId === step.id ? ' just-landed' : ''}`}
                     ref={el => { cardRefs.current[step.id] = el; }}
@@ -376,7 +376,7 @@ export default function Canvas() {
                   {/* Drop line after last card */}
                   {idx === obPipeline.length - 1 && reorderFrom !== null && !isNoOp
                     && reorderOver === obPipeline.length
-                    && <div className="step-drop-line" style={{ marginTop: 8 }} />}
+                    && <div className="step-drop-slot" style={{ marginTop: 8 }} />}
                 </React.Fragment>
               );
             })}
