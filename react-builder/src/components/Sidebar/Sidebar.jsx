@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { MODS, Icons } from '../../data/modules';
 import { useStore } from '../../store/useStore';
 import TemplatesPanel from '../TemplatesPanel/TemplatesPanel';
@@ -50,21 +50,17 @@ export default function Sidebar() {
       <>
         <div className="sb-identity-card">
           <div className="sb-identity-card-row">
-            {[{ path: 'document', name: 'Document' }, { path: 'wallet', name: 'Wallet' }].map(({ path, name }) => {
-              const isChosen = chosenPath === path;
-              const isOther  = chosenPath !== null && !isChosen;
-              const isActive = isChosen && docStep?.id === activeId;
-              return (
+            {[{ path: 'document', name: 'Document' }, { path: 'wallet', name: 'Wallet' }].map(({ path, name }, i) => (
+              <React.Fragment key={path}>
                 <Tile
-                  key={path}
                   iconHtml={Icons.doc}
                   name={name}
-                  added={isChosen}
-                  active={isActive}
-                  disabled={isOther}
-                  draggable={!isChosen && !isOther}
-                  onClick={!isOther ? () => handleDocClick(path) : undefined}
-                  onDragStart={!isChosen && !isOther ? (e) => {
+                  added={chosenPath === path}
+                  active={chosenPath === path && docStep?.id === activeId}
+                  disabled={chosenPath !== null && chosenPath !== path}
+                  draggable={chosenPath === null}
+                  onClick={chosenPath !== path ? () => handleDocClick(path) : undefined}
+                  onDragStart={chosenPath === null ? (e) => {
                     e.dataTransfer.setData('moduleType', 'doc');
                     e.dataTransfer.setData('modulePath', path);
                     e.dataTransfer.setData('zone:ob', '');
@@ -73,8 +69,9 @@ export default function Sidebar() {
                   } : undefined}
                   onDragEnd={() => setDragHint(null)}
                 />
-              );
-            })}
+                {i === 0 && <div className="sb-identity-or"><span>OR</span></div>}
+              </React.Fragment>
+            ))}
           </div>
         </div>
       </>
@@ -112,10 +109,13 @@ export default function Sidebar() {
         draggable={!isAdded && !isDisabled}
         onClick={!isDisabled ? () => handleClick(type) : undefined}
         onDragStart={!isAdded && !isDisabled ? (e) => {
+          const isAddonType = type === 'ext' || type === 'int';
+          const zoneKey = type === 'auth' ? 'zone:auth' : isAddonType ? 'zone:addon' : 'zone:ob';
+          const hint    = type === 'auth' ? 'auth' : isAddonType ? 'addon' : 'ob';
           e.dataTransfer.setData('moduleType', type);
-          e.dataTransfer.setData(type === 'auth' ? 'zone:auth' : 'zone:ob', '');
+          e.dataTransfer.setData(zoneKey, '');
           e.dataTransfer.effectAllowed = 'copy';
-          setDragHint(type === 'auth' ? 'auth' : 'ob');
+          setDragHint(hint);
         } : undefined}
         onDragEnd={() => setDragHint(null)}
       />

@@ -21,6 +21,13 @@ const Check = ({ done, warn }) => {
   );
 };
 
+function scrollToHighlight() {
+  requestAnimationFrame(() => {
+    const el = document.querySelector('.canvas-highlight, .canvas-highlight-auth');
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+}
+
 export default function Checklist() {
   const obPipeline   = useStore((s) => s.obPipeline);
   const authPipeline = useStore((s) => s.authPipeline);
@@ -52,7 +59,7 @@ export default function Checklist() {
           : 'Add an identity document to your flow',
       done: docDone,
       warn: !docDone && docSteps.length > 0,
-      onClick: docDone ? null : docSteps[0] ? () => { setActive(docSteps[0].id); setCanvasHighlight(docSteps[0].id); } : () => setCanvasHighlight('ob-add'),
+      onClick: docDone ? null : docSteps[0] ? () => { setActive(docSteps[0].id); setCanvasHighlight(docSteps[0].id); scrollToHighlight(); } : () => { setCanvasHighlight('ob-add'); scrollToHighlight(); },
     },
     {
       label: 'Set up Authentication',
@@ -63,7 +70,7 @@ export default function Checklist() {
           : 'Choose how returning users log in',
       done: authDone,
       warn: !authDone && authStep !== null,
-      onClick: authDone ? null : authStep ? () => { setActive(authStep.id); setCanvasHighlight(authStep.id); } : () => setCanvasHighlight('auth-add'),
+      onClick: authDone ? null : authStep ? () => { setActive(authStep.id); setCanvasHighlight(authStep.id); scrollToHighlight(); } : () => { setCanvasHighlight('auth-add'); scrollToHighlight(); },
     },
     {
       label: 'Configure all modules',
@@ -74,7 +81,7 @@ export default function Checklist() {
           : 'Add modules to your flow first',
       done: allConfigured,
       warn: unconfigured.length > 0,
-      onClick: allConfigured ? null : unconfigured[0] ? () => { setActive(unconfigured[0].id); setCanvasHighlight(unconfigured[0].id); } : null,
+      onClick: allConfigured ? null : unconfigured[0] ? () => { setActive(unconfigured[0].id); setCanvasHighlight(unconfigured[0].id); scrollToHighlight(); } : null,
     },
   ];
 

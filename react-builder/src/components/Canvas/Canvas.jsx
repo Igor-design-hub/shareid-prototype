@@ -43,16 +43,22 @@ function AddBtn({ label, onClick }) {
 }
 
 function ZoneHint({ variant }) {
-  const isAuth = variant === 'auth';
+  const isAuth  = variant === 'auth';
+  const isAddon = variant === 'addon';
+
+  const text = isAuth
+    ? 'Add authentication\nfrom the left panel'
+    : isAddon
+      ? 'Add add-ons\nfrom the left panel'
+      : 'Add an identity document\nor face verification\nfrom the left panel';
+
   return (
-    <div className={`zone-hint${isAuth ? ' zone-hint--auth' : ''}`}>
+    <div className={`zone-hint${isAuth ? ' zone-hint--auth' : ''}${isAddon ? ' zone-hint--addon' : ''}`}>
       <svg viewBox="0 0 20 20" fill="none" width="20" height="20">
         <rect x="1" y="1" width="18" height="18" rx="5" stroke="currentColor" strokeWidth="1.3" strokeDasharray="3 2"/>
         <path d="M10 6v8M6 10h8" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
       </svg>
-      <span className="zone-hint-text">
-        {isAuth ? 'Add authentication\nfrom the left panel' : 'Add a module\nfrom the left panel'}
-      </span>
+      <span className="zone-hint-text">{text}</span>
     </div>
   );
 }
@@ -82,7 +88,8 @@ export default function Canvas() {
   const coreSteps   = obPipeline.filter((s) => s.type !== 'ext' && s.type !== 'int');
   const addonSteps  = obPipeline.filter((s) => s.type === 'ext' || s.type === 'int');
   const docSteps    = obPipeline.filter((s) => s.type === 'doc');
-  const secondDocStep = docSteps[1] ?? null;
+  // Prefer the step that has a role set; fall back to positional second doc
+  const secondDocStep = docSteps.find((s) => s.docRole) ?? docSteps[1] ?? null;
   const docCount    = docSteps.length;
   const authStep    = authPipeline[0] ?? null;
 
@@ -174,6 +181,17 @@ export default function Canvas() {
     setZoom(newZoom);
   }, [setZoom]);
 
+  // Clear all drag state (called when window loses focus / page hidden)
+  const clearDragState = useCallback(() => {
+    dragCountOb.current   = 0;
+    dragCountAuth.current = 0;
+    dragCountAddon.current = 0;
+    setDragZone(null);
+    setReorderFrom(null);
+    setReorderOver(null);
+    useStore.getState().setDragHint(null);
+  }, []);
+
   useEffect(() => {
     const onKey = (e) => {
       if (!e.metaKey && !e.ctrlKey) return;
@@ -186,13 +204,23 @@ export default function Canvas() {
       e.preventDefault();
       zoomAt(e.clientY, -e.deltaY * 0.002);
     };
+    const onVisibility = () => { if (document.hidden) clearDragState(); };
+    const onBlur = () => clearDragState();
+    const onDragEnd = () => clearDragState(); // clears both dragHint + dragZone in one pass
+
     window.addEventListener('keydown', onKey);
     window.addEventListener('wheel', onWheel, { passive: false });
+    window.addEventListener('blur', onBlur);
+    window.addEventListener('dragend', onDragEnd);
+    document.addEventListener('visibilitychange', onVisibility);
     return () => {
       window.removeEventListener('keydown', onKey);
       window.removeEventListener('wheel', onWheel);
+      window.removeEventListener('blur', onBlur);
+      window.removeEventListener('dragend', onDragEnd);
+      document.removeEventListener('visibilitychange', onVisibility);
     };
-  }, [zoomAt, setZoom]);
+  }, [zoomAt, setZoom, clearDragState]);
 
   useEffect(() => {
     if (!canvasHighlight) return;
@@ -200,20 +228,26 @@ export default function Canvas() {
     return () => clearTimeout(t);
   }, [canvasHighlight, clearCanvasHighlight]);
 
+  const dragCountAddon = useRef(0);
+
   // Per-zone drag handlers
   const makeZoneHandlers = useCallback((zone) => {
-    const counter = zone === 'ob' ? dragCountOb : dragCountAuth;
+    const counter = zone === 'ob' ? dragCountOb : zone === 'addon' ? dragCountAddon : dragCountAuth;
+    // Addon drops land in the 'ob' pipeline
+    const targetZone = zone === 'addon' ? 'ob' : zone;
     return {
       onDragOver: (e) => {
         const allowed = e.dataTransfer.types.includes(`zone:${zone}`);
         if (!allowed) { e.dataTransfer.dropEffect = 'none'; return; }
         e.preventDefault();
+        e.stopPropagation();
         e.dataTransfer.dropEffect = 'copy';
       },
       onDragEnter: (e) => {
         const allowed = e.dataTransfer.types.includes(`zone:${zone}`);
         if (!allowed) return;
         e.preventDefault();
+        e.stopPropagation();
         counter.current++;
         setDragZone(zone);
       },
@@ -223,19 +257,21 @@ export default function Canvas() {
       },
       onDrop: (e) => {
         e.preventDefault();
+        e.stopPropagation();
         counter.current = 0;
         setDragZone(null);
         useStore.getState().setDragHint(null);
         const type = e.dataTransfer.getData('moduleType');
         const path = e.dataTransfer.getData('modulePath') || undefined;
         if (!type) return;
-        addStep(type, zone, path ? { path } : {});
+        addStep(type, targetZone, path ? { path } : {});
       },
     };
   }, [addStep]);
 
-  const obZone   = makeZoneHandlers('ob');
-  const authZone = makeZoneHandlers('auth');
+  const obZone    = makeZoneHandlers('ob');
+  const authZone  = makeZoneHandlers('auth');
+  const addonZone = makeZoneHandlers('addon');
 
   const onDrop = useCallback(() => {}, []); // kept for canvas root (no-op)
 
@@ -248,7 +284,7 @@ export default function Canvas() {
         {/* ── Onboarding section ── */}
         <div className="flow-section">
           <div
-            className={`flow-section-box${dragHint === 'ob' || dragZone === 'ob' ? ' drag-active' : ''}${canvasHighlight === 'ob-add' ? ' canvas-highlight' : ''}`}
+            className={`flow-section-box${dragHint === 'ob' || dragZone === 'ob' ? ' drag-active' : ''}${canvasHighlight === 'ob-add' ? ' canvas-highlight' : ''}${dragHint === 'addon' || dragZone === 'addon' ? ' drag-active-addon' : ''}`}
             {...obZone}
             onDragOver={(e) => {
               if (e.dataTransfer.types.includes('reorder')) {
@@ -291,6 +327,7 @@ export default function Canvas() {
             </div>
 
             {/* ── Core steps (vertical) ── */}
+            <div className="ob-core-zone">
             {coreSteps.map((step, coreIdx) => {
               const obIdx = obPipeline.findIndex(s => s.id === step.id);
               const showBackupBtn = step.type === 'doc' && isBackupDoc;
@@ -377,16 +414,20 @@ export default function Canvas() {
               );
             })}
 
-            {coreSteps.length === 0 && addonSteps.length === 0 && <ZoneHint />}
+            {coreSteps.length === 0 && <ZoneHint />}
+            </div>{/* end ob-core-zone */}
 
-            {/* ── Add-ons (horizontal) ── */}
-            {addonSteps.length > 0 && (
-              <>
-                <div className="addon-sep">
-                  <div className="addon-sep-label">
-                    <span className="addon-sep-pill">Add-ons</span>
-                  </div>
-                </div>
+            {/* ── Addon separator — inline-flex with pseudo dashes, no masking ── */}
+            <div className={`addon-sep${dragHint === 'addon' || dragZone === 'addon' ? ' drag-active' : ''}`}>
+              <span className="addon-sep-pill">Add-ons</span>
+            </div>
+
+            {/* ── Add-ons drop zone ── */}
+            <div
+              className={`addon-area${dragHint === 'addon' || dragZone === 'addon' ? ' drag-active' : ''}`}
+              {...addonZone}
+            >
+              {addonSteps.length > 0 ? (
                 <div className="addon-row">
                   {addonSteps.map((step) => (
                     <StepCard
@@ -400,16 +441,11 @@ export default function Canvas() {
                     />
                   ))}
                 </div>
-              </>
-            )}
+              ) : (
+                <ZoneHint variant="addon" />
+              )}
+            </div>
 
-            {/* ── Token total ── */}
-            {obTok > 0 && (
-              <div className="zone-tok-total">
-                <span className="zone-tok-total-val">{obTok}</span>
-                <span className="zone-tok-total-lbl">tok</span>
-              </div>
-            )}
           </div>
         </div>
 
@@ -433,12 +469,6 @@ export default function Canvas() {
               />
             ) : (
               <ZoneHint variant="auth" />
-            )}
-            {authTok > 0 && (
-              <div className="zone-tok-total zone-tok-total--auth">
-                <span className="zone-tok-total-val">{authTok}</span>
-                <span className="zone-tok-total-lbl">tok</span>
-              </div>
             )}
           </div>
         </div>

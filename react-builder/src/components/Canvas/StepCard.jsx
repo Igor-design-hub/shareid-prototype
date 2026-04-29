@@ -68,7 +68,7 @@ const StepCard = memo(function StepCard({ step, isSecondDoc, index, isDragOver, 
   })() : null;
   const configSupportsFb = !!configPresetItem?.fb;
   const allowedFbOpts = configPresetItem?.fbOpts ?? ['none', 'video', 'photo'];
-  const done     = isSecondDoc ? (baseDone && !!step.docRole) : baseDone;
+  const done     = baseDone;
 
   // Coherence checks — only for secondary second doc
   const hasFaceIDV = pipeline.some((s) => s.type === 'face');
@@ -76,9 +76,11 @@ const StepCard = memo(function StepCard({ step, isSecondDoc, index, isDragOver, 
   const showCoherence = isSecondDoc && step.docRole === 'secondary';
   const coherenceOpts = showCoherence ? COHERENCE_OPTS.filter((o) => {
     if (o.key === 'data_coherence' && isTrusted) return false;
-    if (o.key === 'face_coherence' && !hasFaceIDV) return false;
     return true;
-  }) : [];
+  }).map((o) => ({
+    ...o,
+    disabled: o.key === 'face_coherence' && !hasFaceIDV,
+  })) : [];
 
   const typeLabel = isSecondDoc
     ? (step.docRole === 'secondary' ? 'Secondary document' : step.docRole === 'fallback' ? 'Fallback document' : 'Backup document')
@@ -198,14 +200,20 @@ const StepCard = memo(function StepCard({ step, isSecondDoc, index, isDragOver, 
             {coherenceOpts.map((o) => {
               const isOn = !!step.coherence?.[o.key];
               return (
-                <button
+                <span
                   key={o.key}
-                  className={`step-coherence-chip${isOn ? ' on' : ''}`}
-                  onClick={(e) => { e.stopPropagation(); toggleCoherence(o.key); }}
+                  className={`step-info-tip${o.disabled ? ' coherence-tip-wrap' : ''}`}
+                  data-tip={o.disabled ? 'Requires Face IDV module' : undefined}
                 >
-                  <span className="step-coherence-sw" />
-                  {o.l}
-                </button>
+                  <button
+                    className={`step-coherence-chip${isOn ? ' on' : ''}${o.disabled ? ' disabled' : ''}`}
+                    disabled={o.disabled}
+                    onClick={(e) => { e.stopPropagation(); if (!o.disabled) toggleCoherence(o.key); }}
+                  >
+                    <span className="step-coherence-sw" />
+                    {o.l}
+                  </button>
+                </span>
               );
             })}
           </div>

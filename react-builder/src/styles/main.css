@@ -110,8 +110,10 @@ input:focus-visible,textarea:focus-visible,select:focus-visible{outline:none!imp
 /* Identity card container */
 .sb-identity-card{grid-column:1/-1;border-radius:10px;background:var(--bg);overflow:hidden}
 .sb-identity-card:has(.sb-added){background:rgba(244,245,247,0.4)}
-.sb-identity-card-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;padding:12px;position:relative}
-.sb-identity-card-row::after{content:'';position:absolute;top:16px;bottom:16px;left:50%;width:1px;background:var(--brd-l)}
+.sb-identity-card-row{display:grid;grid-template-columns:1fr auto 1fr;gap:0;padding:12px;align-items:stretch}
+.sb-identity-or{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:0 10px}
+.sb-identity-or::before,.sb-identity-or::after{content:'';flex:1;width:1.5px;background:var(--brd);border-radius:1px}
+.sb-identity-or span{font-size:10px;font-weight:700;color:var(--t5);letter-spacing:.06em;line-height:1}
 .sb-identity-card .sb-tile{background:none;border:none;justify-content:center;padding:12px 8px}
 .sb-identity-card .sb-tile:hover{background:rgba(0,0,0,.04)}
 /* tile */
@@ -139,9 +141,14 @@ input:focus-visible,textarea:focus-visible,select:focus-visible{outline:none!imp
 .canvas{flex:1;overflow:auto;display:flex;align-items:flex-start;justify-content:center;padding:72px 400px 80px 40px;position:relative;background-color:#F4F5F7}
 /* Auth section */
 .flow-section{display:flex;flex-direction:column;align-items:center;width:100%}
-.flow-section-box{position:relative;display:flex;flex-direction:column;align-items:center;gap:0;padding:28px 20px 32px;border-radius:28px;border:1.5px dashed #c5c8d6;width:420px;box-sizing:border-box;transition:border-color .15s,background .15s}
-.flow-section-box.drag-active{border-color:var(--blue);background:rgba(50,83,209,0.03)}
+.flow-section-box{position:relative;display:flex;flex-direction:column;align-items:center;gap:0;padding:28px 24px 28px;border-radius:28px;border:1.5px dashed #c5c8d6;width:540px;box-sizing:border-box;transition:border-color .15s,background .15s}
+.flow-section-box.drag-active{border-color:var(--blue);background:transparent}
 .flow-section-box.drag-active .flow-section-pill{color:var(--blue)}
+/* Core drop zone
+   Always-on geometry: top extends into zone border area (margin-top:-28px compensated by padding-top:28px + margin-bottom:28px),
+   bottom extends to addon-sep (padding-bottom:40px, sep margin absorbed → 0).
+   During drag: only background changes — no layout shifts, no jumps. */
+.ob-core-zone{width:calc(100% + 48px);margin:-28px -24px 0;padding:28px 24px 40px;display:flex;flex-direction:column;align-items:center}
 .flow-section-box.drag-active-auth{border-color:var(--auth);background:rgba(232,93,42,0.03)}
 .flow-section-box.drag-active-auth .flow-section-pill{color:var(--auth)}
 .flow-section-label{position:absolute;top:0;left:50%;transform:translate(-50%,-50%);padding:0;background:transparent;z-index:1}
@@ -150,19 +157,28 @@ input:focus-visible,textarea:focus-visible,select:focus-visible{outline:none!imp
 .ob-pill{background:#E5E9F8;color:var(--blue)}
 .auth-pill{background:#F3ECEC;color:var(--auth)}
 
-/* ── Zone token total ── */
-.zone-tok-total{display:flex;align-items:baseline;justify-content:center;gap:3px;margin-top:16px;padding-top:12px;border-top:1px solid var(--brd-l);width:100%}
-.zone-tok-total-val{font-size:20px;font-weight:700;color:var(--blue);letter-spacing:-.03em;line-height:1}
-.zone-tok-total-lbl{font-size:11px;font-weight:600;color:var(--t5)}
-.zone-tok-total--auth .zone-tok-total-val{color:var(--auth)}
-
 /* ── Add-ons section ── */
-.addon-sep{position:relative;width:100%;height:0;border-top:1.5px dashed #c5c8d6;margin:20px 0 16px;display:flex;align-items:center;justify-content:center}
-.addon-sep-label{position:absolute;top:0;left:50%;transform:translate(-50%,-50%);z-index:1}
-.addon-sep-label::before{content:'';position:absolute;inset:-4px -8px;background:var(--bg);border-radius:999px;z-index:-1}
-.addon-sep-pill{display:inline-flex;align-items:center;padding:4px 12px;border-radius:999px;font-size:11px;font-weight:700;background:var(--bg2);color:var(--t4);white-space:nowrap}
+/* Separator: zero-height, pill floats centered on the dashed line — no masking needed.
+   margin:0 — spacing to addon-sep is fully in ob-core-zone padding-bottom (40px). */
+.addon-sep{position:relative;width:100%;height:0;border-top:1.5px dashed #c5c8d6;margin:0;flex-shrink:0;z-index:2}
+.addon-sep-pill{position:absolute;top:0;left:50%;transform:translate(-50%,-50%);display:inline-flex;align-items:center;padding:4px 12px;border-radius:999px;font-size:11px;font-weight:700;background:var(--bg2);color:var(--t4);white-space:nowrap;box-shadow:0 0 0 6px var(--bg)}
+/* Addon drop zone
+   Always-on geometry: bottom extends into zone border area (margin-bottom:-28px compensated by padding-bottom:28px).
+   During drag: only background changes — no layout shifts, no jumps. */
+.addon-area{width:calc(100% + 48px);margin:0 -24px -28px;padding:20px 24px 28px;display:flex;flex-direction:column;align-items:center}
+
+/* ── Drag fills — ob zone (background only, geometry is always-on) ── */
+.flow-section-box.drag-active .ob-core-zone{background:rgba(50,83,209,0.07);border-radius:26px 26px 0 0}
+
+/* ── Drag fills — addon zone (background only, geometry is always-on) ── */
+.addon-sep.drag-active{border-top-color:var(--t4)}
+.addon-sep.drag-active .addon-sep-pill{color:var(--t3)}
+.addon-area.drag-active{background:rgba(100,103,120,0.07);border-radius:0 0 26px 26px}
+/* Zone border: dark (not blue) for addon drags */
+.flow-section-box.drag-active-addon{border-color:var(--t3)}
 .addon-row{display:flex;flex-direction:row;align-items:flex-start;justify-content:center;gap:10px;width:100%}
-.addon-row .step.ext-step,.addon-row .step.int-step{width:190px}
+.addon-row .step.ext-step,.addon-row .step.int-step{width:228px}
+.addon-row .step-inner{overflow:hidden}
 
 
 /* Vertical flow */
@@ -176,6 +192,8 @@ input:focus-visible,textarea:focus-visible,select:focus-visible{outline:none!imp
 
 /* ─── Step card ─────────────────────────────────────────────────────────────── */
 .step{display:flex;flex-direction:column;width:300px;background:var(--white);border:none;border-radius:16px;cursor:pointer;transition:box-shadow .15s;flex-shrink:0;position:relative;overflow:visible;padding:10px;gap:6px}
+/* Extend hover zone to the right so the remove button stays reachable */
+.step::after{content:'';position:absolute;top:0;right:-36px;width:36px;height:100%;pointer-events:auto}
 /* ── Start / End badges ────────────────────────────────────────────────────── */
 .step-start-badge,.step-end-badge{position:absolute;left:0;background:#e6eaf8;color:var(--blue);font-size:11px;font-weight:700;padding:5px 10px;border-radius:8px;line-height:1.2;pointer-events:none;user-select:none;white-space:nowrap}
 .step-start-badge{bottom:calc(100% + 6px)}
@@ -220,16 +238,20 @@ input:focus-visible,textarea:focus-visible,select:focus-visible{outline:none!imp
 .step-chip{display:inline-block;padding:2px 7px;border-radius:5px;background:var(--bg);border:1px solid var(--brd);font-size:11px;font-weight:500;color:var(--t4);white-space:nowrap}
 
 /* Remove button */
-.step-rm{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--brd-l);background:var(--white);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--t5);opacity:0;transition:opacity .1s;padding:0;position:absolute;top:5px;right:5px;z-index:2}
+.step-rm{width:24px;height:36px;border-radius:7px;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--t6);opacity:0;transition:opacity .14s,color .12s,background .12s;padding:0;position:absolute;right:-30px;top:50%;transform:translateY(-50%);z-index:2}
 .step:hover .step-rm,.step:focus .step-rm,.step:focus-within .step-rm{opacity:1}
-.step-rm:hover{color:#dc2626;border-color:#dc2626;background:#fff5f5}
-.step-rm svg{width:7px;height:7px}
+.step-rm:hover{color:#dc2626;background:var(--bg2)}
+.step-rm svg{width:8px;height:8px}
+/* Addon cards — X button inside top-right corner (no right overflow, two cards side-by-side) */
+.addon-step .step-rm{right:6px;top:6px;transform:none;width:20px;height:20px}
+.addon-step::after{display:none}
 
 /* Connector line */
 .conn{display:flex;flex-direction:column;align-items:center;height:40px;flex-shrink:0;position:relative;width:2px}
 .conn::before{content:'';position:absolute;top:8px;bottom:8px;left:50%;width:1.5px;background:var(--brd);transform:translateX(-50%)}
 .conn::after{display:none}
-.conn.dashed::before{background:transparent;border-left:1.5px dashed var(--brd-l)}
+.conn.dashed{height:56px}
+.conn.dashed::before{background:transparent;border-left:1.5px dashed #c5c8d6}
 
 /* Add-node circle */
 .add-node{width:28px;height:28px;border-radius:50%;border:1.5px dashed var(--brd-l);background:var(--white);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--t6);flex-shrink:0;transition:all .15s;padding:0}
@@ -333,8 +355,13 @@ input:focus-visible,textarea:focus-visible,select:focus-visible{outline:none!imp
 .step-coherence-block{margin-top:10px;padding:0 4px 6px;display:flex;flex-direction:column;gap:8px}
 .step-coherence-chips{display:flex;gap:5px}
 .step-coherence-chip{display:flex;align-items:center;gap:7px;flex:1;padding:6px 12px 6px 8px;border:none;border-radius:8px;background:var(--bg);font:600 12px/1 Inter,sans-serif;color:var(--t4);cursor:pointer;transition:all .12s}
-.step-coherence-chip:hover{background:var(--bg2);color:var(--t2)}
+.step-coherence-chip:hover:not(.disabled){background:var(--bg2);color:var(--t2)}
 .step-coherence-chip.on{background:var(--bg);color:var(--t2)}
+.step-coherence-chip.disabled{opacity:.4;cursor:not-allowed}
+.coherence-tip-wrap{position:relative;display:flex;flex:1}
+.coherence-tip-wrap .step-coherence-chip{width:100%}
+.coherence-tip-wrap::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--t1);color:#fff;font:500 11px/1.45 Inter,sans-serif;padding:7px 10px;border-radius:8px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .15s 0s;z-index:300}
+.coherence-tip-wrap:hover::after{opacity:1;transition:opacity .15s .3s}
 /* Toggle switch track */
 .step-coherence-sw{display:inline-block;width:30px;height:18px;border-radius:9px;background:var(--t6);position:relative;flex-shrink:0;transition:background .15s}
 .step-coherence-sw::after{content:'';position:absolute;width:13px;height:13px;border-radius:50%;background:var(--white);top:2.5px;left:2.5px;transition:transform .15s;box-shadow:0 1px 3px rgba(0,0,0,.22)}
