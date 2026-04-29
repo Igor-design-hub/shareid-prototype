@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<title>ShareID — Workflow Builder</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --blue:#3253d1;--blue-h:#2a46b5;--blue-bg:#f0f3fd;--blue-l:#e8ecfb;
+  --navy:#0c0f1a;
+  --green:#16a34a;--green-l:#f0fdf4;--green-t:#15803d;
+  --white:#fff;--bg:#f4f5f7;--bg2:#ecedf1;
+  --t1:#0f1117;--t2:#1e2030;--t3:#3d4155;--t4:#6b7086;--t5:#9ca1b5;--t6:#c5c8d6;
+  --brd:#dfe1ea;--brd-l:#eceef4;
+}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;color:var(--t1);-webkit-font-smoothing:antialiased;background:var(--bg);height:100vh;display:flex;flex-direction:column;overflow:hidden}
+
+/* ─── TOP BAR ─── */
+.topbar{height:52px;border-bottom:1px solid var(--brd-l);display:flex;align-items:center;justify-content:space-between;padding:0 20px;background:var(--white);flex-shrink:0;z-index:10}
+.logo{display:flex;align-items:center;gap:7px;font-weight:800;font-size:14px;color:var(--navy);letter-spacing:-.02em;text-decoration:none}
+.logo svg{width:20px;height:20px}
+.tb-actions{display:flex;align-items:center;gap:8px}
+.tb-btn{padding:7px 14px;border-radius:7px;border:1px solid var(--brd);background:var(--white);font-size:12px;font-weight:600;color:var(--t3);cursor:pointer;font-family:inherit;transition:all .12s;display:flex;align-items:center;gap:5px}
+.tb-btn svg{width:11px;height:11px}
+.tb-btn:hover{border-color:var(--blue);color:var(--blue)}
+.tb-cta{padding:7px 18px;border-radius:7px;background:var(--blue);color:var(--white);border:none;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;text-decoration:none;transition:background .12s}
+.tb-cta:hover{background:var(--blue-h)}
+.tb-cta.off{opacity:.3;pointer-events:none}
+
+/* ─── BODY ─── */
+.body{flex:1;display:flex;overflow:hidden;min-height:0}
+
+/* ─── SIDEBAR ─── */
+.sidebar{width:260px;flex-shrink:0;border-right:1px solid var(--brd-l);background:var(--white);display:flex;flex-direction:column;overflow:hidden}
+.sb-mode{padding:14px 14px 12px}
+.mode-sw{display:flex;background:var(--bg);border-radius:8px;padding:3px;border:1px solid var(--brd-l)}
+.mode-b{flex:1;padding:6px 0;border-radius:5px;border:none;background:none;font-size:12px;font-weight:600;color:var(--t4);cursor:pointer;font-family:inherit;transition:all .12s;text-align:center}
+.mode-b.on{background:var(--white);color:var(--blue);box-shadow:0 1px 3px rgba(0,0,0,.09)}
+.sb-sep{height:1px;background:var(--brd-l);margin:0 14px}
+.sb-head{padding:12px 16px 6px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--t5)}
+.sb-list{padding:0 10px 16px;display:flex;flex-direction:column;gap:0;flex:1;overflow-y:auto}
+.sb-group{display:flex;flex-direction:column;gap:2px}
+.sb-group+.sb-group{margin-top:16px;padding-top:16px;border-top:1px solid var(--brd-l)}
+.sb-label{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--t5);padding:0 12px;margin-bottom:6px}
+.sb-item{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:10px;cursor:grab;user-select:none;transition:all .12s;border:1.5px solid transparent}
+.sb-item:hover{background:var(--bg);border-color:var(--brd-l)}
+.sb-item:active{cursor:grabbing}
+.sb-item.used{opacity:.28;cursor:not-allowed;pointer-events:none}
+.sb-item.dragging{opacity:.3}
+.sb-ico{width:36px;height:36px;border-radius:9px;background:var(--bg);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--t4);transition:all .12s}
+.sb-ico svg{width:16px;height:16px}
+.sb-item[data-type="doc"] .sb-ico{background:#eaf5f0;color:#1b9764}
+.sb-item[data-type="face"] .sb-ico{background:var(--blue-bg);color:var(--blue)}
+.sb-item[data-type="doc"]:hover .sb-ico{background:#d3ede3;color:#1b9764}
+.sb-item[data-type="face"]:hover .sb-ico{background:#dde3fb;color:var(--blue)}
+.sb-item[data-type="ext"]:hover .sb-ico,.sb-item[data-type="int"]:hover .sb-ico{background:var(--blue-bg);color:var(--blue)}
+.sb-info{flex:1;min-width:0}
+.sb-name{font-size:13px;font-weight:600;color:var(--t2)}
+.sb-desc{font-size:11px;color:var(--t5);margin-top:2px}
+.sb-drag{color:var(--t6);opacity:0;transition:opacity .1s;flex-shrink:0}
+.sb-item:hover .sb-drag{opacity:.6}
+
+/* ─── CENTER (flow strip + preview) ─── */
+.center{flex:1;display:flex;flex-direction:column;overflow:hidden;position:relative;min-width:0}
+
+/* Token badge — top-right of center */
+.canvas-tok-badge{position:absolute;top:10px;right:14px;z-index:5;display:none;
+  background:rgba(255,255,255,.96);backdrop-filter:blur(8px);
+  border:1px solid var(--brd-l);border-radius:9px;
+  padding:7px 14px;white-space:nowrap;pointer-events:none;
+  box-shadow:0 2px 10px rgba(0,0,0,.07);text-align:right}
+.canvas-tok-badge.vis{display:block}
+.ctb-n{font-size:18px;font-weight:900;color:var(--blue);letter-spacing:-.02em;line-height:1;display:block}
+.ctb-l{font-size:11px;color:var(--t5);font-weight:500}
+
+/* ─── FLOW STRIP ─── */
+.flow-strip{background:var(--white);border-bottom:1px solid var(--brd-l);padding:18px 24px;display:flex;align-items:center;flex-shrink:0;overflow-x:auto;gap:0;min-height:76px}
+.flow-strip.drag-over{background:var(--blue-bg);border-bottom-color:var(--blue)}
+body.is-dragging .flow-strip{cursor:copy}
+
+/* Flow strip: primary step card */
+.fs-card{display:flex;align-items:center;gap:9px;padding:10px 12px 10px 10px;background:var(--white);border:1.5px solid var(--brd);border-radius:12px;cursor:pointer;transition:all .15s;flex-shrink:0;position:relative;min-width:128px}
+.fs-card:hover{border-color:#b0b6cc;box-shadow:0 2px 10px rgba(0,0,0,.06)}
+.fs-card.active{border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-bg)}
+.fs-card.done{border-color:#10b981;box-shadow:0 0 0 2px #d1fae5}
+.fs-card-ico{width:28px;height:28px;border-radius:8px;background:var(--bg);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s}
+.fs-card.active .fs-card-ico{background:var(--blue)}
+.fs-card.done .fs-card-ico{background:#10b981}
+.fs-card-ico svg{width:13px;height:13px;color:var(--t4);transition:color .15s}
+.fs-card.active .fs-card-ico svg,.fs-card.done .fs-card-ico svg{color:white}
+.fs-card-info{flex:1;min-width:0}
+.fs-card-name{font-size:12px;font-weight:700;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fs-card.active .fs-card-name{color:var(--blue)}
+.fs-card-sub{font-size:10px;color:var(--t5);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
+.fs-card.done .fs-card-sub{color:#10b981}
+.fs-card-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.fs-card-dot.uncfg{background:#f59e0b;box-shadow:0 0 0 2px #fef3c7}
+.fs-card-dot.cfgd{background:#10b981;box-shadow:0 0 0 2px #d1fae5}
+.fs-rm{position:absolute;top:-7px;right:-7px;width:17px;height:17px;border-radius:50%;background:var(--white);border:1px solid var(--brd);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--t5);opacity:0;transition:opacity .1s;padding:0}
+.fs-card:hover .fs-rm,.fs-addon:hover .fs-rm,.fs-int:hover .fs-rm{opacity:1}
+.fs-rm:hover{color:#dc2626;border-color:#dc2626}
+.fs-rm svg{width:7px;height:7px}
+
+/* Flow strip: insert button */
+.fs-ins-btn{width:24px;height:24px;border-radius:50%;border:1.5px dashed var(--brd-l);background:var(--white);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--t6);transition:all .15s;padding:0;flex-shrink:0}
+.fs-ins-btn svg{width:10px;height:10px}
+.fs-ins-btn:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-bg);border-style:solid}
+body.is-dragging .fs-ins-btn{border-color:var(--blue);color:var(--blue);background:var(--blue-bg);border-style:solid}
+
+/* Flow strip: connector line */
+.fs-line{width:24px;flex-shrink:0;height:1.5px;background:var(--brd-l);position:relative}
+.fs-line::after{content:'';position:absolute;right:-4px;top:50%;transform:translateY(-50%);border:4px solid transparent;border-left:6px solid var(--brd-l)}
+
+/* Flow strip: addon chip (ext) */
+.fs-addon{display:flex;align-items:center;gap:5px;padding:6px 10px;border-radius:8px;background:var(--bg);border:1px solid var(--brd-l);font-size:10px;font-weight:600;color:var(--t4);cursor:pointer;flex-shrink:0;transition:all .12s}
+.fs-addon:hover{border-color:var(--brd);color:var(--t2)}
+.fs-addon.active{background:var(--blue-bg);border-color:var(--blue);color:var(--blue)}
+.fs-addon svg{width:11px;height:11px}
+
+/* Flow strip: integration node */
+.fs-int{display:flex;align-items:center;gap:5px;padding:6px 12px;border-radius:8px;background:var(--bg);border:1.5px solid var(--brd-l);font-size:10px;font-weight:700;color:var(--t4);cursor:pointer;flex-shrink:0;transition:all .12s;text-transform:uppercase;letter-spacing:.04em}
+.fs-int:hover{border-color:var(--brd);color:var(--t2)}
+.fs-int.active{background:var(--blue-bg);border-color:var(--blue);color:var(--blue)}
+.fs-int svg{width:11px;height:11px}
+
+/* Flow strip: empty state */
+.fs-empty-hint{display:flex;align-items:center;gap:10px;padding:12px 18px;border-radius:10px;border:1.5px dashed var(--brd-l);font-size:12px;color:var(--t5);font-weight:500;cursor:pointer;transition:all .18s}
+.fs-empty-hint:hover,.body.is-dragging .fs-empty-hint{border-color:var(--blue);color:var(--blue);background:var(--blue-bg)}
+
+/* ─── PREVIEW AREA (center body) ─── */
+.preview-area{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;background:var(--bg);padding:36px 40px;gap:0}
+
+/* Large phone in preview area */
+.pz-phone{width:150px;height:282px;border-radius:30px;border:2.5px solid rgba(0,0,0,.2);background:var(--white);position:relative;overflow:hidden;flex-shrink:0;box-shadow:0 20px 52px rgba(0,0,0,.18),0 4px 12px rgba(0,0,0,.08)}
+.pz-phone-notch{width:34px;height:8px;background:rgba(0,0,0,.18);border-radius:0 0 9px 9px;position:absolute;top:0;left:50%;transform:translateX(-50%);z-index:3}
+.pz-phone-screen{position:absolute;inset:0;top:16px;overflow:hidden}
+.pz-phone-screen svg{width:100%;height:100%}
+.pz-step-name{font-size:17px;font-weight:800;color:var(--navy);letter-spacing:-.02em;margin-top:18px}
+.pz-step-sub{font-size:12px;color:var(--t5);margin-top:4px}
+.pz-tok-badge{display:inline-flex;align-items:baseline;gap:3px;margin-top:10px;padding:5px 14px;background:var(--white);border-radius:99px;border:1px solid var(--brd-l);box-shadow:0 1px 4px rgba(0,0,0,.05)}
+.pz-tok-n{font-size:17px;font-weight:900;color:var(--blue);letter-spacing:-.02em}
+.pz-tok-l{font-size:11px;font-weight:500;color:var(--t5)}
+.pz-empty{display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center}
+.pz-empty-phone{width:90px;height:170px;border-radius:20px;border:2px solid var(--brd);background:var(--white);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,.06)}
+.pz-empty-phone svg{width:32px;height:32px;color:var(--t6)}
+.pz-empty-t{font-size:14px;font-weight:700;color:var(--t4)}
+.pz-empty-s{font-size:12px;color:var(--t5);max-width:220px;line-height:1.55}
+
+/* ─── SIDEBAR: configured & pending states ─── */
+.sb-item.used{cursor:pointer;opacity:.7}
+.sb-item.configured{background:var(--bg);border-color:transparent!important;cursor:pointer;pointer-events:auto;opacity:1}
+.sb-item.type-active{background:var(--blue-bg)!important;border-color:var(--blue-l)!important}
+.sb-check{width:16px;height:16px;border-radius:50%;background:#10b981;color:white;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sb-check svg{width:8px;height:8px}
+.sb-pending-dot{width:8px;height:8px;border-radius:50%;background:#f59e0b;flex-shrink:0}
+.sb-desc.desc-cfgd{color:#10b981!important;font-size:10px}
+.sb-desc.desc-pending{color:#f59e0b!important;font-size:10px}
+
+/* ─── RIGHT PANEL ─── */
+.panel{width:320px;flex-shrink:0;border-left:1px solid var(--brd-l);background:var(--white);display:flex;flex-direction:column;overflow:hidden}
+.panel-inner{width:320px;display:flex;flex-direction:column;height:100%;overflow:hidden}
+.panel-hd{padding:0;border-bottom:1px solid var(--brd-l);flex-shrink:0;overflow:hidden}
+/* Right panel illustration (compact, no phone) */
+.panel-preview{height:96px;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;border-bottom:1px solid rgba(0,0,0,.06)}
+.panel-preview svg{width:180px;height:86px;flex-shrink:0}
+/* Panel header row */
+.panel-hd-row{display:flex;align-items:center;gap:10px;padding:12px 16px}
+.panel-ico{width:30px;height:30px;border-radius:8px;background:var(--blue);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.panel-ico svg{width:13px;height:13px;color:var(--white)}
+.panel-name{font-size:13px;font-weight:800;color:var(--navy);letter-spacing:-.01em}
+.panel-desc{font-size:11px;color:var(--t5);margin-top:1px}
+.panel-body{flex:1;overflow-y:auto;padding:14px 16px 12px}
+/* Panel footer — always visible */
+.panel-foot{padding:14px 16px;border-top:1px solid var(--brd-l);flex-shrink:0;display:flex;flex-direction:column;gap:8px}
+.pf-cta{display:flex;align-items:center;justify-content:center;gap:6px;padding:11px 0;border-radius:9px;background:var(--blue);color:var(--white);border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;text-decoration:none;transition:background .12s;text-align:center}
+.pf-cta:hover{background:var(--blue-h)}
+.pf-cta.off{opacity:.28;pointer-events:none}
+.pf-cta svg{width:13px;height:13px}
+.pf-cfg{display:flex;align-items:center;justify-content:center;gap:6px;padding:9px 0;border-radius:9px;background:none;border:1.5px solid var(--brd);color:var(--t3);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .12s}
+.pf-cfg:hover{border-color:var(--blue);color:var(--blue)}
+.pf-cfg svg{width:11px;height:11px}
+
+/* Add menu popup */
+.add-menu{position:fixed;background:var(--white);border:1px solid var(--brd);border-radius:11px;box-shadow:0 8px 32px rgba(0,0,0,.14);padding:5px;z-index:200;min-width:168px}
+.add-menu-item{display:flex;align-items:center;gap:9px;width:100%;padding:8px 11px;border:none;background:none;cursor:pointer;font-size:12px;font-weight:600;color:var(--t2);border-radius:7px;font-family:inherit;text-align:left;transition:background .1s}
+.add-menu-item:hover{background:var(--bg)}
+.add-menu-item .ami-ico{width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.add-menu-item svg{width:13px;height:13px;flex-shrink:0}
+.pgrp{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--t5);margin:14px 0 6px}
+.pgrp:first-child{margin-top:0}
+.opt{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border-radius:9px;margin-bottom:3px;cursor:pointer;transition:all .1s;border:1.5px solid transparent}
+.opt:hover{background:var(--bg);border-color:var(--brd-l)}
+.opt.on{background:var(--blue-bg);border-color:var(--blue)}
+.opt .ri{width:15px;height:15px;border-radius:50%;border:2px solid var(--t6);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .1s;margin-top:1px}
+.opt.on .ri{border-color:var(--blue);background:var(--blue)}
+.opt .ri i{width:4px;height:4px;border-radius:50%;background:var(--white);transform:scale(0);transition:transform .1s;display:block}
+.opt.on .ri i{transform:scale(1)}
+.opt-body{flex:1;min-width:0}
+.opt-name{font-size:13px;font-weight:600;color:var(--t2);display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.opt.on .opt-name{color:var(--blue)}
+.opt-desc{font-size:11px;color:var(--t5);margin-top:2px}
+.opt-tok{font-size:12px;font-weight:700;color:var(--t5);flex-shrink:0;margin-top:1px}
+.opt.on .opt-tok{color:var(--blue)}
+.rec{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;padding:2px 5px;border-radius:99px;background:var(--green-l);color:var(--green-t)}
+.fb-block{margin-top:12px;padding:12px;border-radius:10px;background:var(--bg);border:1px solid var(--brd-l)}
+.fb-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--t4);margin-bottom:8px;display:flex;align-items:center;gap:4px}
+.fb-lbl svg{width:10px;height:10px;opacity:.5}
+.fb-opts{display:flex;border-radius:7px;overflow:hidden;border:1px solid var(--brd)}
+.fb-opt{flex:1;padding:7px 0;border:none;font-size:12px;font-weight:600;color:var(--t3);background:var(--white);cursor:pointer;font-family:inherit;transition:all .1s;border-right:1px solid var(--brd);text-align:center}
+.fb-opt:last-child{border-right:none}
+.fb-opt.on{background:var(--blue);color:var(--white)}
+.ext-list{display:flex;flex-direction:column;gap:4px}
+.ext-item{display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:9px;cursor:pointer;transition:all .1s;border:1.5px solid var(--brd-l);background:none}
+.ext-item:hover{border-color:var(--brd);background:var(--bg)}
+.ext-item.on{border-color:var(--blue);background:var(--blue-bg)}
+.ext-cb{width:14px;height:14px;border-radius:3px;border:1.5px solid var(--t6);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .1s}
+.ext-item.on .ext-cb{border-color:var(--blue);background:var(--blue)}
+.ext-cb svg{width:8px;height:8px;color:var(--white);opacity:0;transition:.1s}
+.ext-item.on .ext-cb svg{opacity:1}
+.ext-item-name{flex:1;font-size:13px;font-weight:600;color:var(--t2)}
+.ext-item.on .ext-item-name{color:var(--blue)}
+.ext-item-tok{font-size:11px;font-weight:700;color:var(--t5)}
+.ext-item.on .ext-item-tok{color:var(--blue)}
+.int-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--t5);margin-bottom:6px}
+.int-input{width:100%;padding:9px 12px;border:1.5px solid var(--brd-l);border-radius:8px;font-size:13px;font-family:inherit;color:var(--t1);background:var(--bg);transition:border .12s}
+.int-input:focus{outline:none;border-color:var(--blue);background:var(--white)}
+
+/* ─── MODAL ─── */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:100;display:flex;align-items:center;justify-content:center}
+.modal{background:var(--white);border-radius:14px;padding:20px;width:480px;max-height:80vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.15)}
+.modal-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.modal-t{font-size:15px;font-weight:700;color:var(--navy)}
+.modal-x{width:26px;height:26px;border-radius:6px;border:none;background:var(--bg);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--t4)}
+.modal-x svg{width:9px;height:9px}
+.modal-cp{padding:5px 11px;border-radius:6px;border:1.5px solid var(--brd-l);background:none;font-size:12px;font-weight:600;color:var(--t3);cursor:pointer;font-family:inherit}
+.modal-cp:hover{border-color:var(--blue);color:var(--blue)}
+.r-code{background:#1a1d2e;border-radius:10px;padding:14px 16px;overflow-x:auto}
+.r-code pre{font-family:'SF Mono','Fira Code',monospace;font-size:11px;color:#6b7394;line-height:1.6;white-space:pre;margin:0}
+.r-code .k{color:#7d8bd4}.r-code .s{color:#5ec26a}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <a class="logo" href="#">
+    <svg viewBox="0 0 26 26" fill="none"><circle cx="13" cy="13" r="11.5" stroke="#3253d1" stroke-width="1.5"/><circle cx="13" cy="10" r="3.8" stroke="#3253d1" stroke-width="1.3"/><path d="M6.5 22c0-3.6 2.9-6.5 6.5-6.5s6.5 2.9 6.5 6.5" stroke="#3253d1" stroke-width="1.3" stroke-linecap="round"/></svg>
+    ShareID
+  </a>
+  <div class="tb-actions">
+    <span style="font-size:12px;color:var(--t5)">Workflow Builder</span>
+  </div>
+</div>
+
+<!-- BODY -->
+<div class="body">
+
+  <!-- LEFT SIDEBAR -->
+  <div class="sidebar">
+    <div class="sb-mode">
+      <div class="mode-sw">
+        <button class="mode-b on" id="mOnb" onclick="setMode('onboarding')">Onboarding</button>
+        <button class="mode-b" id="mAuth" onclick="setMode('auth')">Authentication</button>
+      </div>
+    </div>
+    <div class="sb-sep"></div>
+    <div class="sb-list" id="sbList"></div>
+  </div>
+
+  <!-- CENTER: flow strip + phone preview -->
+  <div class="center">
+    <div class="canvas-tok-badge" id="ctokBadge">
+      <span class="ctb-n" id="ctokN">0</span>
+      <span class="ctb-l">tok / request</span>
+    </div>
+    <div class="flow-strip" id="flowStrip"
+      ondragover="event.preventDefault()"
+      ondrop="flowStripDrop(event)"
+      ondragenter="flowStripEnter(event)"
+      ondragleave="flowStripLeave(event)">
+    </div>
+    <div class="preview-area" id="previewArea"></div>
+  </div>
+
+  <!-- RIGHT CONFIG PANEL -->
+  <div class="panel" id="panel">
+    <div class="panel-inner">
+      <div class="panel-hd" id="panelHd"></div>
+      <div class="panel-body" id="panelBody"></div>
+      <div class="panel-foot">
+        <a href="pricing.html" class="pf-cta off" id="tbCta">Continue →</a>
+        <button class="pf-cfg" onclick="showJSON()">
+          <svg viewBox="0 0 16 16" fill="none"><path d="M5 3L1 8l4 5M11 3l4 5-4 5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          View config
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /body -->
+
+<script>
+const $=id=>document.getElementById(id);
+let mode='onboarding',pipeline=[],activeId=null,dragType=null;
+
+const SV={
+  doc:'<svg viewBox="0 0 18 18" fill="none"><rect x="2" y="2.5" width="14" height="13" rx="2" stroke="currentColor" stroke-width="1.3"/><circle cx="12" cy="7.5" r="1.5" stroke="currentColor" stroke-width="1"/><path d="M5 7h4M5 9.5h3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>',
+  face:'<svg viewBox="0 0 18 18" fill="none"><circle cx="9" cy="7" r="3.5" stroke="currentColor" stroke-width="1.3"/><path d="M3.5 16c0-3 2.5-5.5 5.5-5.5s5.5 2.5 5.5 5.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>',
+  ext:'<svg viewBox="0 0 18 18" fill="none"><rect x="3" y="3" width="12" height="12" rx="3" stroke="currentColor" stroke-width="1.3"/><path d="M9 6v6M6 9h6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>',
+  int:'<svg viewBox="0 0 18 18" fill="none"><path d="M3 6.5h12M3 11.5h12M7 3v12M11 3v12" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>',
+  auth:'<svg viewBox="0 0 18 18" fill="none"><rect x="5" y="8" width="8" height="6" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M7 8V6.5a2 2 0 014 0V8" stroke="currentColor" stroke-width="1.3"/></svg>',
+  chk:'<svg viewBox="0 0 12 12" fill="none"><path d="M3 6l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  x:'<svg viewBox="0 0 10 10" fill="none"><path d="M2 2l6 6M8 2l-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>',
+  branch:'<svg viewBox="0 0 14 14" fill="none"><path d="M3 3v4c0 2.2 1.8 4 4 4h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>',
+  arr:'<svg viewBox="0 0 12 12" fill="none"><path d="M2 6h8M7 3l3 3-3 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  dots:'<svg viewBox="0 0 8 14" fill="currentColor"><circle cx="2" cy="3" r="1.2"/><circle cx="6" cy="3" r="1.2"/><circle cx="2" cy="7" r="1.2"/><circle cx="6" cy="7" r="1.2"/><circle cx="2" cy="11" r="1.2"/><circle cx="6" cy="11" r="1.2"/></svg>',
+  empty:'<svg width="56" height="48" viewBox="0 0 56 48" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="1" y="8" width="18" height="14" rx="4" stroke-dasharray="3 3"/><rect x="19" y="8" width="18" height="14" rx="4" stroke-dasharray="3 3"/><rect x="37" y="8" width="18" height="14" rx="4" stroke-dasharray="3 3"/><path d="M10 22v8c0 2 1 3 3 3h30c2 0 3-1 3-3v-8" stroke-linecap="round"/><path d="M28 33v8M22 41h12" stroke-linecap="round"/></svg>',
+};
+
+const MODS={
+  doc:{icon:SV.doc,name:'Doc IDV',desc:'ID scanning & NFC chip reading',
+    presets:[
+      {group:'Standard',items:[
+        {v:'basique',l:'Basique',d:'Photo capture',t:1,fb:0},
+        {v:'basique_plus',l:'Basique+',d:'Photo + anti-spoofing',t:2,fb:0,rec:1},
+      ]},
+      {group:'NFC-Enabled',items:[
+        {v:'substantial',l:'Substantiel',d:'NFC + video fallback',t:4,fb:1},
+        {v:'substantial_plus',l:'Substantiel+',d:'NFC + injection detection',t:4,fb:1},
+        {v:'advanced',l:'Advanced',d:'NFC only, no fallback',t:3,fb:0},
+      ]}
+    ]},
+  face:{icon:SV.face,name:'Face IDV',desc:'Liveness & face matching',
+    presets:[{group:null,items:[
+      {v:'basic',l:'Basic',d:'Passive liveness',t:1,rec:1},
+      {v:'substantial',l:'Substantiel',d:'Active liveness',t:2},
+      {v:'high',l:'High',d:'Max assurance',t:5},
+    ]}]},
+  ext:{icon:SV.ext,name:'Extensions',desc:'Add-on modules',
+    chips:[
+      {key:'trusted_source',l:'Trusted Source',t:1},
+      {key:'eudiw_verify',l:'EUDIW Verify',t:2},
+      {key:'eudiw_issue',l:'EUDIW Issue',t:2},
+      {key:'gov_digital_id',l:'Gov Digital ID',t:1},
+    ]},
+  int:{icon:SV.int,name:'Integration',desc:'Webhook callback URL'},
+  auth:{icon:SV.auth,name:'Auth',desc:'Re-verify returning users',
+    presets:[{group:null,items:[
+      {v:'mfa_3',l:'MFA 3.0',d:'Active liveness auth',t:1,type:'mfa',rec:1},
+      {v:'eudiw_pid',l:'EUDIW PID',d:'EU Digital Wallet',t:2,type:'pid'},
+    ]}]},
+};
+
+function getTok(s){if(s.type==='ext'){let t=0;for(const v of Object.values(s.addons||{}))t+=v.t;return t}return s.config?s.config.t||0:0}
+function stepSub(s){
+  if(s.config)return s.config.l;
+  if(s.type==='ext'){const n=Object.keys(s.addons||{}).length;return n?n+' add-on'+(n>1?'s':''):'No add-ons'}
+  return 'Not configured';
+}
+
+function getPhoneBg(t){
+  if(t==='doc')return 'linear-gradient(160deg,#eaf5f0 0%,#d3ede3 100%)';
+  if(t==='face'||t==='auth')return 'linear-gradient(160deg,#f0f3fd 0%,#dde3fb 100%)';
+  if(t==='ext')return 'linear-gradient(160deg,#f5f3ff 0%,#ede9fe 100%)';
+  return 'linear-gradient(160deg,#f4f5f7 0%,#e8e9ee 100%)';
+}
+function getPhoneScreen(t){
+  if(t==='doc')return`<svg viewBox="0 0 76 126" fill="none">
+    <rect x="0" y="0" width="76" height="126" fill="url(#gdoc)"/>
+    <defs><linearGradient id="gdoc" x1="0" y1="0" x2="0" y2="1" gradientUnits="objectBoundingBox"><stop offset="0" stop-color="#eaf5f0"/><stop offset="1" stop-color="#d3ede3"/></linearGradient></defs>
+    <rect x="4" y="0" width="68" height="10" fill="rgba(0,0,0,.55)"/>
+    <rect x="0" y="10" width="4" height="90" fill="rgba(0,0,0,.35)"/>
+    <rect x="72" y="10" width="4" height="90" fill="rgba(0,0,0,.35)"/>
+    <rect x="4" y="100" width="68" height="26" fill="rgba(0,0,0,.55)"/>
+    <rect x="10" y="18" width="56" height="38" rx="3" fill="rgba(255,255,255,.08)" stroke="white" stroke-width="1.5"/>
+    <path d="M10 24 L10 18 L16 18" stroke="#4ade80" stroke-width="2" stroke-linecap="round"/>
+    <path d="M60 18 L66 18 L66 24" stroke="#4ade80" stroke-width="2" stroke-linecap="round"/>
+    <path d="M10 50 L10 56 L16 56" stroke="#4ade80" stroke-width="2" stroke-linecap="round"/>
+    <path d="M66 50 L66 56 L60 56" stroke="#4ade80" stroke-width="2" stroke-linecap="round"/>
+    <line x1="10" y1="37" x2="66" y2="37" stroke="#4ade80" stroke-width="1.2" opacity=".7"/>
+    <circle cx="38" cy="70" r="6" stroke="rgba(255,255,255,.6)" stroke-width="1.5" fill="none"/>
+    <circle cx="38" cy="70" r="2" fill="rgba(255,255,255,.6)"/>
+    <text x="38" y="114" text-anchor="middle" font-size="6" fill="rgba(255,255,255,.7)" font-family="Inter,sans-serif" font-weight="600">Scan your ID</text>
+  </svg>`;
+  if(t==='face')return`<svg viewBox="0 0 76 126" fill="none">
+    <rect x="0" y="0" width="76" height="126" fill="#f0f3fd"/>
+    <rect x="4" y="0" width="68" height="10" fill="rgba(0,0,0,.55)"/>
+    <rect x="0" y="10" width="4" height="106" fill="rgba(0,0,0,.3)"/>
+    <rect x="72" y="10" width="4" height="106" fill="rgba(0,0,0,.3)"/>
+    <rect x="4" y="116" width="68" height="10" fill="rgba(0,0,0,.55)"/>
+    <path d="M14 30 L14 22 L22 22" stroke="#3253d1" stroke-width="1.5" stroke-linecap="round"/>
+    <path d="M62 30 L62 22 L54 22" stroke="#3253d1" stroke-width="1.5" stroke-linecap="round"/>
+    <path d="M14 86 L14 94 L22 94" stroke="#3253d1" stroke-width="1.5" stroke-linecap="round"/>
+    <path d="M62 86 L62 94 L54 94" stroke="#3253d1" stroke-width="1.5" stroke-linecap="round"/>
+    <ellipse cx="38" cy="57" rx="18" ry="22" stroke="#3253d1" stroke-width="1.5" fill="#3253d1" fill-opacity=".06"/>
+    <circle cx="31" cy="51" r="3" stroke="#3253d1" stroke-width="1.2" fill="none"/>
+    <circle cx="45" cy="51" r="3" stroke="#3253d1" stroke-width="1.2" fill="none"/>
+    <circle cx="31" cy="51" r="1.2" fill="#3253d1" opacity=".6"/>
+    <circle cx="45" cy="51" r="1.2" fill="#3253d1" opacity=".6"/>
+    <path d="M33 63 Q38 67 43 63" stroke="#3253d1" stroke-width="1.3" stroke-linecap="round" fill="none"/>
+    <circle cx="38" cy="107" r="6" stroke="white" stroke-width="1.5" fill="none" opacity=".6"/>
+    <circle cx="38" cy="107" r="2" fill="white" opacity=".6"/>
+  </svg>`;
+  if(t==='ext')return`<svg viewBox="0 0 76 126" fill="none">
+    <rect x="0" y="0" width="76" height="126" fill="#f9f8ff"/>
+    <rect x="0" y="0" width="76" height="18" fill="white"/>
+    <rect x="12" y="6" width="30" height="5" rx="2.5" fill="#e8e8f0"/>
+    <rect x="50" y="5.5" width="14" height="6" rx="3" fill="#7c3aed" fill-opacity=".15"/>
+    <line x1="0" y1="18" x2="76" y2="18" stroke="#eceef4" stroke-width="1"/>
+    <rect x="8" y="26" width="60" height="18" rx="5" fill="white" stroke="#eceef4" stroke-width="1"/>
+    <rect x="14" y="32" width="28" height="5" rx="2.5" fill="#e8e8f0"/>
+    <rect x="52" y="30.5" width="10" height="7" rx="3.5" fill="#7c3aed"/>
+    <rect x="8" y="50" width="60" height="18" rx="5" fill="white" stroke="#eceef4" stroke-width="1"/>
+    <rect x="14" y="56" width="22" height="5" rx="2.5" fill="#e8e8f0"/>
+    <rect x="52" y="54.5" width="10" height="7" rx="3.5" fill="#e8e8f0"/>
+    <rect x="8" y="74" width="60" height="18" rx="5" fill="white" stroke="#eceef4" stroke-width="1"/>
+    <rect x="14" y="80" width="26" height="5" rx="2.5" fill="#e8e8f0"/>
+    <rect x="52" y="78.5" width="10" height="7" rx="3.5" fill="#7c3aed"/>
+    <rect x="8" y="98" width="60" height="18" rx="5" fill="white" stroke="#eceef4" stroke-width="1"/>
+    <rect x="14" y="104" width="20" height="5" rx="2.5" fill="#e8e8f0"/>
+    <rect x="52" y="102.5" width="10" height="7" rx="3.5" fill="#e8e8f0"/>
+  </svg>`;
+  if(t==='int')return`<svg viewBox="0 0 76 126" fill="none">
+    <rect x="0" y="0" width="76" height="126" fill="#f4f5f7"/>
+    <rect x="6" y="20" width="64" height="36" rx="7" fill="white" stroke="#eceef4" stroke-width="1"/>
+    <rect x="12" y="28" width="32" height="5" rx="2.5" fill="#eceef4"/>
+    <rect x="12" y="37" width="50" height="11" rx="4" fill="#f4f5f7" stroke="#eceef4" stroke-width="1"/>
+    <rect x="16" y="40" width="30" height="4" rx="2" fill="#c5c8d6"/>
+    <rect x="6" y="66" width="64" height="44" rx="7" fill="white" stroke="#eceef4" stroke-width="1"/>
+    <circle cx="25" cy="80" r="7" fill="#eaf5f0" stroke="#1b9764" stroke-width="1"/>
+    <path d="M22 80 L24.5 82.5 L29 77.5" stroke="#1b9764" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="36" y="75" width="26" height="4" rx="2" fill="#eceef4"/>
+    <rect x="36" y="83" width="18" height="3" rx="1.5" fill="#f0f0f4"/>
+    <line x1="6" y1="96" x2="70" y2="96" stroke="#eceef4" stroke-width="1"/>
+    <rect x="12" y="100" width="40" height="4" rx="2" fill="#eceef4"/>
+  </svg>`;
+  if(t==='auth')return`<svg viewBox="0 0 76 126" fill="none">
+    <rect x="0" y="0" width="76" height="126" fill="#f0f3fd"/>
+    <rect x="0" y="0" width="76" height="28" fill="white" opacity=".5"/>
+    <circle cx="38" cy="14" r="5" fill="#e0e4f9"/>
+    <path d="M15 52 C15 36 22 22 38 18 C54 22 61 36 61 52 L61 68 C61 78 50 86 38 90 C26 86 15 78 15 68 Z" fill="#3253d1" fill-opacity=".08" stroke="#3253d1" stroke-width="1.5"/>
+    <rect x="29" y="55" width="18" height="14" rx="3.5" stroke="#3253d1" stroke-width="1.5" fill="none"/>
+    <path d="M32 55 L32 51 Q32 46 38 46 Q44 46 44 51 L44 55" stroke="#3253d1" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+    <circle cx="38" cy="62" r="2" fill="#3253d1" opacity=".7"/>
+  </svg>`;
+  return '';
+}
+function getPhonePrevBg(t){
+  if(t==='doc')return '#e8f5ee';
+  if(t==='face'||t==='auth')return '#eef1fc';
+  if(t==='ext')return '#f3f1fe';
+  return '#eff0f4';
+}
+function getPrevSVG(t){
+  if(t==='doc')return`<svg viewBox="0 0 160 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="22" y="14" width="116" height="72" rx="8" fill="white" fill-opacity=".6" stroke="#1b9764" stroke-width="1.5"/>
+    <rect x="32" y="26" width="24" height="18" rx="3" stroke="#1b9764" stroke-width="1.2"/>
+    <line x1="64" y1="30" x2="126" y2="30" stroke="#1b9764" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="64" y1="37" x2="112" y2="37" stroke="#1b9764" stroke-width="1.2" stroke-linecap="round" opacity=".4"/>
+    <rect x="32" y="52" width="24" height="24" rx="3" fill="#1b9764" fill-opacity=".06" stroke="#1b9764" stroke-width="1.2"/>
+    <circle cx="44" cy="59" r="5.5" stroke="#1b9764" stroke-width="1" fill="none"/>
+    <path d="M35 76c0-3 4-5.5 9-5.5s9 2.5 9 5.5" stroke="#1b9764" stroke-width="1" stroke-linecap="round"/>
+    <line x1="64" y1="56" x2="126" y2="56" stroke="#1b9764" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="64" y1="63" x2="118" y2="63" stroke="#1b9764" stroke-width="1.2" stroke-linecap="round" opacity=".4"/>
+  </svg>`;
+  if(t==='face')return`<svg viewBox="0 0 160 100" fill="none">
+    <path d="M20 32 L20 18 L34 18" stroke="#3253d1" stroke-width="1.5" stroke-linecap="round"/>
+    <path d="M140 32 L140 18 L126 18" stroke="#3253d1" stroke-width="1.5" stroke-linecap="round"/>
+    <path d="M20 68 L20 82 L34 82" stroke="#3253d1" stroke-width="1.5" stroke-linecap="round"/>
+    <path d="M140 68 L140 82 L126 82" stroke="#3253d1" stroke-width="1.5" stroke-linecap="round"/>
+    <ellipse cx="80" cy="48" rx="30" ry="34" stroke="#3253d1" stroke-width="1.5" fill="#3253d1" fill-opacity=".04"/>
+    <circle cx="69" cy="42" r="4" stroke="#3253d1" stroke-width="1.2" fill="none"/>
+    <circle cx="91" cy="42" r="4" stroke="#3253d1" stroke-width="1.2" fill="none"/>
+    <circle cx="69" cy="42" r="1.5" fill="#3253d1" opacity=".5"/>
+    <circle cx="91" cy="42" r="1.5" fill="#3253d1" opacity=".5"/>
+    <path d="M74 54 Q80 59 86 54" stroke="#3253d1" stroke-width="1.3" stroke-linecap="round" fill="none"/>
+  </svg>`;
+  if(t==='ext')return`<svg viewBox="0 0 160 100" fill="none">
+    <rect x="28" y="28" width="52" height="44" rx="7" fill="white" fill-opacity=".7" stroke="#7c3aed" stroke-width="1.5"/>
+    <path d="M80 44 Q90 44 90 50 Q90 56 80 56" stroke="#7c3aed" stroke-width="1.5" fill="white"/>
+    <line x1="54" y1="36" x2="54" y2="64" stroke="#7c3aed" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="40" y1="50" x2="68" y2="50" stroke="#7c3aed" stroke-width="1.5" stroke-linecap="round"/>
+    <rect x="96" y="38" width="36" height="24" rx="5" fill="#f5f3ff" stroke="#7c3aed" stroke-width="1.2" stroke-dasharray="3 2"/>
+    <line x1="114" y1="46" x2="114" y2="54" stroke="#7c3aed" stroke-width="1.3" stroke-linecap="round" opacity=".7"/>
+    <line x1="110" y1="50" x2="118" y2="50" stroke="#7c3aed" stroke-width="1.3" stroke-linecap="round" opacity=".7"/>
+  </svg>`;
+  if(t==='int')return`<svg viewBox="0 0 160 100" fill="none">
+    <rect x="16" y="34" width="40" height="32" rx="6" fill="white" fill-opacity=".85" stroke="#9ca1b5" stroke-width="1.4"/>
+    <line x1="16" y1="46" x2="56" y2="46" stroke="#eceef4" stroke-width="1"/>
+    <circle cx="26" cy="40" r="2.5" fill="#3253d1" fill-opacity=".35"/>
+    <circle cx="34" cy="40" r="2.5" fill="#3253d1" fill-opacity=".2"/>
+    <rect x="104" y="34" width="40" height="32" rx="6" fill="white" fill-opacity=".85" stroke="#9ca1b5" stroke-width="1.4"/>
+    <line x1="104" y1="46" x2="144" y2="46" stroke="#eceef4" stroke-width="1"/>
+    <circle cx="114" cy="40" r="2.5" fill="#10b981" fill-opacity=".5"/>
+    <circle cx="122" cy="40" r="2.5" fill="#10b981" fill-opacity=".3"/>
+    <path d="M58 47 L102 47" stroke="#3253d1" stroke-width="1.4" stroke-linecap="round"/>
+    <path d="M94 43 L102 47 L94 51" stroke="#3253d1" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <path d="M102 54 L58 54" stroke="#9ca1b5" stroke-width="1.3" stroke-linecap="round"/>
+    <path d="M66 50 L58 54 L66 58" stroke="#9ca1b5" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  </svg>`;
+  if(t==='auth')return`<svg viewBox="0 0 160 100" fill="none">
+    <path d="M80 12 L112 24 L112 52 C112 70 96 82 80 88 C64 82 48 70 48 52 L48 24 Z" stroke="#3253d1" stroke-width="1.5" fill="#3253d1" fill-opacity=".05"/>
+    <rect x="70" y="50" width="20" height="16" rx="3.5" stroke="#3253d1" stroke-width="1.5" fill="none"/>
+    <path d="M73 50 L73 45 Q73 39 80 39 Q87 39 87 45 L87 50" stroke="#3253d1" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+    <circle cx="80" cy="58" r="2.2" fill="#3253d1" opacity=".6"/>
+    <circle cx="53" cy="28" r="6" fill="#10b981" fill-opacity=".15" stroke="#10b981" stroke-width="1.2"/>
+    <path d="M50 28 L52.5 30.5 L57 25.5" stroke="#10b981" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="107" cy="28" r="6" fill="#10b981" fill-opacity=".15" stroke="#10b981" stroke-width="1.2"/>
+    <path d="M104 28 L106.5 30.5 L111 25.5" stroke="#10b981" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>`;
+  return '';
+}
+
+/* ─── DRAG ─── */
+function sbDragStart(e,type){
+  if(pipeline.find(s=>s.type===type)){e.preventDefault();return}
+  dragType=type;
+  e.dataTransfer.setData('text/plain',type);
+  e.dataTransfer.effectAllowed='copy';
+  e.currentTarget.classList.add('dragging');
+  document.body.classList.add('is-dragging');
+}
+function sbDragEnd(e){
+  e.currentTarget.classList.remove('dragging');
+  document.body.classList.remove('is-dragging');
+  dragType=null;
+}
+let _fsDeCount=0;
+function flowStripEnter(e){e.preventDefault();_fsDeCount++;$('flowStrip').classList.add('drag-over');}
+function flowStripLeave(e){_fsDeCount--;if(_fsDeCount<=0){_fsDeCount=0;$('flowStrip').classList.remove('drag-over');}}
+function flowStripDrop(e){
+  e.preventDefault();_fsDeCount=0;
+  $('flowStrip').classList.remove('drag-over');
+  document.body.classList.remove('is-dragging');
+  const type=e.dataTransfer.getData('text/plain');
+  if(!type||pipeline.find(s=>s.type===type))return;
+  const cards=[...document.querySelectorAll('.fs-card')];
+  let idx=pipeline.length;
+  for(let i=0;i<cards.length;i++){const r=cards[i].getBoundingClientRect();if(e.clientX<r.left+r.width/2){idx=i;break;}}
+  const id=type+'_'+Date.now();
+  pipeline.splice(idx,0,{id,type,config:null,fb:null,addons:{}});
+  activeId=id;renderAll();
+}
+
+/* ─── CORE ─── */
+function removeMod(id){
+  pipeline=pipeline.filter(s=>s.id!==id);
+  if(activeId===id)activeId=pipeline.length?pipeline[pipeline.length-1].id:null;
+  renderAll();
+}
+function pickPreset(sid,p){const s=pipeline.find(x=>x.id===sid);if(!s)return;s.config={...p};s.fb=p.fb?'video':null;renderAll()}
+function pickFb(sid,v){const s=pipeline.find(x=>x.id===sid);if(s){s.fb=v;renderAll()}}
+function togAddon(sid,k,t,l){const s=pipeline.find(x=>x.id===sid);if(!s)return;if(s.addons[k])delete s.addons[k];else s.addons[k]={t,l};renderAll()}
+function setActive(id){activeId=activeId===id?null:id;renderAll()}
+function setActiveByType(t){const s=pipeline.find(x=>x.type===t);if(s){activeId=s.id;renderAll();}}
+function setMode(m){mode=m;pipeline=[];activeId=null;renderAll()}
+function closePanel(){activeId=null;renderAll()}
+
+function renderAll(){
+  $('mOnb').className='mode-b'+(mode==='onboarding'?' on':'');
+  $('mAuth').className='mode-b'+(mode==='auth'?' on':'');
+  renderSidebar();renderFlowStrip();renderPreviewArea();renderPanel();renderTopbar();
+}
+
+function renderTopbar(){
+  let t=0;pipeline.forEach(s=>t+=getTok(s));
+  const ok=pipeline.some(s=>s.config)||pipeline.some(s=>s.type==='ext'&&Object.keys(s.addons||{}).length>0);
+  $('tbCta').className='pf-cta'+(ok?'':' off');
+  $('ctokN').textContent=t;
+  const badge=$('ctokBadge');
+  if(badge){badge.className='canvas-tok-badge'+(t>0?' vis':'');}
+}
+
+function renderSidebar(){
+  const added=new Set(pipeline.map(s=>s.type));
+  const activeType=activeId?pipeline.find(s=>s.id===activeId)?.type:null;
+  function renderGroup(types,label,extraCls=''){
+    let h=`<div class="sb-group${extraCls?' '+extraCls:''}"><div class="sb-label">${label}</div>`;
+    types.forEach(t=>{
+      const d=MODS[t];
+      const used=added.has(t);
+      const isActive=used&&t===activeType;
+      const stepInPipeline=pipeline.find(s=>s.type===t);
+      const isCfgd=used&&stepInPipeline&&(stepInPipeline.config||Object.keys(stepInPipeline.addons||{}).length>0);
+      let cls='sb-item';
+      if(used&&isCfgd)cls+=' configured';
+      else if(used)cls+=' used';
+      if(isActive)cls+=' type-active';
+      const clickHandler=used?`onclick="setActiveByType('${t}')"`:'' ;
+      h+=`<div class="${cls}" data-type="${t}" draggable="${!used}" ondragstart="sbDragStart(event,'${t}')" ondragend="sbDragEnd(event)" ${clickHandler}>`;
+      h+=`<div class="sb-ico">${d.icon}</div>`;
+      h+=`<div class="sb-info"><div class="sb-name">${d.name}</div>`;
+      if(used&&isCfgd)h+=`<div class="sb-desc desc-cfgd">✓ ${stepSub(stepInPipeline)}</div>`;
+      else if(used)h+=`<div class="sb-desc desc-pending">Not configured</div>`;
+      else h+=`<div class="sb-desc">${d.desc}</div>`;
+      h+=`</div>`;
+      if(used&&isCfgd)h+=`<div class="sb-check"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>`;
+      else if(used)h+=`<div class="sb-pending-dot"></div>`;
+      else h+=`<div class="sb-drag">${SV.dots}</div>`;
+      h+=`</div>`;
+    });
+    return h+'</div>';
+  }
+  if(mode==='auth'){
+    $('sbList').innerHTML=renderGroup(['auth'],'Core')+renderGroup(['int'],'Integration','addons');
+  } else {
+    $('sbList').innerHTML=renderGroup(['doc','face'],'Core modules')+renderGroup(['ext','int'],'Add-ons','addons');
+  }
+}
+
+function renderFlowStrip(){
+  const strip=$('flowStrip');
+  if(!strip)return;
+  const primary=pipeline.filter(s=>s.type!=='int');
+  const intStep=pipeline.find(s=>s.type==='int');
+  if(!pipeline.length){
+    strip.innerHTML=`<div class="fs-empty-hint">Drop a module here to begin</div>`;
+    return;
+  }
+  let h='';
+  primary.forEach((s,i)=>{
+    const d=MODS[s.type],done=s.config||Object.keys(s.addons||{}).length>0,on=s.id===activeId,tok=getTok(s),isExt=s.type==='ext';
+    if(isExt){
+      const addonCount=Object.keys(s.addons||{}).length;
+      h+=`<div class="fs-line"></div>`;
+      h+=`<div class="fs-addon${on?' active':''}${done?' done':''}" onclick="setActive('${s.id}')" style="position:relative">`;
+      h+=`<span style="display:flex;align-items:center;gap:5px;pointer-events:none">${d.icon}<span>${d.name}${addonCount?' ('+addonCount+')':''}</span></span>`;
+      h+=`<button class="fs-rm" onclick="event.stopPropagation();removeMod('${s.id}')">${SV.x}</button>`;
+      h+=`</div>`;
+    } else {
+      if(i>0)h+=`<div class="fs-line"></div>`;
+      h+=`<button class="fs-ins-btn" onclick="addNodeClick(event,${i})" title="Insert step"><svg viewBox="0 0 14 14" fill="none"><path d="M7 2v10M2 7h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>`;
+      h+=`<div class="fs-line"></div>`;
+      h+=`<div class="fs-card${on?' active':''}${done?' done':''}" onclick="setActive('${s.id}')">`;
+      h+=`<div class="fs-card-ico">${d.icon}</div>`;
+      h+=`<div class="fs-card-info"><div class="fs-card-name">${d.name}</div><div class="fs-card-sub">${done?(tok+' tok'):stepSub(s)}</div></div>`;
+      h+=`<div class="fs-card-dot${done?' cfgd':' uncfg'}"></div>`;
+      h+=`<button class="fs-rm" onclick="event.stopPropagation();removeMod('${s.id}')">${SV.x}</button>`;
+      h+=`</div>`;
+    }
+  });
+  const allTypes=mode==='auth'?['auth','int']:['doc','face','ext','int'];
+  const avail=allTypes.filter(t=>!pipeline.find(s=>s.type===t));
+  if(avail.length){
+    h+=`<div class="fs-line"></div>`;
+    h+=`<button class="fs-ins-btn" onclick="addNodeClick(event,${primary.length})" title="Add step"><svg viewBox="0 0 14 14" fill="none"><path d="M7 2v10M2 7h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>`;
+  }
+  if(intStep){
+    const on=intStep.id===activeId;
+    h+=`<div class="fs-line" style="width:40px;margin-left:8px"></div>`;
+    h+=`<div class="fs-int${on?' active':''}" onclick="setActive('${intStep.id}')" style="position:relative">`;
+    h+=`<span style="display:flex;align-items:center;gap:5px;pointer-events:none">${MODS.int.icon}<span>Integration</span></span>`;
+    h+=`<button class="fs-rm" onclick="event.stopPropagation();removeMod('${intStep.id}')">${SV.x}</button>`;
+    h+=`</div>`;
+  }
+  strip.innerHTML=h;
+}
+
+function renderPreviewArea(){
+  const pa=$('previewArea');
+  if(!pa)return;
+  const s=activeId?pipeline.find(x=>x.id===activeId):null;
+  if(!s){
+    if(!pipeline.length){
+      pa.innerHTML=`<div class="pz-empty"><div class="pz-empty-phone"><svg viewBox="0 0 48 80" fill="none" stroke="currentColor" stroke-width="1.2" color="rgba(0,0,0,.18)" width="48" height="80"><rect x="1" y="1" width="46" height="78" rx="10"/><line x1="16" y1="6" x2="32" y2="6" stroke-linecap="round"/><circle cx="24" cy="71" r="4"/></svg></div><div class="pz-empty-t">Add a step to preview</div><div class="pz-empty-s">Drag a module from the left panel</div></div>`;
+    } else {
+      _renderPhone(pa,pipeline[0]);
+    }
+    return;
+  }
+  _renderPhone(pa,s);
+}
+
+function _renderPhone(container,s){
+  const d=MODS[s.type],tok=getTok(s),done=s.config||Object.keys(s.addons||{}).length>0;
+  container.innerHTML=`
+    <div class="pz-phone" style="background:${getPhoneBg(s.type)}">
+      <div class="pz-phone-notch"></div>
+      <div class="pz-phone-screen">${getPhoneScreen(s.type)}</div>
+    </div>
+    <div class="pz-step-name">${d.name}</div>
+    <div class="pz-step-sub">${done?stepSub(s):'Not configured yet'}</div>
+    ${tok?`<div class="pz-tok-badge"><span class="pz-tok-n">${tok}</span><span class="pz-tok-l">tok / request</span></div>`:''}
+  `;
+}
+
+function addNodeClick(e,insertIdx){
+  e.stopPropagation();
+  const idx=(insertIdx!=null)?insertIdx:pipeline.length;
+  const avail=(mode==='auth'?['auth','int']:['doc','face','ext','int']).filter(t=>!pipeline.find(s=>s.type===t));
+  if(!avail.length)return;
+  document.querySelectorAll('.add-menu').forEach(m=>m.remove());
+  const menu=document.createElement('div');
+  menu.className='add-menu';
+  avail.forEach(t=>{
+    const d=MODS[t];
+    const icoBg=t==='doc'?'background:#eaf5f0;color:#1b9764':t==='face'||t==='auth'?'background:var(--blue-bg);color:var(--blue)':t==='ext'?'background:#f3f1fe;color:#7c3aed':'background:var(--bg);color:var(--t4)';
+    const btn=document.createElement('button');
+    btn.className='add-menu-item';
+    btn.innerHTML=`<div class="ami-ico" style="${icoBg}">${d.icon}</div>${d.name}`;
+    btn.onclick=()=>{
+      const id=t+'_'+Date.now();
+      pipeline.splice(idx,0,{id,type:t,config:null,fb:null,addons:{}});
+      activeId=id;menu.remove();renderAll();
+    };
+    menu.appendChild(btn);
+  });
+  document.body.appendChild(menu);
+  const r=e.currentTarget.getBoundingClientRect();
+  menu.style.left=Math.min(r.left,window.innerWidth-menu.offsetWidth-8)+'px';
+  menu.style.top=(r.top-menu.offsetHeight-6)+'px';
+  setTimeout(()=>document.addEventListener('click',()=>menu.remove(),{once:true}),10);
+}
+
+function renderPanel(){
+  const s=activeId?pipeline.find(x=>x.id===activeId):null;
+  if(!s){
+    $('panelHd').innerHTML=`
+      <div class="panel-preview" style="background:var(--bg)">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:10px;opacity:.35">
+          <svg width="48" height="48" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.3" color="var(--t4)">
+            <rect x="14" y="4" width="20" height="36" rx="4"/>
+            <path d="M14 10h20M14 16h20M14 22h12" stroke-linecap="round"/>
+            <path d="M18 38h12" stroke-linecap="round" opacity=".5"/>
+          </svg>
+          <span style="font-size:11px;font-weight:600;color:var(--t5);text-align:center;max-width:140px;line-height:1.4">Select a step to configure it</span>
+        </div>
+      </div>`;
+    $('panelBody').innerHTML='';
+    return;
+  }
+  const def=MODS[s.type];
+  const hasOpts=def.presets||def.chips||s.type==='int';
+  if(!hasOpts){$('panelHd').innerHTML='';$('panelBody').innerHTML='';return;}
+  $('panelHd').innerHTML=`
+    <div class="panel-preview" style="background:${getPhonePrevBg(s.type)}">
+      ${getPrevSVG(s.type)}
+    </div>
+    <div class="panel-hd-row">
+      <div class="panel-ico">${def.icon}</div>
+      <div style="flex:1">
+        <div class="panel-name">${def.name}</div>
+        <div class="panel-desc">${def.desc}</div>
+      </div>
+      <button onclick="closePanel()" style="width:24px;height:24px;border:none;background:none;cursor:pointer;color:var(--t5);display:flex;align-items:center;justify-content:center;border-radius:5px;flex-shrink:0">${SV.x}</button>
+    </div>`;
+  let h='';
+  if(s.type==='ext'){
+    h+='<div class="ext-list">';
+    def.chips.forEach(c=>{const on=(s.addons||{})[c.key]?' on':'';h+=`<div class="ext-item${on}" onclick="togAddon('${s.id}','${c.key}',${c.t},'${c.l}')"><div class="ext-cb">${SV.chk}</div><div class="ext-item-name">${c.l}</div><div class="ext-item-tok">+${c.t} tok</div></div>`});
+    h+='</div>';
+  }else if(s.type==='int'){
+    h+=`<div class="int-label">Callback URL</div><input class="int-input" type="text" placeholder="https://yourdomain.com/callback" oninput="renderTopbar()">`;
+  }else if(def.presets){
+    def.presets.forEach(g=>{
+      if(g.group)h+=`<div class="pgrp">${g.group}</div>`;
+      g.items.forEach(p=>{
+        const on=s.config&&s.config.v===p.v?' on':'';
+        h+=`<div class="opt${on}" onclick="pickPreset('${s.id}',${JSON.stringify(p).replace(/"/g,'&quot;')})"><div class="ri"><i></i></div><div class="opt-body"><div class="opt-name">${p.l}${p.rec?' <span class="rec">Rec</span>':''}</div><div class="opt-desc">${p.d}</div></div><div class="opt-tok">${p.t} tok</div></div>`;
+      });
+    });
+    const hasFb=s.type==='doc'&&s.config&&s.config.fb;
+    if(hasFb){
+      h+=`<div class="fb-block"><div class="fb-lbl">${SV.branch} Fallback if NFC fails</div><div class="fb-opts"><button class="fb-opt${s.fb==='video'?' on':''}" onclick="pickFb('${s.id}','video')">Video</button><button class="fb-opt${s.fb==='alt'?' on':''}" onclick="pickFb('${s.id}','alt')">Alt path</button><button class="fb-opt${s.fb==='none'?' on':''}" onclick="pickFb('${s.id}','none')">None</button></div></div>`;
+    }
+  }
+  $('panelBody').innerHTML=h;
+}
+
+function buildJSON(){
+  const cbEl=document.querySelector('.int-input'),cb=cbEl?cbEl.value:'',cbUrl=cb||'https://yourdomain.com/shareid/callback';
+  const levels={};
+  pipeline.forEach(s=>{
+    if(s.type==='doc'&&s.config)levels.doc_idv={idv_level:s.config.v};
+    if(s.type==='face'&&s.config)levels.face_idv={idv_level:s.config.v};
+    if(s.type==='ext')for(const k of Object.keys(s.addons||{}))levels[k]={enabled:true};
+    if(s.type==='auth'&&s.config){if(s.config.type==='mfa')levels.authentication={method:'mfa_3'};else levels.eudiw_pid={enabled:true}}
+  });
+  const cfg={credentials:{business_hash:"YOUR_HASH",api_key:"YOUR_KEY"},levels,options:{callback:{urls:[cbUrl]}}};
+  const ds=pipeline.find(s=>s.type==='doc'&&s.config);
+  if(ds&&ds.config.fb&&ds.fb&&ds.fb!=='none')cfg.options.fallback={enabled:true,method:ds.fb==='video'?'video_capture':'alternative_path'};
+  return cfg;
+}
+function showJSON(){
+  const j=JSON.stringify(buildJSON(),null,2);
+  const colored=j.replace(/"([^"]+)":/g,'<span class="k">"$1"</span>:').replace(/: "([^"]+)"/g,': <span class="s">"$1"</span>').replace(/: (true|false)/g,': <span class="s">$1</span>');
+  const d=document.createElement('div');d.className='modal-bg';d.onclick=e=>{if(e.target===d)d.remove()};
+  d.innerHTML=`<div class="modal"><div class="modal-hd"><div class="modal-t">API Configuration</div><div style="display:flex;gap:6px"><button class="modal-cp" onclick="navigator.clipboard.writeText(JSON.stringify(buildJSON(),null,2));this.textContent='Copied!';setTimeout(()=>this.textContent='Copy',1200)">Copy</button><button class="modal-x" onclick="this.closest('.modal-bg').remove()">${SV.x}</button></div></div><div class="r-code"><pre>${colored}</pre></div></div>`;
+  document.body.appendChild(d);
+}
+renderAll();
+</script>
+
+</div><!-- /app -->
+</body>
+</html>

@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<title>ShareID — Workflow Builder</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --blue:#3253d1;--blue-h:#2a46b5;--blue-l:#edf0fc;--blue-bg:#f5f7fd;
+  --navy:#0c0f1a;
+  --green:#16a34a;--green-l:#f0fdf4;--green-t:#15803d;
+  --white:#fff;--bg:#f8f9fb;--bg2:#f1f2f6;
+  --t1:#0f1117;--t2:#1e2030;--t3:#3d4155;--t4:#6b7086;--t5:#9ca1b5;--t6:#c5c8d6;
+  --brd:#e4e6ed;--brd-l:#eceef4;
+  --nfc:#6366f1;--face:#7c3aed;
+  --r:12px;--rs:8px;
+}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;color:var(--t1);background:var(--bg);-webkit-font-smoothing:antialiased;min-height:100vh}
+
+.topbar{height:48px;border-bottom:1px solid var(--brd-l);display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:var(--white)}
+.logo{display:flex;align-items:center;gap:8px;font-weight:800;font-size:15px;color:var(--navy);letter-spacing:-.02em}
+.logo svg{width:22px;height:22px}
+.nav a{font-size:14px;font-weight:500;color:var(--t5);text-decoration:none;margin-left:20px;transition:color .15s}
+.nav a:hover{color:var(--t1)}.nav a.on{color:var(--blue);font-weight:600}
+
+/* ═══ LAYOUT ═══ */
+.main{display:flex;max-width:1200px;margin:0 auto;padding:24px 28px;gap:20px;align-items:flex-start}
+
+/* ═══ LEFT — Pipeline only ═══ */
+.left{width:220px;flex-shrink:0}
+.left-hd h1{font-size:18px;font-weight:800;letter-spacing:-.02em;color:var(--navy)}
+.left-hd p{font-size:12px;color:var(--t5);margin-top:2px}
+.mode-sw{display:flex;background:var(--bg2);border-radius:8px;padding:2px;margin-top:12px}
+.mode-b{flex:1;padding:7px;border-radius:6px;border:none;background:none;font-size:12px;font-weight:600;color:var(--t4);cursor:pointer;font-family:inherit;transition:all .15s;text-align:center}
+.mode-b.on{background:var(--blue);color:var(--white)}
+.left-body{padding:14px 0 0}
+
+.sec-label{font-size:10px;font-weight:700;color:var(--t5);letter-spacing:.06em;text-transform:uppercase;margin:14px 0 6px 2px}
+.sec-label:first-child{margin-top:0}
+
+/* Pipeline items */
+.pip{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:10px;margin-bottom:3px;cursor:pointer;transition:all .12s;border:1.5px solid transparent;user-select:none}
+.pip:hover{background:rgba(0,0,0,.03)}
+.pip.on{background:var(--white);border-color:var(--brd)}
+.pip-ico{width:28px;height:28px;border-radius:7px;background:var(--bg2);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
+.pip.on .pip-ico,.pip.done .pip-ico{background:var(--blue)}
+.pip-ico svg{width:13px;height:13px;color:var(--t5);transition:color .15s}
+.pip.on .pip-ico svg,.pip.done .pip-ico svg{color:var(--white)}
+.pip-name{flex:1;font-size:13px;font-weight:600;color:var(--t2)}
+.pip-rm{width:18px;height:18px;border-radius:4px;border:none;background:none;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--t6);transition:all .12s;flex-shrink:0;opacity:0}
+.pip:hover .pip-rm,.pip.on .pip-rm{opacity:1}
+.pip-rm:hover{color:#dc2626}
+.pip-rm svg{width:8px;height:8px}
+
+/* Add buttons */
+.add-mod{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:9px;margin-bottom:3px;cursor:pointer;transition:all .12s;border:1.5px dashed var(--brd-l)}
+.add-mod:hover{border-color:var(--blue);background:var(--blue-bg)}
+.add-ico{width:26px;height:26px;border-radius:6px;background:var(--bg2);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.add-ico svg{width:12px;height:12px;color:var(--t5)}
+.add-mod:hover .add-ico svg{color:var(--blue)}
+.add-name{font-size:12px;font-weight:500;color:var(--t4)}
+.add-mod:hover .add-name{color:var(--blue);font-weight:600}
+
+/* ═══ RIGHT — Preview zone ═══ */
+.right{flex:1;background:var(--bg2);border-radius:16px;border:1px solid var(--brd-l);overflow:hidden;position:sticky;top:72px;display:flex;flex-direction:column;height:calc(100vh - 72px - 24px)}
+
+/* Token bar */
+.tok-row{display:flex;align-items:center;justify-content:flex-end;padding:12px 16px 0;flex-shrink:0}
+.tok-badge{display:flex;align-items:center;gap:8px;background:var(--white);border:1px solid var(--brd-l);border-radius:10px;padding:7px 14px}
+.tok-num{font-size:22px;font-weight:900;color:var(--navy);letter-spacing:-.02em;line-height:1}
+.tok-info{display:flex;flex-direction:column}
+.tok-unit{font-size:12px;font-weight:600;color:var(--t4)}
+.tok-hint{font-size:10px;color:var(--t5)}
+.tok-actions{display:flex;gap:6px;margin-left:10px;padding-left:10px;border-left:1px solid var(--brd-l)}
+.tok-btn{padding:5px 11px;border-radius:6px;border:1px solid var(--brd-l);background:var(--white);font-size:12px;font-weight:600;color:var(--t3);cursor:pointer;font-family:inherit;transition:all .12s;display:flex;align-items:center;gap:4px}
+.tok-btn svg{width:10px;height:10px}
+.tok-btn:hover{border-color:var(--blue);color:var(--blue)}
+.tok-cta{padding:5px 13px;border-radius:6px;background:var(--blue);color:var(--white);border:none;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;text-decoration:none}
+.tok-cta:hover{background:var(--blue-h)}
+
+/* Phone + shelf together */
+.stage{flex:1;display:flex;align-items:center;justify-content:center;overflow:hidden;min-height:0;position:relative}
+
+.phone-wrap{display:flex;flex-direction:column;align-items:center;flex-shrink:0;position:relative;z-index:1}
+.phone-frame{
+  width:300px;height:560px;
+  background:var(--white);border-radius:34px;border:2px solid var(--brd);
+  box-shadow:0 16px 48px -8px rgba(0,0,0,.12),0 0 0 1px rgba(0,0,0,.03);
+  padding:7px 7px 9px;display:flex;flex-direction:column;
+}
+.ph-notch{width:52px;height:5px;background:var(--brd-l);border-radius:3px;margin:5px auto 7px;flex-shrink:0}
+.ph-body{flex:1;display:flex;flex-direction:column;overflow:hidden;border-radius:24px}
+.ph-foot{padding-top:5px;flex-shrink:0}
+.ph-bar{width:48px;height:4px;background:var(--brd-l);border-radius:2px;margin:0 auto}
+.ph-placeholder{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--t6);gap:8px;font-size:12px;font-weight:500;text-align:center;padding:20px}
+.ph-placeholder svg{width:28px;height:28px;opacity:.25}
+
+/* Config shelf — below phone, inside stage */
+.shelf{position:absolute;left:calc(50% + 168px);top:50%;transform:translateY(-50%);width:240px;background:var(--white);border-radius:14px;border:1px solid var(--brd-l);padding:0;overflow-y:auto;max-height:80%;opacity:0;pointer-events:none;transition:opacity .2s ease;box-shadow:0 4px 20px rgba(0,0,0,.06)}
+.shelf.open{opacity:1;pointer-events:all;padding:14px}
+
+/* Tier pills inside shelf */
+.shelf-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--t5);margin-bottom:8px}
+.tiers{display:flex;flex-direction:column;gap:3px}
+.tier{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;cursor:pointer;transition:all .1s}
+.tier:hover{background:var(--bg)}
+.tier.on{background:var(--blue-bg)}
+.tier .ri{width:14px;height:14px;border-radius:50%;border:2px solid var(--t6);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .1s}
+.tier.on .ri{border-color:var(--blue);background:var(--blue)}
+.tier .ri i{width:4px;height:4px;border-radius:50%;background:var(--white);transform:scale(0);transition:transform .1s;display:block}
+.tier.on .ri i{transform:scale(1)}
+.tier-label{font-size:13px;font-weight:600;color:var(--t2);flex:1}
+.tier.on .tier-label{color:var(--blue)}
+.tier-desc{font-size:11px;color:var(--t5);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tier-tok{font-size:12px;font-weight:700;color:var(--t5);flex-shrink:0}
+.tier.on .tier-tok{color:var(--blue)}
+.rec{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;padding:2px 5px;border-radius:99px;background:var(--green-l);color:var(--green-t);margin-left:4px}
+
+/* Group label inside shelf */
+.shelf-grp{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--t6);margin:8px 0 3px 10px}
+.shelf-grp:first-child{margin-top:0}
+
+/* Fallback row */
+.fb-row{display:flex;align-items:center;gap:8px;padding:6px 10px 0;margin-top:4px;border-top:1px solid var(--brd-l)}
+.fb-lbl{font-size:11px;font-weight:600;color:var(--t4);flex:1;display:flex;align-items:center;gap:4px}
+.fb-lbl svg{width:10px;height:10px;opacity:.5}
+.fb-opts{display:flex;border-radius:6px;overflow:hidden;border:1px solid var(--brd)}
+.fb-opt{padding:4px 10px;border:none;font-size:11px;font-weight:600;color:var(--t3);background:var(--white);cursor:pointer;font-family:inherit;transition:all .1s;border-right:1px solid var(--brd)}
+.fb-opt:last-child{border-right:none}
+.fb-opt.on{background:var(--blue);color:var(--white)}
+
+/* Extension chips in shelf */
+.ext-grid{display:flex;flex-wrap:wrap;gap:4px}
+.ext-chip{display:flex;align-items:center;gap:5px;padding:6px 10px;border-radius:7px;background:var(--bg);border:1px solid var(--brd-l);cursor:pointer;transition:all .1s;font-size:12px;font-weight:600;color:var(--t3)}
+.ext-chip:hover{border-color:var(--brd)}
+.ext-chip.on{border-color:var(--blue);color:var(--blue);background:var(--blue-bg)}
+.ext-chip .ci{width:12px;height:12px;border-radius:3px;border:1.5px solid var(--t6);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .1s}
+.ext-chip.on .ci{border-color:var(--blue);background:var(--blue)}
+.ext-chip .ci svg{width:7px;height:7px;color:var(--white);opacity:0;transition:.1s}
+.ext-chip.on .ci svg{opacity:1}
+.ext-chip-tok{font-size:10px;font-weight:700;color:var(--t5);margin-left:2px}
+.ext-chip.on .ext-chip-tok{color:var(--blue)}
+
+.int-input{width:100%;padding:8px 10px;border:1.5px solid var(--brd-l);border-radius:var(--rs);font-size:13px;font-family:inherit;color:var(--t1);background:var(--bg);margin-top:2px}
+.int-input:focus{outline:none;border-color:var(--blue)}
+
+/* Phone-only empty state */
+.stage-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;gap:10px;color:var(--t6);text-align:center}
+.stage-empty svg{width:44px;height:44px;opacity:.25}
+.stage-empty h3{font-size:15px;font-weight:700;color:var(--t5)}
+.stage-empty p{font-size:13px;color:var(--t5);max-width:220px;line-height:1.5}
+
+.screen{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;text-align:center;animation:si .2s ease}
+@keyframes si{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:scale(1)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.scr-t{font-size:14px;font-weight:700;color:var(--t1);margin-bottom:3px}
+.scr-s{font-size:12px;color:var(--t4);line-height:1.3}
+.scr-btn{margin-top:12px;padding:9px 22px;border-radius:10px;background:var(--blue);color:var(--white);font-size:12px;font-weight:700;display:inline-block}
+.scr-btn.purple{background:var(--face)}
+.scr-doc-frame{width:100px;height:66px;border:2px dashed var(--blue);border-radius:10px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;background:rgba(50,83,209,.02)}
+.scr-doc-frame svg{width:28px;height:28px;color:var(--blue);opacity:.4}
+.scr-nfc{width:48px;height:48px;border-radius:50%;background:rgba(99,102,241,.06);border:2px solid var(--nfc);display:flex;align-items:center;justify-content:center;margin:0 auto 12px}
+.scr-nfc svg{width:22px;height:22px;color:var(--nfc)}
+.scr-face{width:52px;height:52px;border-radius:50%;background:rgba(124,58,237,.04);border:2px solid var(--face);display:flex;align-items:center;justify-content:center;margin:0 auto 12px}
+.scr-face svg{width:26px;height:26px;color:var(--face)}
+.scr-ok{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 10px}
+.scr-ok.blue{background:rgba(50,83,209,.08);color:var(--blue)}.scr-ok.blue svg{width:20px;height:20px}
+
+/* Modal */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:100;display:flex;align-items:center;justify-content:center;animation:fadeUp .15s ease}
+.modal{background:var(--white);border-radius:14px;padding:20px;width:480px;max-height:80vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.15)}
+.modal-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.modal-t{font-size:15px;font-weight:700;color:var(--navy)}
+.modal-x{width:28px;height:28px;border-radius:7px;border:none;background:var(--bg);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--t4)}
+.modal-x svg{width:10px;height:10px}
+.modal-cp{padding:6px 12px;border-radius:6px;border:1.5px solid var(--brd-l);background:none;font-size:13px;font-weight:600;color:var(--t3);cursor:pointer;font-family:inherit}
+.modal-cp:hover{border-color:var(--blue);color:var(--blue)}
+.r-code{background:#1a1d2e;border-radius:10px;padding:16px 18px;overflow-x:auto}
+.r-code pre{font-family:'SF Mono','Fira Code',monospace;font-size:11px;color:#6b7394;line-height:1.6;white-space:pre;margin:0}
+.r-code .k{color:#7d8bd4}.r-code .s{color:#5ec26a}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="logo"><svg viewBox="0 0 26 26" fill="none"><circle cx="13" cy="13" r="11.5" stroke="#3253d1" stroke-width="1.5"/><circle cx="13" cy="10" r="3.8" stroke="#3253d1" stroke-width="1.3"/><path d="M6.5 22c0-3.6 2.9-6.5 6.5-6.5s6.5 2.9 6.5 6.5" stroke="#3253d1" stroke-width="1.3" stroke-linecap="round"/></svg>ShareID</div>
+  <div class="nav"><a href="#" class="on">Documentation</a><a href="pricing.html">Pricing</a></div>
+</div>
+<div class="main">
+  <div class="left">
+    <div class="left-hd">
+      <h1>Workflow Builder</h1>
+      <p>Assemble your verification journey</p>
+      <div class="mode-sw">
+        <button class="mode-b on" id="mOnb" onclick="setMode('onboarding')">Onboarding</button>
+        <button class="mode-b" id="mAuth" onclick="setMode('auth')">Authentication</button>
+      </div>
+    </div>
+    <div class="left-body" id="leftBody"></div>
+  </div>
+  <div class="right">
+    <div class="tok-row" id="tokRow"></div>
+    <div class="stage" id="stage"></div>
+  </div>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+let mode='onboarding',pipeline=[],activeId=null;
+
+const SV={
+  doc:'<svg viewBox="0 0 18 18" fill="none"><rect x="2" y="2.5" width="14" height="13" rx="2" stroke="currentColor" stroke-width="1.3"/><circle cx="12" cy="7.5" r="1.5" stroke="currentColor" stroke-width="1"/><path d="M5 7h4M5 9.5h3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>',
+  face:'<svg viewBox="0 0 18 18" fill="none"><circle cx="9" cy="7" r="3.5" stroke="currentColor" stroke-width="1.3"/><path d="M3.5 16c0-3 2.5-5.5 5.5-5.5s5.5 2.5 5.5 5.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>',
+  ext:'<svg viewBox="0 0 18 18" fill="none"><rect x="3" y="3" width="12" height="12" rx="3" stroke="currentColor" stroke-width="1.3"/><path d="M9 6v6M6 9h6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>',
+  int:'<svg viewBox="0 0 18 18" fill="none"><path d="M3 6.5h12M3 11.5h12M7 3v12M11 3v12" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>',
+  auth:'<svg viewBox="0 0 18 18" fill="none"><rect x="5" y="8" width="8" height="6" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M7 8V6.5a2 2 0 014 0V8" stroke="currentColor" stroke-width="1.3"/></svg>',
+  plus:'<svg viewBox="0 0 16 16" fill="none"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>',
+  chk:'<svg viewBox="0 0 12 12" fill="none"><path d="M3 6l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  x:'<svg viewBox="0 0 10 10" fill="none"><path d="M2 2l6 6M8 2l-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>',
+  empty:'<svg viewBox="0 0 48 48" fill="none"><rect x="10" y="5" width="28" height="38" rx="7" stroke="currentColor" stroke-width="1.5" stroke-dasharray="3 3"/><path d="M24 19v10M19 24h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>',
+  branch:'<svg viewBox="0 0 14 14" fill="none"><path d="M3 3v4c0 2.2 1.8 4 4 4h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>',
+  code:'<svg viewBox="0 0 16 16" fill="none"><path d="M5 3L1 8l4 5M11 3l4 5-4 5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+};
+const IC={
+  id:'<svg viewBox="0 0 36 36" fill="none"><rect x="4" y="8" width="28" height="20" rx="3" stroke="currentColor" stroke-width="1.8"/><circle cx="24" cy="16" r="2.5" stroke="currentColor" stroke-width="1.3"/><path d="M10 15h7M10 18.5h5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>',
+  nfc:'<svg viewBox="0 0 36 36" fill="none"><rect x="7" y="7" width="22" height="22" rx="3" stroke="currentColor" stroke-width="1.8"/><path d="M14 21a5 5 0 015-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M12 23a8 8 0 018-8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="16" cy="21" r="1.2" fill="currentColor"/></svg>',
+  face:'<svg viewBox="0 0 40 40" fill="none"><circle cx="20" cy="16" r="7" stroke="currentColor" stroke-width="1.8"/><path d="M8 35c0-6.6 5.4-12 12-12s12 5.4 12 12" stroke="currentColor" stroke-width="1.8"/></svg>',
+  sh:'<svg viewBox="0 0 28 28" fill="none"><path d="M14 3L4 7v6c0 6.6 4.3 12.7 10 14 5.7-1.3 10-7.4 10-14V7L14 3z" stroke="currentColor" stroke-width="1.5"/><path d="M10 14l2.5 2.5L18 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  wl:'<svg viewBox="0 0 36 36" fill="none"><rect x="5" y="10" width="26" height="16" rx="3" stroke="currentColor" stroke-width="1.8"/><path d="M5 15h26" stroke="currentColor" stroke-width="1.5"/><circle cx="24" cy="21" r="1.5" fill="currentColor"/></svg>',
+};
+const mk={
+  docCap:()=>`<div class="screen"><div class="scr-doc-frame">${IC.id}</div><div class="scr-t">Scan document</div><div class="scr-s">Position ID in frame</div><div class="scr-btn">Capture</div></div>`,
+  nfc:()=>`<div class="screen"><div class="scr-nfc">${IC.nfc}</div><div class="scr-t">Reading NFC</div><div class="scr-s">Hold doc to phone</div></div>`,
+  fSelf:()=>`<div class="screen"><div class="scr-face">${IC.face}</div><div class="scr-t">Face capture</div><div class="scr-btn purple">Start</div></div>`,
+  authL:()=>`<div class="screen"><div class="scr-face">${IC.face}</div><div class="scr-t">Verify identity</div><div class="scr-btn">Authenticate</div></div>`,
+  wallet:()=>`<div class="screen"><div class="scr-ok blue">${IC.wl}</div><div class="scr-t">EU Wallet</div><div class="scr-btn">Open wallet</div></div>`,
+};
+const MODS={
+  doc:{icon:SV.doc,name:'Doc IDV',full:'Document IDV',desc:'ID scanning & NFC chip reading',
+    presets:[
+      {group:'Standard',items:[
+        {v:'basique',l:'Basique',d:'Photo capture',t:1,fb:0},
+        {v:'basique_plus',l:'Basique+',d:'Photo + anti-spoofing',t:2,fb:0,rec:1},
+      ]},
+      {group:'NFC-Enabled',items:[
+        {v:'substantial',l:'Substantiel',d:'NFC + video fallback',t:4,fb:1},
+        {v:'substantial_plus',l:'Substantiel+',d:'NFC + injection detection',t:4,fb:1},
+        {v:'advanced',l:'Advanced',d:'NFC only, no fallback',t:3,fb:0},
+      ]}
+    ]},
+  face:{icon:SV.face,name:'Face IDV',full:'Face IDV',desc:'Liveness & face matching',
+    presets:[{group:null,items:[
+      {v:'basic',l:'Basic',d:'Passive liveness',t:1,rec:1},
+      {v:'substantial',l:'Substantiel',d:'Active liveness',t:2},
+      {v:'high',l:'High',d:'Max assurance',t:5},
+    ]}]},
+  ext:{icon:SV.ext,name:'Extensions',full:'Extensions',desc:'Add-on modules',
+    chips:[
+      {key:'trusted_source',l:'Trusted Source',t:1},
+      {key:'eudiw_verify',l:'EUDIW Verify',t:2},
+      {key:'eudiw_issue',l:'EUDIW Issue',t:2},
+      {key:'gov_digital_id',l:'Gov Digital ID',t:1},
+    ]},
+  int:{icon:SV.int,name:'Integration',full:'Integration',desc:'Webhook callback URL'},
+  auth:{icon:SV.auth,name:'Auth',full:'Authentication',desc:'Re-verify returning users',
+    presets:[{group:null,items:[
+      {v:'mfa_3',l:'MFA 3.0',d:'Active liveness auth',t:1,type:'mfa',rec:1},
+      {v:'eudiw_pid',l:'EUDIW PID',d:'EU Digital Wallet',t:2,type:'pid'},
+    ]}]},
+};
+
+function screenFor(s){
+  if(s.type==='doc'&&s.config){const nfc=s.config.v.includes('substantial')||s.config.v==='advanced';return nfc?mk.nfc():mk.docCap()}
+  if(s.type==='face'&&s.config)return mk.fSelf();
+  if(s.type==='auth'&&s.config)return s.config.type==='pid'?mk.wallet():mk.authL();
+  if(s.type==='ext'){const n=Object.keys(s.addons||{}).length;if(n)return`<div class="screen"><div class="scr-ok blue">${IC.sh}</div><div class="scr-t">${n} Extension${n>1?'s':''}</div><div class="scr-s">Active add-ons</div></div>`}
+  return null;
+}
+function getTok(s){if(s.type==='ext'){let t=0;for(const v of Object.values(s.addons||{}))t+=v.t;return t}return s.config?s.config.t||0:0}
+function has(t){return pipeline.some(s=>s.type===t)}
+
+function toggleMod(type){
+  const ex=pipeline.find(s=>s.type===type);
+  if(ex){pipeline=pipeline.filter(s=>s.id!==ex.id);if(activeId===ex.id)activeId=pipeline.length?pipeline[pipeline.length-1].id:null;renderAll();return}
+  const id=type+'_'+Date.now();
+  pipeline.push({id,type,config:null,fb:null,addons:{}});
+  activeId=id;renderAll();
+}
+function pickPreset(sid,p){const s=pipeline.find(x=>x.id===sid);if(!s)return;s.config={...p};s.fb=p.fb?'video':null;renderAll()}
+function pickFb(sid,v){const s=pipeline.find(x=>x.id===sid);if(s){s.fb=v;renderAll()}}
+function togAddon(sid,k,t,l){const s=pipeline.find(x=>x.id===sid);if(!s)return;if(s.addons[k])delete s.addons[k];else s.addons[k]={t,l};renderAll()}
+function setActive(id){activeId=id;renderAll()}
+function setMode(m){mode=m;pipeline=[];activeId=null;renderAll()}
+
+function renderAll(){
+  $('mOnb').className='mode-b'+(mode==='onboarding'?' on':'');
+  $('mAuth').className='mode-b'+(mode==='auth'?' on':'');
+  renderLeft();renderStage();
+}
+
+function renderLeft(){
+  const sections=mode==='auth'?
+    [{label:'Authentication',types:['auth']},{label:'Setup',types:['int']}]:
+    [{label:'Verification',types:['doc','face']},{label:'Optional',types:['ext','int']}];
+  let h='';
+  if(pipeline.length){
+    pipeline.forEach(s=>{
+      const d=MODS[s.type],on=s.id===activeId,done=s.config||Object.keys(s.addons||{}).length>0;
+      h+=`<div class="pip${on?' on':''}${done?' done':''}" onclick="setActive('${s.id}')">`;
+      h+=`<div class="pip-ico">${d.icon}</div>`;
+      h+=`<div class="pip-name">${d.name}</div>`;
+      h+=`<div class="pip-rm" onclick="event.stopPropagation();toggleMod('${s.type}')">${SV.x}</div>`;
+      h+=`</div>`;
+    });
+  }
+  const added=new Set(pipeline.map(s=>s.type));
+  let first=true;
+  sections.forEach(sec=>{
+    const avail=sec.types.filter(t=>!added.has(t));
+    if(!avail.length)return;
+    if(first){h+=`<div class="sec-label" style="margin-top:${pipeline.length?14:0}px">Add module</div>`;first=false;}
+    avail.forEach(t=>{
+      const d=MODS[t];
+      h+=`<div class="add-mod" onclick="toggleMod('${t}')"><div class="add-ico">${d.icon}</div><div class="add-name">${d.name}</div></div>`;
+    });
+  });
+  $('leftBody').innerHTML=h;
+}
+
+function renderStage(){
+  const stage=$('stage'),tr=$('tokRow');
+  let t=0;pipeline.forEach(s=>t+=getTok(s));
+  const ok=pipeline.some(s=>s.config)||pipeline.some(s=>s.type==='ext'&&Object.keys(s.addons||{}).length);
+  tr.innerHTML=ok?`<div class="tok-badge"><div class="tok-num">${t}</div><div class="tok-info"><div class="tok-unit">tokens</div><div class="tok-hint">per request</div></div><div class="tok-actions"><button class="tok-btn" onclick="showJSON()">${SV.code} Config</button><a href="pricing.html" class="tok-cta">Continue</a></div></div>`:'';
+
+  if(!pipeline.length){
+    stage.innerHTML=`<div class="stage-empty">${SV.empty}<h3>No modules added</h3><p>Click a product on the left to add it to your workflow</p></div>`;
+    return;
+  }
+  const act=pipeline.find(s=>s.id===activeId);
+  if(!act){activeId=pipeline[0].id;renderStage();return}
+
+  const scr=screenFor(act);
+  let phone='<div class="phone-wrap"><div class="phone-frame"><div class="ph-notch"></div><div class="ph-body">';
+  if(scr){phone+=scr}else{
+    phone+=`<div class="ph-placeholder">${MODS[act.type].icon}<span>Select a tier</span></div>`;
+  }
+  phone+='</div><div class="ph-foot"><div class="ph-bar"></div></div></div></div>';
+
+  // Build shelf — appears to the right of the phone
+  const def=MODS[act.type];
+  let shelf='';
+  if(def.presets){
+    shelf+='<div class="shelf open">';
+    def.presets.forEach(g=>{
+      if(g.group)shelf+=`<div class="shelf-grp">${g.group}</div>`;
+      shelf+='<div class="tiers">';
+      g.items.forEach(p=>{
+        const on=act.config&&act.config.v===p.v?' on':'';
+        shelf+=`<div class="tier${on}" onclick="pickPreset('${act.id}',${JSON.stringify(p).replace(/"/g,'&quot;')})"><div class="ri"><i></i></div><div class="tier-label">${p.l}${p.rec?'<span class="rec">Rec</span>':''}</div><div class="tier-desc">${p.d}</div><div class="tier-tok">${p.t} tok</div></div>`;
+      });
+      shelf+='</div>';
+    });
+    const hasFb=act.type==='doc'&&act.config&&act.config.fb;
+    if(hasFb){
+      shelf+=`<div class="fb-row"><div class="fb-lbl">${SV.branch} Fallback if NFC fails</div><div class="fb-opts"><button class="fb-opt${act.fb==='video'?' on':''}" onclick="pickFb('${act.id}','video')">Video</button><button class="fb-opt${act.fb==='alt'?' on':''}" onclick="pickFb('${act.id}','alt')">Alt path</button><button class="fb-opt${act.fb==='none'?' on':''}" onclick="pickFb('${act.id}','none')">None</button></div></div>`;
+    }
+    shelf+='</div>';
+  } else if(def.chips){
+    shelf+='<div class="shelf open"><div class="ext-grid">';
+    def.chips.forEach(c=>{const on=(act.addons||{})[c.key]?' on':'';shelf+=`<div class="ext-chip${on}" onclick="togAddon('${act.id}','${c.key}',${c.t},'${c.l}')"><div class="ci">${SV.chk}</div>${c.l}<span class="ext-chip-tok">+${c.t}</span></div>`});
+    shelf+='</div></div>';
+  } else if(act.type==='int'){
+    shelf+=`<div class="shelf open"><input class="int-input" type="text" placeholder="https://yourdomain.com/callback"></div>`;
+  }
+
+  stage.innerHTML=phone+shelf;
+}
+
+function buildJSON(){
+  const cbEl=document.querySelector('.int-input'),cb=cbEl?cbEl.value:'',cbUrl=cb||'https://yourdomain.com/shareid/callback';
+  const levels={};
+  pipeline.forEach(s=>{
+    if(s.type==='doc'&&s.config)levels.doc_idv={idv_level:s.config.v};
+    if(s.type==='face'&&s.config)levels.face_idv={idv_level:s.config.v};
+    if(s.type==='ext')for(const k of Object.keys(s.addons||{}))levels[k]={enabled:true};
+    if(s.type==='auth'&&s.config){if(s.config.type==='mfa')levels.authentication={method:'mfa_3'};else levels.eudiw_pid={enabled:true}}
+  });
+  const cfg={credentials:{business_hash:"YOUR_HASH",api_key:"YOUR_KEY"},levels,options:{callback:{urls:[cbUrl]}}};
+  const ds=pipeline.find(s=>s.type==='doc'&&s.config);
+  if(ds&&ds.config.fb&&ds.fb&&ds.fb!=='none')cfg.options.fallback={enabled:true,method:ds.fb==='video'?'video_capture':'alternative_path'};
+  return cfg;
+}
+function showJSON(){
+  const j=JSON.stringify(buildJSON(),null,2);
+  const colored=j.replace(/"([^"]+)":/g,'<span class="k">"$1"</span>:').replace(/: "([^"]+)"/g,': <span class="s">"$1"</span>').replace(/: (true|false)/g,': <span class="s">$1</span>');
+  const d=document.createElement('div');d.className='modal-bg';d.onclick=e=>{if(e.target===d)d.remove()};
+  d.innerHTML=`<div class="modal"><div class="modal-hd"><div class="modal-t">API Configuration</div><div style="display:flex;gap:6px"><button class="modal-cp" onclick="navigator.clipboard.writeText(JSON.stringify(buildJSON(),null,2));this.textContent='Copied!';setTimeout(()=>this.textContent='Copy',1200)">Copy</button><button class="modal-x" onclick="this.closest('.modal-bg').remove()">${SV.x}</button></div></div><div class="r-code"><pre>${colored}</pre></div></div>`;
+  document.body.appendChild(d);
+}
+renderAll();
+</script>
+</body>
+</html>

@@ -1,0 +1,1998 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<title>ShareID — Workflow Builder</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --blue:#3253d1;--blue-h:#2a46b5;--blue-bg:#f0f3fd;--blue-l:#e8ecfb;
+  --orange:#f97316;--orange-bg:#fff7ed;--orange-l:#fed7aa;
+  --navy:#0c0f1a;
+  --white:#fff;--bg:#f4f5f7;--bg2:#ecedf1;
+  --t1:#0f1117;--t2:#1e2030;--t3:#3d4155;--t4:#6b7086;--t5:#9ca1b5;--t6:#c5c8d6;
+  --brd:#dfe1ea;--brd-l:#eceef4;
+}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;color:var(--t1);-webkit-font-smoothing:antialiased;background:var(--bg);height:100vh;overflow:hidden;margin:0}
+
+/* App shell with sidebar */
+.app{display:flex;height:100vh;overflow:hidden}
+.side{width:240px;flex-shrink:0;background:var(--blue);color:#fff;display:flex;flex-direction:column;height:100vh;overflow:hidden}
+.side-hd{padding:22px 20px 14px;display:flex;align-items:center;gap:10px}
+.side-logo{display:flex;align-items:center;text-decoration:none;color:#fff}
+.side-logo img{height:28px;width:auto;display:block;filter:brightness(0) invert(1)}
+.side-nav{padding:8px 10px;flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:1px}
+.side-sep{height:1px;background:rgba(255,255,255,.16);margin:8px 6px}
+.side-item{display:flex;align-items:center;gap:12px;padding:9px 10px;border-radius:8px;text-decoration:none;color:rgba(255,255,255,.88);font:600 13px/1 Inter,sans-serif;cursor:pointer;border:none;background:transparent;font-family:inherit;width:100%;text-align:left;transition:background .12s,color .12s}
+.side-item:hover{background:rgba(255,255,255,.08);color:#fff}
+.side-item.active{background:rgba(255,255,255,.12);color:#fff}
+.side-item svg{width:16px;height:16px;flex-shrink:0;opacity:.88}
+.side-item:hover svg,.side-item.active svg{opacity:1}
+.side-item.disabled{opacity:.5;cursor:default;pointer-events:none}
+.side-item .chev{margin-left:auto;width:14px;height:14px;opacity:.7;transition:transform .18s}
+.side-item[aria-expanded="true"] .chev{transform:rotate(180deg)}
+.side-group-body{position:relative;padding:4px 0 6px 12px;margin-left:14px;display:flex;flex-direction:column;gap:2px;border-left:1px solid rgba(255,255,255,.22)}
+.side-group-body[aria-hidden="true"]{display:none}
+.side-sub{display:flex;align-items:center;padding:7px 12px;border-radius:7px;text-decoration:none;color:rgba(255,255,255,.72);font:500 13px/1 Inter,sans-serif;cursor:pointer;border:1.5px solid transparent;background:transparent;transition:color .12s,border-color .12s,background .12s}
+.side-sub:hover{color:#fff;background:rgba(255,255,255,.06)}
+.side-sub.active{color:#fff;font-weight:600;background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.22);box-shadow:0 1px 2px rgba(0,0,0,.12)}
+.side-ft{padding:12px 14px;border-top:1px solid rgba(255,255,255,.16);display:flex;align-items:center;gap:10px}
+.side-avatar{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.22);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px}
+.side-user{flex:1;min-width:0}
+.side-user-name{font-size:13px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.side-user-role{font-size:10px;color:rgba(255,255,255,.62);letter-spacing:.08em;text-transform:uppercase;font-weight:700}
+.side-exit{width:28px;height:28px;border:none;background:transparent;color:rgba(255,255,255,.72);border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.side-exit:hover{background:rgba(255,255,255,.12);color:#fff}
+.side-exit svg{width:14px;height:14px}
+.app-main{flex:1;min-width:0;display:flex;flex-direction:column;height:100vh;overflow:hidden}
+
+/* ─── TOP BAR ─── */
+.topbar{height:64px;border-bottom:1px solid var(--brd-l);display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:var(--white);flex-shrink:0;z-index:10;gap:16px}
+.tb-left{display:flex;align-items:center;gap:14px;min-width:0;flex:1;overflow:hidden}
+@media (max-width:900px){.tb-back span,.tb-back{} .tb-actions span{display:none}}
+@media (max-width:640px){.tb-saved{display:none} .tb-divider{display:none}}
+.logo{display:flex;align-items:center;gap:7px;font-weight:800;font-size:14px;color:var(--navy);letter-spacing:-.02em;text-decoration:none;flex-shrink:0}
+.logo svg{width:20px;height:20px}
+.tb-back{display:inline-flex;align-items:center;gap:5px;padding:6px 10px;border-radius:7px;background:none;border:1px solid transparent;color:var(--t4);font:600 12px/1 Inter,sans-serif;text-decoration:none;cursor:pointer;transition:all .12s;flex-shrink:0}
+.tb-back:hover{background:var(--bg);color:var(--t2)}
+.tb-back svg{width:11px;height:11px}
+.tb-divider{width:1px;height:22px;background:var(--brd-l);flex-shrink:0}
+.tb-wf-name{font:700 14px/1.2 Inter,sans-serif;color:var(--t1);letter-spacing:-.01em;padding:6px 10px;border-radius:7px;border:1px solid transparent;cursor:text;background:none;outline:none;font-family:inherit;min-width:80px;max-width:340px;width:auto;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;field-sizing:content}
+.tb-wf-name:hover{background:var(--bg);border-color:var(--brd-l)}
+.tb-wf-name:focus{background:var(--white);border-color:var(--blue);box-shadow:0 0 0 3px rgba(50,83,209,.12);max-width:none}
+.tb-saved{font-size:11px;color:var(--t5);font-weight:500;display:inline-flex;align-items:center;gap:4px;flex-shrink:0;opacity:.85}
+.tb-saved svg{width:11px;height:11px}
+.tb-saved.saving{color:var(--t4)}
+.tb-actions{display:flex;align-items:center;gap:8px}
+.tb-btn{padding:7px 14px;border-radius:7px;border:1px solid var(--brd);background:var(--white);font-size:12px;font-weight:600;color:var(--t3);cursor:pointer;font-family:inherit;transition:all .12s;display:flex;align-items:center;gap:5px}
+.tb-btn svg{width:11px;height:11px}
+.tb-btn:hover{border-color:var(--blue);color:var(--blue)}
+.tb-cta{padding:7px 18px;border-radius:7px;background:var(--blue);color:var(--white);border:none;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;text-decoration:none;transition:background .12s}
+.tb-cta:hover{background:var(--blue-h)}
+.tb-cta.off{background:var(--t5)!important;opacity:1;cursor:not-allowed;pointer-events:none}
+
+/* ─── BODY ─── */
+.body{flex:1;position:relative;overflow:hidden;min-height:0}
+
+/* ─── SIDEBAR — floating panel ─── */
+.sidebar{position:absolute;top:16px;left:16px;width:280px;z-index:20;background:var(--white);display:flex;flex-direction:column;border-radius:14px;border:1px solid var(--brd-l);box-shadow:0 4px 28px rgba(0,0,0,.10);max-height:calc(100% - 32px);overflow:hidden}
+.canvas-mode{position:absolute;top:20px;left:50%;transform:translateX(-50%);z-index:25;display:flex;background:rgba(255,255,255,.92);backdrop-filter:blur(10px);border-radius:12px;padding:4px;border:1px solid var(--brd-l);box-shadow:0 2px 16px rgba(0,0,0,.08)}
+.mode-b{padding:8px 20px;border-radius:8px;border:none;background:none;font-size:13px;font-weight:600;color:var(--t4);cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap}
+.mode-b.on{background:var(--blue);color:var(--white);box-shadow:0 2px 10px rgba(50,83,209,.3)}
+.mode-badge{padding:7px 18px;border-radius:8px;background:var(--blue);color:var(--white);font-size:13px;font-weight:600;box-shadow:0 2px 10px rgba(50,83,209,.3);white-space:nowrap}
+.sb-sep{height:1px;background:var(--brd-l);margin:0 14px}
+.sb-head{padding:12px 16px 6px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--t5)}
+.sb-hd-row{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 10px;border-bottom:1px solid var(--brd-l);flex-shrink:0}
+.sb-hd-title{font-size:13px;font-weight:700;color:var(--t2)}
+.sb-hd-badge{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:3px 9px;border-radius:6px;background:var(--blue-bg);color:var(--blue)}
+.sb-list{padding:4px 10px 16px;display:flex;flex-direction:column;gap:0;flex:1;overflow-y:auto}
+.sb-group{display:flex;flex-direction:column;gap:2px}
+.sb-group+.sb-group{margin-top:12px;padding-top:12px;border-top:1px solid var(--brd-l)}
+.sb-label{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--t5);padding:8px 12px 0;margin-bottom:6px}
+.sb-item{display:flex;align-items:center;gap:12px;padding:9px 12px;border-radius:10px;cursor:grab;user-select:none;transition:all .12s;border:1.5px solid transparent}
+.sb-item:hover{background:var(--bg);border-color:var(--brd-l)}
+.sb-item:active{cursor:grabbing}
+.sb-item.used{opacity:.28;cursor:not-allowed;pointer-events:none}
+.sb-item.dragging{opacity:.3}
+.sb-ico{width:36px;height:36px;border-radius:9px;background:var(--blue-bg);color:var(--blue);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .12s}
+.sb-ico svg{width:16px;height:16px}
+.sb-item:hover .sb-ico{background:var(--blue-l);color:var(--blue)}
+.sb-info{flex:1;min-width:0}
+.sb-name{font-size:13px;font-weight:600;color:var(--t2)}
+.sb-desc{font-size:11px;color:var(--t5);margin-top:2px}
+.sb-drag{color:var(--t6);opacity:0;transition:opacity .1s;flex-shrink:0}
+.sb-item:hover .sb-drag{opacity:.6}
+.sb-templates{padding:12px 12px 16px;border-top:1px solid var(--brd-l);margin-top:8px;display:flex;flex-direction:column;gap:6px}
+.sb-tpl-btn{padding:8px 12px;border-radius:8px;border:1.5px solid var(--brd-l);background:var(--white);font-size:12px;font-weight:600;color:var(--t2);cursor:pointer;font-family:inherit;text-align:left;transition:all .12s}
+.sb-tpl-btn:hover{border-color:var(--blue-l);background:var(--blue-bg);color:var(--blue)}
+
+/* ─── CANVAS WRAPPER — full screen ─── */
+.canvas-wrap{position:absolute;inset:0;display:flex;overflow:hidden}
+
+/* Floating bottom bar */
+.bottom-bar{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);z-index:30;background:rgba(255,255,255,.96);backdrop-filter:blur(12px);border:1px solid var(--brd-l);border-radius:14px;box-shadow:0 4px 28px rgba(0,0,0,.12);display:flex;align-items:center;overflow:hidden;white-space:nowrap}
+.bb-tok{display:flex;align-items:baseline;gap:5px;padding:12px 20px}
+.bb-tok-n{font-size:22px;font-weight:900;color:var(--blue);letter-spacing:-.04em;line-height:1}
+.bb-tok-l{font-size:11px;color:var(--t5);font-weight:500}
+.bb-sep{width:1px;height:36px;background:var(--brd-l);flex-shrink:0}
+.bb-cfg{display:flex;align-items:center;gap:6px;padding:12px 18px;border:none;background:none;font-size:12px;font-weight:600;color:var(--t4);cursor:pointer;font-family:inherit;transition:color .12s}
+.bb-cfg:hover{color:var(--blue)}
+.bb-cfg svg{width:11px;height:11px}
+.bb-cta{display:flex;align-items:center;align-self:stretch;padding:0 26px;background:var(--blue);color:var(--white);font-size:13px;font-weight:700;text-decoration:none;transition:background .12s;border-left:1px solid rgba(255,255,255,.15)}
+.bb-cta:hover{background:var(--blue-h)}
+.bb-cta.off{background:var(--t5);pointer-events:none;cursor:not-allowed}
+
+/* ─── CANVAS ─── */
+.canvas{flex:1;overflow:auto;display:flex;align-items:flex-start;justify-content:center;padding:48px 40px 80px;position:relative;
+  background-image:radial-gradient(circle,#dfe1ea 1px,transparent 1px);
+  background-size:22px 22px}
+/* Center content when canvas is empty */
+.canvas:has(.canvas-empty){align-items:center;justify-content:center;padding:0}
+body.is-dragging .canvas{
+  background-image:radial-gradient(circle,var(--blue-l) 1.5px,transparent 1.5px);
+  cursor:copy}
+
+/* Vertical flow */
+.flow{display:flex;flex-direction:column;align-items:center;min-height:max-content}
+
+/* Start / End caps */
+.flow-cap{display:inline-flex;align-items:center;gap:6px;padding:6px 16px 6px 12px;border-radius:99px;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;user-select:none;flex-shrink:0}
+.flow-cap.start{background:var(--blue);color:white;box-shadow:0 2px 8px rgba(50,83,209,.35)}
+.flow-cap.start::before{content:'';width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.65)}
+.flow-cap.end{background:var(--white);color:var(--t5);border:1.5px solid var(--brd-l);box-shadow:0 1px 4px rgba(0,0,0,.05)}
+.flow-cap.end::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--brd)}
+
+/* Step card */
+.step{display:flex;flex-direction:column;width:280px;background:var(--white);border:1.5px solid var(--brd);border-radius:16px;cursor:pointer;transition:border-color .15s,box-shadow .15s;flex-shrink:0;position:relative;overflow:visible}
+.step:hover{border-color:#b0b6cc;box-shadow:0 4px 16px rgba(0,0,0,.07)}
+.step.active{border-color:var(--blue);box-shadow:0 4px 20px rgba(50,83,209,.12)}
+.step.active.done{border-color:var(--blue)}
+.step.active .step-status{display:none}
+.step:not(.addon-step):not(.done):not(.active){border-color:#f59e0b;border-style:dashed}
+.step:not(.addon-step):not(.done):not(.active):hover{border-color:#f97316;border-style:dashed}
+
+/* Drag grip — top center, appears on hover */
+.step-grip{height:18px;display:flex;align-items:center;justify-content:center;cursor:grab;opacity:0;transition:opacity .12s;border-radius:16px 16px 0 0;flex-shrink:0;color:var(--t5)}
+.step:hover .step-grip{opacity:.4}
+.step-grip svg{width:18px;height:8px;display:block}
+.step-grip:active{cursor:grabbing}
+
+/* Horizontal body layout */
+.step-body{padding:4px 16px 14px;display:flex;align-items:center;gap:12px}
+.step-ico{width:40px;height:40px;border-radius:11px;background:var(--blue-bg);display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}
+.step.active .step-ico{background:var(--blue)}
+.step-ico svg{width:16px;height:16px;color:var(--blue);transition:color .15s}
+.step.active .step-ico svg{color:var(--white)}
+.step-info{flex:1;min-width:0}
+.step-name{font-size:13px;font-weight:700;color:var(--t1);margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.step.active .step-name{color:var(--blue)}
+.step-sub{font-size:11px;color:var(--t5);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.step-status{width:22px;height:22px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#fff;background:var(--blue);box-shadow:0 0 0 2px var(--blue-l)}
+.step-status svg{width:12px;height:12px}
+.step-status.hidden{display:none}
+
+/* Footer */
+.step-foot{border-top:1px solid var(--brd-l);padding:9px 16px;display:flex;align-items:center;justify-content:space-between}
+.step-tok{font-size:12px;font-weight:600;color:var(--t5)}
+.step.done .step-tok{color:var(--blue)}
+.step-tok-val{font-size:20px;font-weight:900;color:var(--blue);letter-spacing:-.04em;line-height:1}
+.step-tok-lbl{font-size:10px;color:var(--blue);font-weight:600;opacity:.7;margin-left:2px}
+
+/* Remove button */
+.step-rm{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--brd-l);background:var(--white);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--t5);opacity:0;transition:opacity .1s;padding:0;position:absolute;top:6px;right:6px;z-index:2;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.step:hover .step-rm{opacity:1}
+.step-rm:hover{color:#dc2626;border-color:#dc2626;background:#fff5f5}
+.step-rm svg{width:8px;height:8px}
+
+/* Configured step — blue accent */
+.step.done{border-color:var(--blue-l)}
+.step.done:hover{border-color:var(--blue)}
+
+/* Add-on steps (Issuance, Integration) — same style as core, just narrower */
+.step.ext-step,.step.int-step{width:240px}
+
+/* Vertical connector arrow */
+.conn{display:flex;flex-direction:column;align-items:center;height:44px;flex-shrink:0;position:relative;width:2px;transition:height .15s}
+.conn::before{content:'';position:absolute;top:0;bottom:12px;left:50%;width:2px;background:var(--brd);transform:translateX(-50%);transition:background .15s,width .15s}
+.conn::after{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);border:6px solid transparent;border-top:8px solid var(--brd);transition:border-top-color .15s}
+.conn.dashed::before{background:transparent;border-left:2px dashed var(--brd-l)}
+.conn.dashed::after{display:none}
+
+/* Connector drop zone — used during canvas reorder */
+.conn-pill{position:absolute;display:none;background:var(--blue);color:white;font-size:9px;font-weight:700;padding:3px 10px;border-radius:99px;white-space:nowrap;left:50%;top:50%;transform:translate(-50%,-50%);letter-spacing:.04em;pointer-events:none;z-index:10;box-shadow:0 2px 8px rgba(50,83,209,.35)}
+.conn.drop-active{height:72px!important}
+.conn.drop-active::before{background:var(--blue)!important;width:3px;bottom:14px}
+.conn.drop-active::after{border-top-color:var(--blue)!important;border-top-width:11px;border-width:7px}
+.conn.drop-active .conn-pill{display:block;animation:pillIn .1s ease-out}
+@keyframes pillIn{from{opacity:0;transform:translate(-50%,-50%) scale(.7)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+
+/* During reorder — hint all connectors */
+body.is-reordering .conn::before{background:var(--blue-l)}
+body.is-reordering .conn::after{border-top-color:var(--blue-l)}
+
+/* Addon step cards — no grip, not draggable */
+.step.addon-step .step-grip{display:none}
+.step.addon-step .step-body{padding-top:14px}
+
+/* Panel close button */
+.panel-close-btn{position:absolute;top:10px;right:10px;z-index:3;width:28px;height:28px;border-radius:50%;border:1.5px solid var(--brd-l);background:var(--white);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--t4);flex-shrink:0;transition:all .12s;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.panel-close-btn:hover{border-color:var(--brd);color:var(--t2);background:var(--bg)}
+.panel-close-btn svg{width:9px;height:9px}
+
+/* Canvas step drag reorder */
+.step.step-dragging{opacity:.18;pointer-events:none;border:2px dashed var(--blue-l)!important;background:var(--blue-bg)!important;box-shadow:none!important;transform:scale(.97) rotate(-.4deg);transition:opacity .15s,transform .15s}
+
+/* Add step button */
+.add-node{width:28px;height:28px;border-radius:50%;border:1.5px dashed var(--brd-l);background:var(--white);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--t6);flex-shrink:0;transition:all .15s;padding:0}
+.add-node svg{width:11px;height:11px}
+.add-node:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-bg);border-style:solid}
+body.is-dragging .add-node{border-color:var(--blue);color:var(--blue);background:var(--blue-bg);border-style:solid}
+
+/* Empty canvas */
+.canvas-empty{display:flex;flex:1;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;min-width:100%}
+.canvas-empty svg{color:var(--t6);opacity:.3}
+.canvas-empty h2{font-size:17px;font-weight:700;color:var(--t3)}
+.canvas-empty p{font-size:13px;color:var(--t5);max-width:260px;line-height:1.5}
+.canvas-empty-hint{display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:8px;background:var(--bg);border:1px solid var(--brd-l);font-size:12px;color:var(--t5);font-weight:500;margin-top:4px}
+
+/* ─── RIGHT PANEL phone preview — big, bottom 1/3 overflows ─── */
+.phone-wrap{position:absolute;top:10px;left:50%;transform:translateX(-50%)}
+.phone-frame{width:120px;height:260px;background:var(--white);border-radius:30px;border:2px solid rgba(0,0,0,.2);box-shadow:0 20px 56px rgba(0,0,0,.22),0 4px 10px rgba(0,0,0,.1);padding:5px 5px 7px;display:flex;flex-direction:column;position:relative}
+.phone-notch{width:36px;height:6px;background:rgba(0,0,0,.16);border-radius:0 0 7px 7px;position:absolute;top:5px;left:50%;transform:translateX(-50%);z-index:2}
+.phone-screen{flex:1;border-radius:22px;overflow:hidden;margin-top:14px}
+.phone-screen svg{width:100%;height:100%;display:block}
+
+/* ─── SIDEBAR: configured & pending states ─── */
+.sb-item.used{cursor:pointer;opacity:.65;pointer-events:auto}
+.sb-item.used .sb-drag{display:none}
+.sb-item.configured{background:var(--white);border-color:transparent!important;cursor:pointer;pointer-events:auto;opacity:1}
+.sb-item.type-active{background:var(--blue-bg)!important;border-color:var(--blue-l)!important}
+.sb-check{width:16px;height:16px;border-radius:50%;background:var(--blue);color:white;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sb-check svg{width:8px;height:8px}
+.sb-pending-dot{width:8px;height:8px;border-radius:50%;background:var(--orange);flex-shrink:0}
+.sb-pending-dot.editing{background:var(--blue)}
+.sb-desc.desc-cfgd{color:var(--blue)!important;font-size:10px;opacity:.8}
+.sb-desc.desc-pending{color:var(--orange)!important;font-size:10px}
+
+/* ─── RIGHT PANEL — floating, hidden by default ─── */
+.panel{position:absolute;top:16px;right:16px;width:360px;z-index:20;background:var(--white);display:none;flex-direction:column;border-radius:14px;border:1px solid var(--brd-l);box-shadow:0 4px 28px rgba(0,0,0,.10);max-height:calc(100% - 32px);overflow:hidden}
+.panel.open{display:flex}
+.panel-inner{width:100%;display:flex;flex-direction:column;height:100%;overflow:hidden;min-height:0}
+.panel-hd{padding:0;border-bottom:1px solid var(--brd-l);flex-shrink:0;overflow:hidden}
+/* Right panel phone preview */
+.panel-preview{display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;border-bottom:1px solid rgba(0,0,0,.07);background:var(--bg);padding:0}
+.panel-illust{max-width:100%;object-fit:contain;pointer-events:none;user-select:none;display:block}
+/* Panel header row */
+.panel-hd-row{display:flex;align-items:center;gap:10px;padding:12px 16px}
+.panel-ico{width:30px;height:30px;border-radius:8px;background:var(--blue);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.panel-ico svg{width:13px;height:13px;color:var(--white)}
+.panel-name{font-size:13px;font-weight:800;color:var(--navy);letter-spacing:-.01em}
+.panel-desc{font-size:11px;color:var(--t5);margin-top:1px}
+.panel-body{flex:1;overflow-y:auto;padding:16px 16px 12px;display:flex;flex-direction:column}
+/* Panel footer — always visible */
+.panel-foot{padding:12px 16px;border-top:1px solid var(--brd-l);flex-shrink:0;display:flex;flex-direction:column;gap:8px}
+.panel-rm-btn{display:flex;align-items:center;justify-content:center;gap:6px;padding:9px 0;border-radius:9px;background:none;border:1.5px solid var(--brd-l);color:var(--t4);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .12s;width:100%}
+.panel-rm-btn:hover{background:#fef2f2;border-color:#fca5a5;color:#dc2626}
+.pf-cta{display:flex;align-items:center;justify-content:center;gap:6px;padding:11px 0;border-radius:9px;background:var(--blue);color:var(--white);border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;text-decoration:none;transition:background .12s;text-align:center}
+.pf-cta:hover{background:var(--blue-h)}
+.pf-cta.off{opacity:.28;pointer-events:none}
+.pf-cta svg{width:13px;height:13px}
+.pf-cfg{display:flex;align-items:center;justify-content:center;gap:6px;padding:9px 0;border-radius:9px;background:none;border:1.5px solid var(--brd);color:var(--t3);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .12s}
+.pf-cfg:hover{border-color:var(--blue);color:var(--blue)}
+.pf-cfg svg{width:11px;height:11px}
+
+/* Fallback popup */
+#fbPopup{position:fixed;z-index:9999;background:#fff;border:1px solid var(--brd-l);border-radius:12px;box-shadow:0 8px 28px rgba(0,0,0,.13);min-width:180px;padding:6px;display:none}
+.fb-pop-opt{display:flex;align-items:center;gap:9px;padding:8px 12px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;color:var(--t2);border:none;background:none;width:100%;font-family:inherit;text-align:left;transition:background .1s}
+.fb-pop-opt:hover{background:var(--bg)}
+.fb-pop-opt.on{color:var(--blue);background:var(--blue-bg)}
+.fb-pop-opt .fpo-chk{width:16px;height:16px;border-radius:50%;border:2px solid var(--brd);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .1s}
+.fb-pop-opt.on .fpo-chk{border-color:var(--blue);background:var(--blue)}
+.fb-pop-opt.on .fpo-chk::after{content:'';width:5px;height:5px;border-radius:50%;background:#fff}
+
+/* Add menu popup */
+.add-menu{position:fixed;background:var(--white);border:1px solid var(--brd);border-radius:11px;box-shadow:0 8px 32px rgba(0,0,0,.14);padding:5px;z-index:200;min-width:168px}
+.add-menu-item{display:flex;align-items:center;gap:9px;width:100%;padding:8px 11px;border:none;background:none;cursor:pointer;font-size:12px;font-weight:600;color:var(--t2);border-radius:7px;font-family:inherit;text-align:left;transition:background .1s}
+.add-menu-item:hover{background:var(--bg)}
+.add-menu-item .ami-ico{width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.add-menu-item svg{width:13px;height:13px;flex-shrink:0}
+.pgrp{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--t5);margin:20px 0 8px}
+.pgrp:first-child{margin-top:0}
+.opt{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:9px;margin-bottom:3px;cursor:pointer;transition:all .1s;border:1.5px solid transparent}
+.opt:hover{background:var(--bg);border-color:var(--brd-l)}
+.opt.on{background:var(--blue-bg);border-color:var(--blue)}
+.opt .ri{width:15px;height:15px;border-radius:50%;border:2px solid var(--t6);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .1s}
+.opt.on .ri{border-color:var(--blue);background:var(--blue)}
+.opt .ri i{width:4px;height:4px;border-radius:50%;background:var(--white);transform:scale(0);transition:transform .1s;display:block}
+.opt.on .ri i{transform:scale(1)}
+.opt-body{flex:1;min-width:0}
+.opt-name{font-size:13px;font-weight:600;color:var(--t2);display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.opt.on .opt-name{color:var(--blue)}
+.opt-desc{font-size:11px;color:var(--t5);margin-top:2px}
+.opt-tok{font-size:12px;font-weight:700;color:var(--t5);flex-shrink:0}
+.opt.on .opt-tok{color:var(--blue)}
+.opt-ico{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.opt-ico svg{width:18px;height:18px}
+.skip-link{font-size:11px;font-weight:600;color:var(--t5);text-decoration:none;padding:0 16px 0 12px;border-left:1px solid var(--brd-l);white-space:nowrap;flex-shrink:0}
+.skip-link:hover{color:var(--blue)}
+.rec{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;padding:2px 5px;border-radius:99px;background:var(--green-l);color:var(--green-t)}
+.fb-block{margin-top:12px;padding:12px;border-radius:10px;background:var(--bg);border:1px solid var(--brd-l)}
+.fb-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--t4);margin-bottom:8px;display:flex;align-items:center;gap:4px}
+.fb-lbl svg{width:10px;height:10px;opacity:.5}
+.fb-pills{display:flex;gap:6px;flex-wrap:wrap}
+.fb-pill{padding:5px 14px;border-radius:99px;border:1.5px solid var(--brd);background:none;font-size:12px;font-weight:600;color:var(--t4);cursor:pointer;font-family:inherit;transition:all .15s}
+.fb-pill:hover{border-color:var(--blue);color:var(--blue)}
+.fb-pill.on{background:var(--blue);border-color:var(--blue);color:var(--white)}
+
+/* Path toggle (Document / Wallet) */
+.path-toggle{display:flex;gap:0;margin-bottom:12px;background:var(--bg);border-radius:10px;padding:3px;border:1px solid var(--brd-l)}
+.path-btn{flex:1;padding:7px 12px;border:none;border-radius:8px;font-size:13px;font-weight:600;color:var(--t4);cursor:pointer;font-family:inherit;background:none;transition:all .15s}
+.path-btn.on{background:var(--white);color:var(--blue);box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.path-btn:hover:not(.on){color:var(--t2)}
+
+/* Inline fallback inside preset card */
+.opt-fb-wrap{border-radius:10px;overflow:hidden;border:1.5px solid var(--blue);background:var(--blue-bg)}
+.opt-fb-wrap .opt{border:none;border-radius:0}
+.opt.no-bottom-radius{border-bottom-left-radius:0;border-bottom-right-radius:0}
+.fb-inline{padding:10px 12px 12px;display:flex;flex-direction:column;gap:8px;background:rgba(50,83,209,.05);border-top:1px solid rgba(50,83,209,.12)}
+.fb-inline-lbl{font-size:11px;font-weight:700;color:var(--blue);display:flex;align-items:center;gap:5px;white-space:nowrap}
+.fb-inline-lbl::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--blue);flex-shrink:0}
+.fb-inline .fb-pills{display:flex;gap:6px;flex-wrap:wrap}
+.fb-inline .fb-pill{padding:5px 12px;font-size:12px}
+
+/* Integration options — uses ext-item styles (unified) */
+
+/* Canvas fallback sub-card */
+.step-fb-group{position:relative}
+.fb-conn{width:32px;position:absolute;left:100%;top:50%;transform:translateY(-50%);height:2px}
+.fb-sub-card-wrap{position:absolute;left:calc(100% + 32px);top:50%;transform:translateY(-50%)}
+.fb-conn::before{content:'';position:absolute;top:50%;left:0;right:12px;height:2px;background:var(--brd);transform:translateY(-50%)}
+.fb-conn::after{content:'';position:absolute;top:50%;right:0;transform:translateY(-50%);border:6px solid transparent;border-left:8px solid var(--brd)}
+.fb-conn-uncfg::before{background:var(--brd-l)}
+.fb-conn-uncfg::after{border-left-color:var(--brd-l)}
+.fb-sub-card{background:var(--white);border:1.5px dashed var(--brd);border-radius:16px;cursor:pointer;transition:all .15s;overflow:hidden;display:flex;flex-direction:column}
+.fb-card-body{display:flex;align-items:center;gap:12px;padding:14px 16px 14px}
+.fb-sub-card:hover{border-color:#b0b6cc;box-shadow:0 4px 16px rgba(0,0,0,.07)}
+.fb-sub-badge{font-size:11px;font-weight:600;color:var(--t4);padding:14px 16px 4px;display:flex;align-items:center;gap:6px}
+.fb-sub-name{font-size:13px;font-weight:700;color:var(--t1);padding:0 16px 14px;white-space:nowrap}
+.fb-sub-uncfg{border-color:var(--brd)}
+.fb-sub-uncfg:hover{border-color:#b0b6cc}
+.fb-sub-card:not(.fb-sub-uncfg){border-color:var(--blue-l)}
+.fb-sub-card:not(.fb-sub-uncfg) .fb-sub-badge{color:var(--blue)}
+.fb-sub-card:not(.fb-sub-uncfg):hover{border-color:var(--blue)}
+.ext-list{display:flex;flex-direction:column;gap:4px}
+.ext-item{display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:9px;cursor:pointer;transition:all .1s;border:1.5px solid var(--brd-l);background:none}
+.ext-item:hover{border-color:var(--brd);background:var(--bg)}
+.ext-item.on{border-color:var(--blue);background:var(--blue-bg)}
+.ext-cb{width:14px;height:14px;border-radius:3px;border:1.5px solid var(--t6);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .1s}
+.ext-item.on .ext-cb{border-color:var(--blue);background:var(--blue)}
+.ext-cb svg{width:8px;height:8px;color:var(--white);opacity:0;transition:.1s}
+.ext-item.on .ext-cb svg{opacity:1}
+.ext-item-info{flex:1;min-width:0}
+.ext-item-name{font-size:13px;font-weight:600;color:var(--t2)}
+.ext-item.on .ext-item-name{color:var(--blue)}
+.ext-item-desc{font-size:11px;color:var(--t4);margin-top:1px}
+.ext-item.on .ext-item-desc{color:var(--blue);opacity:.7}
+.ext-item-tok{font-size:11px;font-weight:700;color:var(--t5);flex-shrink:0}
+.ext-item.on .ext-item-tok{color:var(--blue)}
+.int-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--t5);margin-bottom:6px}
+.int-input{width:100%;padding:9px 12px;border:1.5px solid var(--brd-l);border-radius:8px;font-size:13px;font-family:inherit;color:var(--t1);background:var(--bg);transition:border .12s}
+.int-input:focus{border-color:var(--blue);background:var(--white)}
+
+/* ─── MODAL ─── */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:100;display:flex;align-items:center;justify-content:center}
+.modal{background:var(--white);border-radius:14px;padding:20px;width:480px;max-height:80vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.15)}
+.modal-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.modal-t{font-size:15px;font-weight:700;color:var(--navy)}
+.modal-x{width:26px;height:26px;border-radius:6px;border:none;background:var(--bg);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--t4)}
+.modal-x svg{width:9px;height:9px}
+.modal-cp{padding:5px 11px;border-radius:6px;border:1.5px solid var(--brd-l);background:none;font-size:12px;font-weight:600;color:var(--t3);cursor:pointer;font-family:inherit}
+.modal-cp:hover{border-color:var(--blue);color:var(--blue)}
+.r-code{background:#1a1d2e;border-radius:10px;padding:14px 16px;overflow-x:auto}
+.r-code pre{font-family:'SF Mono','Fira Code',monospace;font-size:11px;color:#6b7394;line-height:1.6;white-space:pre;margin:0}
+.r-code .k{color:#7d8bd4}.r-code .s{color:#5ec26a}
+
+/* ─── ACCESSIBILITY ─── */
+/* Reset UA button styles for semantic buttons */
+button.sb-item,button.ext-item,button.opt{-webkit-appearance:none;appearance:none;font-family:inherit;color:inherit;text-align:left;width:100%;display:flex;background:none}
+/* Global focus ring — keyboard only */
+:focus-visible{outline:2px solid var(--blue)!important;outline-offset:2px}
+:focus:not(:focus-visible){outline:none}
+/* Fix disabled buttons — real color, not opacity */
+.tb-cta.off{background:var(--t5)!important;opacity:1!important;cursor:not-allowed}
+.pf-cta.off{background:var(--t5)!important;opacity:1!important;cursor:not-allowed}
+/* Screen-reader-only utility */
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+/* Reduced motion */
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+
+/* ─── MICRO-ANIMATIONS ─── */
+@keyframes stepIn{from{opacity:0;transform:translateY(-8px) scale(.96)}to{opacity:1;transform:none}}
+.step.step-new{animation:stepIn .28s cubic-bezier(.2,.9,.3,1.2) both}
+.step.step-dragging{animation:none}
+
+@keyframes checkPop{0%{transform:scale(0) rotate(-20deg);opacity:0}60%{transform:scale(1.15) rotate(0);opacity:1}100%{transform:scale(1);opacity:1}}
+.step-status.cfgd svg{animation:checkPop .35s cubic-bezier(.3,1.4,.4,1) both}
+
+
+@keyframes tokPop{0%{transform:scale(1)}40%{transform:scale(1.25);color:var(--blue)}100%{transform:scale(1)}}
+.tok-pulse{animation:tokPop .4s cubic-bezier(.3,1.4,.4,1)}
+
+/* Smooth hover lift on CTAs */
+.bb-cta:not(.off):hover{filter:brightness(1.08);box-shadow:inset 0 0 0 60px rgba(255,255,255,.04)}
+.bb-cta{transition:background .12s,filter .15s,box-shadow .15s}
+
+/* Step hover subtle shadow */
+.step:not(.step-dragging):not(.active):hover{box-shadow:0 4px 14px rgba(17,24,39,.06)}
+
+/* Option row press feedback */
+.opt:active{transform:scale(.985)}
+.opt{transition:all .1s,transform .08s}
+
+/* Radio dot bounce when picked */
+@keyframes riPop{0%{transform:scale(0)}60%{transform:scale(1.4)}100%{transform:scale(1)}}
+.opt.on .ri i{animation:riPop .3s cubic-bezier(.3,1.4,.4,1)}
+
+/* Sidebar item hover lift */
+.sb-item:not(.used):hover{transform:translateX(2px)}
+.sb-item{transition:all .12s,transform .15s}
+
+/* ─── UX IMPROVEMENTS ─── */
+/* Sidebar used items — clear hover/focus interactivity cue */
+.sb-item.used:hover,.sb-item.used:focus-visible{opacity:1!important;background:var(--bg)!important;border-color:var(--brd-l)!important}
+.sb-item.configured:hover,.sb-item.configured:focus-visible{background:#eef0f8!important;border-color:var(--blue-l)!important}
+/* Step remove button — also visible when card is keyboard-focused */
+.step:focus .step-rm,.step:focus-within .step-rm{opacity:1}
+/* Panel preview — compact, illustration clips at bottom */
+/* Fallback block — animate in on appearance */
+@keyframes fadeSlideIn{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}
+.fb-block{animation:fadeSlideIn .18s ease-out}
+/* Undo toast */
+.undo-toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--navy);color:white;font-size:13px;font-weight:600;padding:11px 18px;border-radius:10px;display:flex;align-items:center;gap:14px;box-shadow:0 8px 32px rgba(0,0,0,.25);z-index:400;animation:toastIn .2s ease-out;white-space:nowrap}
+@keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+.undo-toast.out{animation:toastOut .2s ease-in forwards}
+@keyframes toastOut{to{opacity:0;transform:translateX(-50%) translateY(8px)}}
+.undo-btn{background:rgba(255,255,255,.2);border:none;color:white;font-size:12px;font-weight:700;padding:4px 10px;border-radius:6px;cursor:pointer;font-family:inherit;transition:background .1s}
+.undo-btn:hover{background:rgba(255,255,255,.3)}
+/* Topbar Continue CTA */
+.tb-cta-main{padding:7px 20px;border-radius:7px;background:var(--blue);color:var(--white);border:none;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;text-decoration:none;transition:all .15s;display:inline-flex;align-items:center}
+.tb-cta-main:hover{background:var(--blue-h)}
+.tb-cta-main.off{background:var(--t5)!important;cursor:not-allowed;opacity:1;pointer-events:none}
+
+/* Topbar action buttons (Test / Integrate) */
+.tb-action-btn{display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:8px;border:1.5px solid var(--brd-l);background:var(--white);font-size:12px;font-weight:600;color:var(--t2);cursor:pointer;font-family:inherit;transition:all .12s}
+.tb-action-btn:hover{border-color:var(--blue);color:var(--blue)}
+.tb-action-btn svg{width:13px;height:13px}
+
+/* Doc role badge on canvas */
+.doc-role-badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:2px 8px;border-radius:99px;margin-left:4px}
+.doc-role-badge.fallback{background:var(--orange-bg);color:var(--orange)}
+.doc-role-badge.secondary{background:var(--blue-bg);color:var(--blue)}
+
+/* Test/Integrate modals */
+.test-modal{max-width:440px}
+.dev-tabs{display:flex;gap:4px;background:var(--bg);border-radius:9px;padding:4px;margin-bottom:20px}
+.dev-tab{flex:1;padding:7px;border-radius:6px;border:none;font-size:12px;font-weight:600;color:var(--t4);cursor:pointer;font-family:inherit;transition:all .12s;background:none}
+.dev-tab.on{background:var(--white);color:var(--t1);box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.qr-box{display:flex;flex-direction:column;align-items:center;gap:12px;padding:24px;background:var(--bg);border-radius:12px;border:1.5px solid var(--brd-l)}
+.qr-icon{width:80px;height:80px;opacity:.25}
+.mobile-section{display:flex;flex-direction:column;gap:12px}
+.mobile-card{padding:16px;background:var(--bg);border-radius:12px;border:1.5px solid var(--brd-l)}
+.mobile-card-title{font-size:13px;font-weight:700;color:var(--t1);margin-bottom:6px}
+.mobile-card-desc{font-size:12px;color:var(--t4);line-height:1.5;margin-bottom:12px}
+.int-modal{max-width:560px}
+.int-code-block{background:#0f1320;border-radius:10px;padding:14px 16px;overflow-x:auto;font:500 11.5px/1.6 ui-monospace,SFMono-Regular,Menlo,monospace;color:#d7dcea;white-space:pre;margin-top:12px;max-height:300px;overflow-y:auto}
+.int-code-block::-webkit-scrollbar{width:6px;height:6px}
+.int-code-block::-webkit-scrollbar-thumb{background:#2a2f45;border-radius:3px}
+.modal-bd-doc{position:fixed;inset:0;background:rgba(0,0,0,.38);z-index:500;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-bd-doc.open{display:flex}
+.modal-doc{background:var(--white);border-radius:14px;padding:24px;width:100%;box-shadow:0 24px 64px rgba(0,0,0,.2);overflow-y:auto;max-height:90vh}
+.modal-doc-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.modal-doc-t{font-size:16px;font-weight:700;color:var(--navy)}
+.modal-doc-x{width:28px;height:28px;border-radius:7px;border:1.5px solid var(--brd-l);background:var(--white);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--t4)}
+.modal-doc-x:hover{background:var(--bg)}
+.modal-act-row{display:flex;gap:10px;justify-content:flex-end;margin-top:16px}
+</style>
+</head>
+<body>
+<div class="app">
+
+<aside class="side" aria-label="Primary navigation">
+  <div class="side-hd">
+    <a class="side-logo" href="workspace.html" aria-label="ShareID"><img src="illustrations/ShareID-logo.svg" alt="ShareID" draggable="false"></a>
+  </div>
+  <nav class="side-nav">
+    <a class="side-item disabled" href="#" aria-disabled="true"><svg viewBox="0 0 16 16" fill="none"><path d="M3 7.5L8 3l5 4.5V13a1 1 0 01-1 1h-2.5v-3.5h-3V14H4a1 1 0 01-1-1V7.5Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg><span>Home</span></a>
+    <button class="side-item" type="button" aria-expanded="true" aria-controls="grpWf" onclick="toggleGroup(this)">
+      <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="2" y="3" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.4"/><rect x="9" y="3" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.4"/><rect x="2" y="10" width="5" height="3" rx="1" stroke="currentColor" stroke-width="1.4"/><rect x="9" y="10" width="5" height="3" rx="1" stroke="currentColor" stroke-width="1.4"/></svg>
+      <span>Workflows</span>
+      <svg class="chev" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M4 9l3-3 3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <div class="side-group-body" id="grpWf" aria-hidden="false">
+      <a class="side-sub active" href="workspace.html" aria-current="page">My flows</a>
+    </div>
+    <a class="side-item disabled" href="#" aria-disabled="true"><svg viewBox="0 0 16 16" fill="none"><path d="M3 13V7m3 6V4m3 9v-6m3 6V3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg><span>Reporting</span></a>
+    <a class="side-item disabled" href="#" aria-disabled="true"><svg viewBox="0 0 16 16" fill="none"><rect x="2.5" y="2.5" width="11" height="11" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M5 6h6M5 8.5h6M5 11h3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg><span>Requests history</span></a>
+    <div class="side-sep" aria-hidden="true"></div>
+    <a class="side-item disabled" href="#" aria-disabled="true"><svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="1.4"/><path d="M8 4V2.5M8 13.5V12M4 8H2.5M13.5 8H12M4.9 4.9l-1-1M12.1 12.1l-1-1M4.9 11.1l-1 1M12.1 3.9l-1 1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg><span>Manage Businesses</span></a>
+    <a class="side-item disabled" href="#" aria-disabled="true"><svg viewBox="0 0 16 16" fill="none"><rect x="2.5" y="2.5" width="11" height="11" rx="1.5" stroke="currentColor" stroke-width="1.4"/><circle cx="8" cy="7" r="2" stroke="currentColor" stroke-width="1.3"/><path d="M5 13c.5-1.6 1.7-2.6 3-2.6s2.5 1 3 2.6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg><span>Manage Users</span></a>
+    <div class="side-sep" aria-hidden="true"></div>
+    <a class="side-item disabled" href="#" aria-disabled="true"><svg viewBox="0 0 16 16" fill="none"><rect x="2.5" y="3" width="11" height="8" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M5.5 13h5M7 11v2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><polygon points="7,5.8 10,7.3 7,8.8" fill="currentColor"/></svg><span>Product demo</span></a>
+    <a class="side-item disabled" href="#" aria-disabled="true"><svg viewBox="0 0 16 16" fill="none"><rect x="2" y="4" width="12" height="9" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M5.5 4V2.5h5V4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="8" cy="8.5" r="2" stroke="currentColor" stroke-width="1.3"/></svg><span>Run Authenticity Photo</span></a>
+    <a class="side-item disabled" href="#" aria-disabled="true"><svg viewBox="0 0 16 16" fill="none"><path d="M10 4h3v3M13 4l-5 5M6.5 6H3.5a1 1 0 00-1 1v5a1 1 0 001 1h5a1 1 0 001-1V9.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Operator platform</span></a>
+    <a class="side-item disabled" href="#" aria-disabled="true"><svg viewBox="0 0 16 16" fill="none"><rect x="2.5" y="3.5" width="11" height="9" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M2.5 5l5.5 3.5L13.5 5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Contact support</span></a>
+  </nav>
+  <div class="side-ft">
+    <div class="side-avatar" aria-hidden="true">S</div>
+    <div class="side-user"><div class="side-user-name">Demo user</div><div class="side-user-role">Admin</div></div>
+    <button class="side-exit" aria-label="Sign out" title="Sign out"><svg viewBox="0 0 16 16" fill="none"><path d="M7 3H4a1 1 0 00-1 1v8a1 1 0 001 1h3M10 5l3 3-3 3M13 8H6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+  </div>
+</aside>
+
+<div class="app-main">
+
+<!-- TOP BAR -->
+<header class="topbar">
+  <div class="tb-left">
+    <a class="tb-back" href="workspace.html" aria-label="Back to all workflows">
+      <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      All workflows
+    </a>
+    <div class="tb-divider" aria-hidden="true"></div>
+    <input class="tb-wf-name" id="wfNameInput" type="text" value="" aria-label="Workflow name" maxlength="80" autocomplete="off" />
+  </div>
+  <div class="tb-actions">
+    <span class="tb-saved" id="wfSaved" aria-live="polite" title="">
+      <svg viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M2.5 6.5l2.5 2.5L9.5 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Saved
+    </span>
+    <button class="tb-action-btn" onclick="openTestModal()" title="Test this workflow">
+      <svg viewBox="0 0 16 16" fill="none"><polygon points="4,3 13,8 4,13" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" fill="none"/></svg>
+      Test
+    </button>
+    <button class="tb-action-btn" onclick="openIntegrateModal()" title="Integration code">
+      <svg viewBox="0 0 16 16" fill="none"><path d="M5 3L1 8l4 5M11 3l4 5-4 5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Integrate
+    </button>
+  </div>
+</header>
+
+<!-- BODY -->
+<div class="body">
+
+  <!-- LEFT SIDEBAR -->
+  <nav class="sidebar" aria-label="Available modules">
+    <div class="sb-hd-row">
+      <span class="sb-hd-title">Modules</span>
+      <span class="sb-hd-badge" id="sbModeBadge"></span>
+    </div>
+    <div class="sb-list" id="sbList" role="list" aria-label="Module library"></div>
+    <div class="sb-templates">
+      <div class="sb-label" aria-hidden="true">Templates</div>
+      <button class="sb-tpl-btn" onclick="applyTemplate('basic')" title="Identity (Doc) + Face IDV">elDas Basic</button>
+      <button class="sb-tpl-btn" onclick="applyTemplate('substantial')" title="Identity Substantiel + Face IDV">elDas Substantial</button>
+      <button class="sb-tpl-btn" onclick="applyTemplate('advanced')" title="Identity Advanced + Face IDV + Auth">elDas Advanced</button>
+    </div>
+  </nav>
+
+  <!-- CANVAS -->
+  <main class="canvas-wrap" aria-label="Workflow canvas">
+    <div class="canvas-mode" role="group" aria-label="Flow type">
+      <button class="mode-b" id="modeOnb" onclick="setMode('onboarding')" aria-pressed="true">Onboarding</button>
+      <button class="mode-b" id="modeAuth" onclick="setMode('auth')" aria-pressed="false">Authentication</button>
+    </div>
+    <div class="bottom-bar" id="bottomBar" aria-label="Workflow summary">
+      <div class="bb-tok" id="ctokBadge" aria-live="polite" aria-atomic="true" aria-label="Total token cost">
+        <span class="bb-tok-n" id="ctokN">0</span>
+        <span class="bb-tok-l" aria-hidden="true">tok / request</span>
+      </div>
+      <div class="bb-sep" aria-hidden="true"></div>
+      <button class="bb-cfg" onclick="showJSON()" aria-label="View API configuration JSON">
+        <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M5 3L1 8l4 5M11 3l4 5-4 5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        API config
+      </button>
+    </div>
+    <div class="canvas" id="canvas" role="region" aria-label="Workflow steps"
+      ondragover="event.preventDefault()"
+      ondrop="canvasDrop(event)"
+      ondragenter="canvasDragEnter(event)"
+      ondragleave="canvasDragLeave(event)">
+    </div>
+  </main>
+
+  <!-- RIGHT CONFIG PANEL -->
+  <aside class="panel" id="panel" aria-label="Step configuration">
+    <div class="panel-inner">
+      <div class="panel-hd" id="panelHd"></div>
+      <div class="panel-body" id="panelBody" aria-live="polite" aria-atomic="false"></div>
+      <div class="panel-foot" id="panelFoot" style="display:none"></div>
+    </div>
+  </aside>
+
+</div><!-- /body -->
+
+</div><!-- /app-main -->
+</div><!-- /app -->
+
+<!-- Screen-reader live announcements -->
+<div id="a11y-live" aria-live="polite" aria-atomic="true" style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden"></div>
+
+<!-- Doc Role Popup -->
+<div id="docRolePopup" style="display:none;position:fixed;z-index:500;background:#fff;border:1px solid var(--brd);border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.14);padding:6px;min-width:200px">
+  <div style="padding:8px 12px 6px;font-size:11px;font-weight:700;color:var(--t4);text-transform:uppercase;letter-spacing:.06em">Document role</div>
+  <button onclick="pickDocRole('fallback')" style="display:flex;flex-direction:column;gap:2px;width:100%;padding:9px 12px;border:none;background:none;cursor:pointer;border-radius:8px;text-align:left;font-family:inherit" onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background='none'">
+    <span style="font-size:13px;font-weight:600;color:var(--t1)">Fallback</span>
+    <span style="font-size:11px;color:var(--t4)">Used if the primary document fails</span>
+  </button>
+  <button onclick="pickDocRole('secondary')" style="display:flex;flex-direction:column;gap:2px;width:100%;padding:9px 12px;border:none;background:none;cursor:pointer;border-radius:8px;text-align:left;font-family:inherit" onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background='none'">
+    <span style="font-size:13px;font-weight:600;color:var(--t1)">Secondary required</span>
+    <span style="font-size:11px;color:var(--t4)">Always required alongside the first</span>
+  </button>
+</div>
+
+<!-- Test Modal -->
+<div class="modal-bd-doc" id="testModal" role="dialog" aria-modal="true" aria-labelledby="testModalTitle">
+  <div class="modal-doc test-modal">
+    <div class="modal-doc-hd">
+      <div class="modal-doc-t" id="testModalTitle">Test your flow</div>
+      <button class="modal-doc-x" onclick="closeTestModal()" aria-label="Close"><svg viewBox="0 0 10 10" fill="none"><path d="M2 2l6 6M8 2l-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
+    </div>
+    <div class="dev-tabs">
+      <button class="dev-tab on" id="devTabWeb" onclick="switchTestDevice('web')">Web</button>
+      <button class="dev-tab" id="devTabIos" onclick="switchTestDevice('ios')">iOS</button>
+      <button class="dev-tab" id="devTabAndroid" onclick="switchTestDevice('android')">Android</button>
+    </div>
+    <div id="testModalContent"></div>
+  </div>
+</div>
+
+<!-- Integrate Modal -->
+<div class="modal-bd-doc" id="integrateModal" role="dialog" aria-modal="true" aria-labelledby="integrateModalTitle">
+  <div class="modal-doc int-modal">
+    <div class="modal-doc-hd">
+      <div class="modal-doc-t" id="integrateModalTitle">Integrate your flow</div>
+      <button class="modal-doc-x" onclick="closeIntegrateModal()" aria-label="Close"><svg viewBox="0 0 10 10" fill="none"><path d="M2 2l6 6M8 2l-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
+    </div>
+    <div class="dev-tabs">
+      <button class="dev-tab on" id="intTabWeb" onclick="switchIntPlatform('web')">Web</button>
+      <button class="dev-tab" id="intTabIos" onclick="switchIntPlatform('ios')">iOS</button>
+      <button class="dev-tab" id="intTabAndroid" onclick="switchIntPlatform('android')">Android</button>
+    </div>
+    <div id="integrateModalContent"></div>
+  </div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+
+/* ─── Sidebar group toggle ─── */
+function toggleGroup(btn){
+  const expanded=btn.getAttribute('aria-expanded')==='true';
+  const target=document.getElementById(btn.getAttribute('aria-controls'));
+  btn.setAttribute('aria-expanded',expanded?'false':'true');
+  if(target)target.setAttribute('aria-hidden',expanded?'true':'false');
+  try{localStorage.setItem('sb_grp_'+btn.getAttribute('aria-controls'),expanded?'0':'1');}catch(e){}
+}
+document.querySelectorAll('.side-item[aria-controls]').forEach(btn=>{
+  try{
+    const saved=localStorage.getItem('sb_grp_'+btn.getAttribute('aria-controls'));
+    if(saved==='0'){btn.setAttribute('aria-expanded','false');const t=document.getElementById(btn.getAttribute('aria-controls'));if(t)t.setAttribute('aria-hidden','true');}
+  }catch(e){}
+});
+
+/* ─── Workspace storage ─── */
+const WS_KEY='shareid_workspaces';
+const WS_ACTIVE='shareid_active_workspace';
+const LEGACY_KEY='shareid_workflow';
+function uid(){return 'w_'+Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-3)}
+function loadWorkspaces(){try{const a=JSON.parse(localStorage.getItem(WS_KEY)||'[]');return Array.isArray(a)?a:[]}catch(e){return[]}}
+function saveWorkspaces(list){try{localStorage.setItem(WS_KEY,JSON.stringify(list));}catch(e){}}
+function getQueryParam(k){return new URLSearchParams(location.search).get(k)}
+
+let workspaces=loadWorkspaces();
+let currentWorkspaceId=getQueryParam('w')||localStorage.getItem(WS_ACTIVE)||null;
+let currentWorkspace=currentWorkspaceId?workspaces.find(w=>w.id===currentWorkspaceId):null;
+
+/* If no workspace specified, redirect to workspace.html.
+   Migrate legacy single-workflow if present. */
+if(!currentWorkspace){
+  // Try to migrate legacy
+  try{
+    const legacy=JSON.parse(localStorage.getItem(LEGACY_KEY)||'null');
+    if(legacy&&(legacy.flows||legacy.pipeline)&&!workspaces.length){
+      const flows=legacy.flows||{};
+      const onbPipe=flows.onboarding?.pipeline||(legacy.mode!=='auth'&&Array.isArray(legacy.pipeline)?legacy.pipeline:[]);
+      const authPipe=flows.auth?.pipeline||(legacy.mode==='auth'&&Array.isArray(legacy.pipeline)?legacy.pipeline:[]);
+      if((onbPipe&&onbPipe.length)||(authPipe&&authPipe.length)){
+        const now=Date.now();
+        currentWorkspace={id:uid(),name:'Untitled workflow',createdAt:now,updatedAt:now,flows:{onboarding:{pipeline:onbPipe},auth:{pipeline:authPipe}}};
+        currentWorkspaceId=currentWorkspace.id;
+        workspaces=[currentWorkspace];
+        saveWorkspaces(workspaces);
+        try{localStorage.setItem(WS_ACTIVE,currentWorkspaceId);}catch(e){}
+      }
+    }
+  }catch(e){}
+  if(!currentWorkspace){
+    location.replace('workspace.html');
+  }
+}
+
+let mode=(currentWorkspace?.flowType)||getQueryParam('mode')||'onboarding';
+const savedPipelines={
+  onboarding:(currentWorkspace?.flows?.onboarding?.pipeline)||[],
+  auth:(currentWorkspace?.flows?.auth?.pipeline)||[]
+};
+const savedActiveIds={onboarding:null,auth:null};
+let pipeline=savedPipelines[mode];
+
+try{localStorage.setItem(WS_ACTIVE,currentWorkspaceId);}catch(e){}
+
+/* ─── Auto-save (debounced) ─── */
+let _saveTimer=null, _savedFlash=null;
+function autoSave(){
+  if(!currentWorkspace)return;
+  showSaving();
+  clearTimeout(_saveTimer);
+  _saveTimer=setTimeout(()=>{
+    savedPipelines[mode]=pipeline;
+    currentWorkspace.flows={onboarding:{pipeline:savedPipelines.onboarding||[]},auth:{pipeline:savedPipelines.auth||[]}};
+    currentWorkspace.updatedAt=Date.now();
+    const idx=workspaces.findIndex(w=>w.id===currentWorkspaceId);
+    if(idx>=0)workspaces[idx]=currentWorkspace;else workspaces.unshift(currentWorkspace);
+    saveWorkspaces(workspaces);
+    // Also keep legacy key in sync so pricing.html keeps working
+    try{
+      const calcTok=(pl)=>{let x=0;(pl||[]).forEach(s=>x+=getTok(s));return x};
+      const flows={
+        onboarding:{pipeline:savedPipelines.onboarding||[],totalTok:calcTok(savedPipelines.onboarding)},
+        auth:{pipeline:savedPipelines.auth||[],totalTok:calcTok(savedPipelines.auth)}
+      };
+      let t=0;pipeline.forEach(s=>t+=getTok(s));
+      localStorage.setItem(LEGACY_KEY,JSON.stringify({pipeline,mode,totalTok:t,flows}));
+    }catch(e){}
+    showSaved();
+  },280);
+}
+function showSaving(){const el=$('wfSaved');if(!el)return;el.classList.add('saving');el.innerHTML='<svg viewBox="0 0 12 12" fill="none" aria-hidden="true"><circle cx="6" cy="6" r="4" stroke="currentColor" stroke-width="1.4" stroke-dasharray="3 3"><animateTransform attributeName="transform" type="rotate" from="0 6 6" to="360 6 6" dur="1.2s" repeatCount="indefinite"/></circle></svg>Saving…';}
+function showSaved(){const el=$('wfSaved');if(!el)return;el.classList.remove('saving');el.innerHTML='<svg viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M2.5 6.5l2.5 2.5L9.5 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Saved';}
+let activeId=null,dragType=null,canvasDragId=null,liveInsertIdx=-1,dragRaf=null;
+let lastRemoved=null,undoTimer=null;
+
+const SV={
+  doc:'<svg viewBox="0 0 18 18" fill="none" aria-hidden="true"><rect x="2" y="2.5" width="14" height="13" rx="2" stroke="currentColor" stroke-width="1.3"/><circle cx="12" cy="7.5" r="1.5" stroke="currentColor" stroke-width="1"/><path d="M5 7h4M5 9.5h3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>',
+  face:'<svg viewBox="0 0 18 18" fill="none" aria-hidden="true"><circle cx="9" cy="7" r="3.5" stroke="currentColor" stroke-width="1.3"/><path d="M3.5 16c0-3 2.5-5.5 5.5-5.5s5.5 2.5 5.5 5.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>',
+  ext:'<svg viewBox="0 0 18 18" fill="none" aria-hidden="true"><rect x="3" y="3" width="12" height="12" rx="3" stroke="currentColor" stroke-width="1.3"/><path d="M9 6v6M6 9h6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>',
+  int:'<svg viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M3 6.5h12M3 11.5h12M7 3v12M11 3v12" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>',
+  auth:'<svg viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M9 1.8 2.8 4v4.2c0 3.6 2.5 6.6 6.2 8 3.7-1.4 6.2-4.4 6.2-8V4L9 1.8Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="m6.3 9 2 2 3.6-3.8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  chk:'<svg viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M3 6l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  x:'<svg viewBox="0 0 10 10" fill="none" aria-hidden="true"><path d="M2 2l6 6M8 2l-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>',
+  branch:'<svg viewBox="0 0 18 18" fill="none" aria-hidden="true"><rect x="1.5" y="5.5" width="15" height="10" rx="2" stroke="currentColor" stroke-width="1.3"/><circle cx="9" cy="10.5" r="2.5" stroke="currentColor" stroke-width="1.3"/><path d="M6 5.5l.8-1.8a1 1 0 0 1 .9-.7h2.6a1 1 0 0 1 .9.7L12 5.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  fbVideo:'<svg viewBox="0 0 18 18" fill="none" aria-hidden="true"><rect x="1.5" y="5" width="10" height="8" rx="2" stroke="currentColor" stroke-width="1.3"/><path d="M11.5 7.5l4.5-2v7l-4.5-2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="4.5" cy="8.5" r="2" fill="currentColor" opacity="0.85"/></svg>',
+  fbPhoto:'<svg viewBox="0 0 18 18" fill="none" aria-hidden="true"><rect x="1.5" y="4.5" width="15" height="11" rx="2" stroke="currentColor" stroke-width="1.3"/><circle cx="9" cy="10" r="3" stroke="currentColor" stroke-width="1.3"/><path d="M6 4.5l.8-1.8a1 1 0 0 1 .9-.7h2.6a1 1 0 0 1 .9.7L12 4.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="14" cy="7" r="0.8" fill="currentColor"/></svg>',
+  arr:'<svg viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M2 6h8M7 3l3 3-3 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  dots:'<svg viewBox="0 0 8 14" fill="currentColor" aria-hidden="true"><circle cx="2" cy="3" r="1.2"/><circle cx="6" cy="3" r="1.2"/><circle cx="2" cy="7" r="1.2"/><circle cx="6" cy="7" r="1.2"/><circle cx="2" cy="11" r="1.2"/><circle cx="6" cy="11" r="1.2"/></svg>',
+  empty:'<svg width="56" height="48" viewBox="0 0 56 48" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><rect x="1" y="8" width="18" height="14" rx="4" stroke-dasharray="3 3"/><rect x="19" y="8" width="18" height="14" rx="4" stroke-dasharray="3 3"/><rect x="37" y="8" width="18" height="14" rx="4" stroke-dasharray="3 3"/><path d="M10 22v8c0 2 1 3 3 3h30c2 0 3-1 3-3v-8" stroke-linecap="round"/><path d="M28 33v8M22 41h12" stroke-linecap="round"/></svg>',
+};
+
+const MODS={
+  doc:{icon:SV.doc,name:'Identity',desc:'Verify user identity',
+    paths:{
+      document:{label:'Document',presets:[
+        {group:'Standard',items:[
+          {v:'basique',l:'Basique',d:'Photo capture',t:1,fb:0,fbLevel:0},
+          {v:'basique_plus',l:'Basique+',d:'Photo + anti-spoofing',t:2,fb:0,rec:1,fbLevel:1},
+        ]},
+        {group:'NFC-Enabled',items:[
+          {v:'substantial',l:'Substantiel',d:'NFC + video fallback',t:4,fb:1,fbLevel:3,fbOpts:['none','video','photo']},
+          {v:'substantial_plus',l:'Substantiel+',d:'NFC + injection detection',t:5,fb:1,fbLevel:3,fbOpts:['none','photo']},
+          {v:'advanced',l:'Advanced',d:'NFC only, no fallback',t:3,fb:0,fbLevel:3},
+        ]},
+        {group:'Trusted Source',items:[
+          {v:'trusted_source',l:'Trusted Source',d:'Secondary mandatory document — only face check',t:1,trustedSource:true},
+        ]}
+      ]},
+      wallet:{label:'Wallet',presets:[
+        {group:null,items:[
+          {v:'eudiw_verify',l:'EUDIW Verification',d:'EAA, QEAA attestation',t:2},
+          {v:'gov_digital_id',l:'Gov Digital ID',d:'Government integration',t:1},
+        ]}
+      ]}
+    },
+    get presets(){return this.paths.document.presets}
+  },
+  face:{icon:SV.face,name:'Face IDV',desc:'Liveness & face matching',
+    presets:[{group:null,items:[
+      {v:'basic',l:'Basic',d:'Passive liveness',t:1},
+      {v:'substantial',l:'Substantiel',d:'Active liveness',t:2},
+      {v:'high',l:'High',d:'Max assurance',t:5},
+    ]}]},
+  ext:{icon:SV.ext,name:'Issuance',desc:'Issue credentials & attestations',
+    chips:[
+      {key:'eudiw_issue',l:'EUDIW Attestation',t:2},
+      {key:'other_attestation',l:'Other Attestation',t:1},
+    ]},
+  int:{icon:SV.int,name:'Integration',desc:'Webhook & data options',
+    options:[
+      {key:'audit_trail',l:'Request audit trail',d:'Full verification log'},
+      {key:'request_assets',l:'Request assets',d:'Videos, photos & recordings'},
+      {key:'id_data_extract',l:'ID data extraction',d:'Structured identity fields'},
+      {key:'risk_scoring',l:'Risk scoring',d:'Fraud probability score'},
+    ]},
+  auth:{icon:SV.auth,name:'Auth',desc:'Re-verify returning users',
+    presets:[{group:null,items:[
+      {v:'mfa_3',l:'MFA 3.0',d:'Active liveness auth',t:1,type:'mfa',rec:1},
+      {v:'eudiw_pid',l:'EUDIW PID',d:'EU Digital Wallet',t:2,type:'pid'},
+    ]}]},
+};
+
+function getTok(s){if(s.type==='ext'){let t=0;for(const v of Object.values(s.addons||{}))t+=v.t;return t}return s.config?s.config.t||0:0}
+function switchPath(sid,path){const s=pipeline.find(x=>x.id===sid);if(!s)return;s.path=path;s.config=null;s.fb=null;renderAll()}
+function togIntOpt(sid,key){const s=pipeline.find(x=>x.id===sid);if(!s)return;if(!s.intOpts)s.intOpts={};if(s.intOpts[key])delete s.intOpts[key];else s.intOpts[key]=true;renderAll()}
+function stepSub(s){
+  if(s.type==='doc'&&s.config){const pathLabel=s.path==='wallet'?'Wallet':'Document';return pathLabel+' \u00B7 '+s.config.l;}
+  if(s.config)return s.config.l;
+  if(s.type==='ext'){const n=Object.keys(s.addons||{}).length;return n?n+' option'+(n>1?'s':''):'No options'}
+  if(s.type==='int'){const n=Object.keys(s.intOpts||{}).length;const cb=document.querySelector('.int-input');const hasCb=cb&&cb.value;return (hasCb?'URL set':'No URL')+(n?' + '+n+' opt'+(n>1?'s':''):'');}
+  return 'Not configured';
+}
+
+function getPhoneBg(t){
+  if(t==='doc')return 'linear-gradient(160deg,#eaf5f0 0%,#d3ede3 100%)';
+  if(t==='face'||t==='auth')return 'linear-gradient(160deg,#f0f3fd 0%,#dde3fb 100%)';
+  if(t==='ext')return 'linear-gradient(160deg,#eef1fb 0%,#dde3f8 100%)';
+  return 'linear-gradient(160deg,#f4f5f7 0%,#e8e9ee 100%)';
+}
+const OPT_ICONS={
+  /* doc: basique — ID card (simple photo scan) */
+  'doc:basique':         `<svg viewBox="0 0 20 20" fill="none"><rect x="2" y="4.5" width="16" height="11" rx="2" stroke="currentColor" stroke-width="1.6"/><circle cx="6.5" cy="10" r="1.8" stroke="currentColor" stroke-width="1.6"/><path d="M3.5 13.5c.4-1.3 1.6-2 3-2s2.6.7 3 2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M11 8.5h5M11 11.5h3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>`,
+  /* doc: basique+ — ID card + liveness dot ring (anti-spoofing) */
+  'doc:basique_plus':    `<svg viewBox="0 0 20 20" fill="none"><rect x="1" y="5.5" width="14.5" height="11" rx="2" stroke="currentColor" stroke-width="1.6"/><circle cx="5.5" cy="11" r="1.6" stroke="currentColor" stroke-width="1.6"/><path d="M3 14.5c.4-1.2 1.4-1.9 2.5-1.9s2.1.7 2.5 1.9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M9.5 9h4.5M9.5 12h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="16.5" cy="4.5" r="3.5" fill="currentColor"/><path d="M14.9 4.5l1.1 1.1 2.1-2.1" stroke="white" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  /* doc: substantial — clean NFC waves */
+  'doc:substantial':     `<svg viewBox="0 0 20 20" fill="none"><circle cx="4.5" cy="10" r="1.7" fill="currentColor"/><path d="M8 6.5a5 5 0 010 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M11.5 4a9 9 0 010 12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M15 1.5a13 13 0 010 17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`,
+  /* doc: substantial+ — NFC waves + check */
+  'doc:substantial_plus':`<svg viewBox="0 0 20 20" fill="none"><circle cx="3" cy="11" r="1.5" fill="currentColor"/><path d="M6 8a4 4 0 010 6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M9 5.5a8 8 0 010 11" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M12 3a12 12 0 010 16" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="16.5" cy="4.5" r="3.5" fill="currentColor"/><path d="M14.9 4.5l1.1 1.1 2.1-2.1" stroke="white" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  /* doc: advanced — secure chip */
+  'doc:advanced':        `<svg viewBox="0 0 20 20" fill="none"><rect x="4.5" y="4.5" width="11" height="11" rx="2" stroke="currentColor" stroke-width="1.6"/><rect x="7.5" y="7.5" width="5" height="5" rx="1" fill="currentColor"/><path d="M7.5 4.5V2.5M10 4.5V2.5M12.5 4.5V2.5M7.5 17.5v-2M10 17.5v-2M12.5 17.5v-2M4.5 7.5H2.5M4.5 10H2.5M4.5 12.5H2.5M17.5 7.5h-2M17.5 10h-2M17.5 12.5h-2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>`,
+  /* face: basic — user silhouette (passive selfie) */
+  'face:basic':          `<svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="7" r="3.5" stroke="currentColor" stroke-width="1.8"/><path d="M3 17.5c0-3.5 3-6 7-6s7 2.5 7 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`,
+  /* face: substantial — user + motion arc (active liveness) */
+  'face:substantial':    `<svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="8" r="3.2" stroke="currentColor" stroke-width="1.8"/><path d="M4 18c0-3.2 2.7-5.5 6-5.5s6 2.3 6 5.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M14.5 3.5a7 7 0 011.8 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M5.5 3.5a7 7 0 00-1.8 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>`,
+  /* face: high — verified rosette badge (max assurance) */
+  'face:high':           `<svg viewBox="0 0 20 20" fill="none"><path d="M10 1.5l1.9 1.3 2.2-.4.9 2 2 .9-.1 2.2 1.3 1.9-1.3 1.9.1 2.2-2 .9-.9 2-2.2-.4L10 17.5l-1.9-1.3-2.2.4-.9-2-2-.9.1-2.2L1.8 10l1.3-1.9-.1-2.2 2-.9.9-2 2.2.4L10 1.5Z" fill="currentColor"/><path d="M6.8 10.2l2.2 2.2 4.2-4.2" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  /* auth: shield + person */
+  'auth:mfa_3':          `<svg viewBox="0 0 20 20" fill="none"><path d="M10 2S5 4 5 7.5v4C5 15 10 17.5 10 17.5S15 15 15 11.5v-4C15 4 10 2 10 2Z" stroke="currentColor" stroke-width="1.6"/><circle cx="10" cy="8.5" r="2" stroke="currentColor" stroke-width="1.3"/><path d="M6.5 14.5a4 4 0 017 0" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>`,
+  /* auth: ID card */
+  'auth:eudiw_pid':      `<svg viewBox="0 0 20 20" fill="none"><rect x="1.5" y="5" width="17" height="11" rx="2" stroke="currentColor" stroke-width="1.6"/><circle cx="6" cy="10.5" r="2.3" stroke="currentColor" stroke-width="1.3"/><path d="M10.5 8.5h5.5M10.5 12h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>`,
+};
+const ILLUST={
+  'doc:basique':         'illustrations/doc/Basic.svg',
+  'doc:basique_plus':    'illustrations/doc/Basic+.svg',
+  'doc:substantial':     'illustrations/doc/Substantial.svg',
+  'doc:substantial_plus':'illustrations/doc/Substantial+.svg',
+  'doc:advanced':        'illustrations/doc/Advanced.svg',
+  'doc:trusted_source':  'illustrations/Trusted source.svg',
+  'doc:eudiw_verify':    'illustrations/EUDIW Attestation verification.svg',
+  'doc:gov_digital_id':  'illustrations/Governement Digital Identities.svg',
+  'doc':                 'illustrations/doc/Basic.svg',
+  'face:basic':          'illustrations/face/Basic.svg',
+  'face:substantial':    'illustrations/face/Substantial.svg',
+  'face:high':           'illustrations/face/high.svg',
+  'face':                'illustrations/face/Basic.svg',
+  'auth:mfa_3':          'illustrations/MFA 3.0.svg',
+  'auth:eudiw_pid':      'illustrations/EUDIW Attestation verification.svg',
+  'auth':                'illustrations/MFA 3.0.svg',
+  'ext':                 'illustrations/Extention - General.svg',
+  'ext:trusted_source':  'illustrations/Trusted source.svg',
+  'ext:eudiw_verify':    'illustrations/EUDIW Attestation verification.svg',
+  'ext:eudiw_issue':     'illustrations/Other EUDIW Attestations.svg',
+  'ext:gov_digital_id':  'illustrations/Governement Digital Identities.svg',
+};
+function getIllust(type,variant){
+  if(variant&&ILLUST[type+':'+variant])return ILLUST[type+':'+variant];
+  return ILLUST[type]||null;
+}
+
+function getOptIcon(type,v){
+  const svg=OPT_ICONS[type+':'+v];
+  if(!svg)return '';
+  return `<div class="opt-ico" style="color:#3253d1;background:var(--blue-bg)" aria-hidden="true">${svg}</div>`;
+}
+
+function getPhoneScreen(t){
+  if(t==='doc')return`<svg viewBox="0 0 76 126" fill="none">
+    <rect width="76" height="126" fill="#111827"/>
+    <rect x="11" y="34" width="54" height="44" rx="5" stroke="white" stroke-width="1.5" fill="none" opacity=".18"/>
+    <path d="M11 46 L11 34 L23 34" stroke="#3253d1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M65 46 L65 34 L53 34" stroke="#3253d1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M11 66 L11 78 L23 78" stroke="#3253d1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M65 66 L65 78 L53 78" stroke="#3253d1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <line x1="11" y1="56" x2="65" y2="56" stroke="#3253d1" stroke-width="1" opacity=".5"/>
+    <text x="38" y="108" text-anchor="middle" font-size="6" fill="rgba(255,255,255,.4)" font-family="Inter,sans-serif" font-weight="600" letter-spacing=".5">SCAN ID</text>
+  </svg>`;
+  if(t==='face')return`<svg viewBox="0 0 76 126" fill="none">
+    <rect width="76" height="126" fill="#f8f9fe"/>
+    <rect x="26" y="6" width="24" height="9" rx="4.5" fill="#3253d1" fill-opacity=".1"/>
+    <circle cx="31" cy="10.5" r="2" fill="#3253d1" opacity=".5"/>
+    <text x="43" y="13.5" text-anchor="middle" font-size="5.5" fill="#3253d1" font-family="Inter,sans-serif" font-weight="700" opacity=".8">LIVE</text>
+    <ellipse cx="38" cy="62" rx="22" ry="30" stroke="#3253d1" stroke-width="1.4" stroke-dasharray="4 3" fill="none"/>
+    <circle cx="38" cy="106" r="6" stroke="#3253d1" stroke-width="1.4" fill="none" opacity=".25"/>
+    <circle cx="38" cy="106" r="3" fill="#3253d1" opacity=".18"/>
+  </svg>`;
+  if(t==='ext')return`<svg viewBox="0 0 76 126" fill="none">
+    <rect x="0" y="0" width="76" height="126" fill="#f9f8ff"/>
+    <rect x="0" y="0" width="76" height="18" fill="white"/>
+    <rect x="12" y="6" width="30" height="5" rx="2.5" fill="#e8e8f0"/>
+    <rect x="50" y="5.5" width="14" height="6" rx="3" fill="#3253d1" fill-opacity=".15"/>
+    <line x1="0" y1="18" x2="76" y2="18" stroke="#eceef4" stroke-width="1"/>
+    <rect x="8" y="26" width="60" height="18" rx="5" fill="white" stroke="#eceef4" stroke-width="1"/>
+    <rect x="14" y="32" width="28" height="5" rx="2.5" fill="#e8e8f0"/>
+    <rect x="52" y="30.5" width="10" height="7" rx="3.5" fill="#3253d1"/>
+    <rect x="8" y="50" width="60" height="18" rx="5" fill="white" stroke="#eceef4" stroke-width="1"/>
+    <rect x="14" y="56" width="22" height="5" rx="2.5" fill="#e8e8f0"/>
+    <rect x="52" y="54.5" width="10" height="7" rx="3.5" fill="#e8e8f0"/>
+    <rect x="8" y="74" width="60" height="18" rx="5" fill="white" stroke="#eceef4" stroke-width="1"/>
+    <rect x="14" y="80" width="26" height="5" rx="2.5" fill="#e8e8f0"/>
+    <rect x="52" y="78.5" width="10" height="7" rx="3.5" fill="#3253d1"/>
+    <rect x="8" y="98" width="60" height="18" rx="5" fill="white" stroke="#eceef4" stroke-width="1"/>
+    <rect x="14" y="104" width="20" height="5" rx="2.5" fill="#e8e8f0"/>
+    <rect x="52" y="102.5" width="10" height="7" rx="3.5" fill="#e8e8f0"/>
+  </svg>`;
+  if(t==='int')return`<svg viewBox="0 0 76 126" fill="none">
+    <rect x="0" y="0" width="76" height="126" fill="#f4f5f7"/>
+    <rect x="6" y="20" width="64" height="36" rx="7" fill="white" stroke="#eceef4" stroke-width="1"/>
+    <rect x="12" y="28" width="32" height="5" rx="2.5" fill="#eceef4"/>
+    <rect x="12" y="37" width="50" height="11" rx="4" fill="#f4f5f7" stroke="#eceef4" stroke-width="1"/>
+    <rect x="16" y="40" width="30" height="4" rx="2" fill="#c5c8d6"/>
+    <rect x="6" y="66" width="64" height="44" rx="7" fill="white" stroke="#eceef4" stroke-width="1"/>
+    <circle cx="25" cy="80" r="7" fill="#eaf5f0" stroke="#3253d1" stroke-width="1"/>
+    <path d="M22 80 L24.5 82.5 L29 77.5" stroke="#3253d1" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="36" y="75" width="26" height="4" rx="2" fill="#eceef4"/>
+    <rect x="36" y="83" width="18" height="3" rx="1.5" fill="#f0f0f4"/>
+    <line x1="6" y1="96" x2="70" y2="96" stroke="#eceef4" stroke-width="1"/>
+    <rect x="12" y="100" width="40" height="4" rx="2" fill="#eceef4"/>
+  </svg>`;
+  if(t==='auth')return`<svg viewBox="0 0 76 126" fill="none">
+    <rect x="0" y="0" width="76" height="126" fill="#f0f3fd"/>
+    <rect x="0" y="0" width="76" height="28" fill="white" opacity=".5"/>
+    <circle cx="38" cy="14" r="5" fill="#e0e4f9"/>
+    <path d="M15 52 C15 36 22 22 38 18 C54 22 61 36 61 52 L61 68 C61 78 50 86 38 90 C26 86 15 78 15 68 Z" fill="#3253d1" fill-opacity=".08" stroke="#3253d1" stroke-width="1.5"/>
+    <rect x="29" y="55" width="18" height="14" rx="3.5" stroke="#3253d1" stroke-width="1.5" fill="none"/>
+    <path d="M32 55 L32 51 Q32 46 38 46 Q44 46 44 51 L44 55" stroke="#3253d1" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+    <circle cx="38" cy="62" r="2" fill="#3253d1" opacity=".7"/>
+  </svg>`;
+  return '';
+}
+function getPhonePrevBg(t){
+  return '#F3F4F6';
+}
+function getPrevSVG(t){
+  if(t==='doc')return`<svg viewBox="0 0 160 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="22" y="14" width="116" height="72" rx="8" fill="white" fill-opacity=".6" stroke="#3253d1" stroke-width="1.5"/>
+    <rect x="32" y="26" width="24" height="18" rx="3" stroke="#3253d1" stroke-width="1.2"/>
+    <line x1="64" y1="30" x2="126" y2="30" stroke="#3253d1" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="64" y1="37" x2="112" y2="37" stroke="#3253d1" stroke-width="1.2" stroke-linecap="round" opacity=".4"/>
+    <rect x="32" y="52" width="24" height="24" rx="3" fill="#3253d1" fill-opacity=".06" stroke="#3253d1" stroke-width="1.2"/>
+    <circle cx="44" cy="59" r="5.5" stroke="#3253d1" stroke-width="1" fill="none"/>
+    <path d="M35 76c0-3 4-5.5 9-5.5s9 2.5 9 5.5" stroke="#3253d1" stroke-width="1" stroke-linecap="round"/>
+    <line x1="64" y1="56" x2="126" y2="56" stroke="#3253d1" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="64" y1="63" x2="118" y2="63" stroke="#3253d1" stroke-width="1.2" stroke-linecap="round" opacity=".4"/>
+  </svg>`;
+  if(t==='face')return`<svg viewBox="0 0 160 100" fill="none">
+    <path d="M20 32 L20 18 L34 18" stroke="#3253d1" stroke-width="1.5" stroke-linecap="round"/>
+    <path d="M140 32 L140 18 L126 18" stroke="#3253d1" stroke-width="1.5" stroke-linecap="round"/>
+    <path d="M20 68 L20 82 L34 82" stroke="#3253d1" stroke-width="1.5" stroke-linecap="round"/>
+    <path d="M140 68 L140 82 L126 82" stroke="#3253d1" stroke-width="1.5" stroke-linecap="round"/>
+    <ellipse cx="80" cy="48" rx="30" ry="34" stroke="#3253d1" stroke-width="1.5" fill="#3253d1" fill-opacity=".04"/>
+    <circle cx="69" cy="42" r="4" stroke="#3253d1" stroke-width="1.2" fill="none"/>
+    <circle cx="91" cy="42" r="4" stroke="#3253d1" stroke-width="1.2" fill="none"/>
+    <circle cx="69" cy="42" r="1.5" fill="#3253d1" opacity=".5"/>
+    <circle cx="91" cy="42" r="1.5" fill="#3253d1" opacity=".5"/>
+    <path d="M74 54 Q80 59 86 54" stroke="#3253d1" stroke-width="1.3" stroke-linecap="round" fill="none"/>
+  </svg>`;
+  if(t==='ext')return`<svg viewBox="0 0 160 100" fill="none">
+    <rect x="28" y="28" width="52" height="44" rx="7" fill="white" fill-opacity=".7" stroke="#3253d1" stroke-width="1.5"/>
+    <path d="M80 44 Q90 44 90 50 Q90 56 80 56" stroke="#3253d1" stroke-width="1.5" fill="white"/>
+    <line x1="54" y1="36" x2="54" y2="64" stroke="#3253d1" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="40" y1="50" x2="68" y2="50" stroke="#3253d1" stroke-width="1.5" stroke-linecap="round"/>
+    <rect x="96" y="38" width="36" height="24" rx="5" fill="#eef1fb" stroke="#3253d1" stroke-width="1.2" stroke-dasharray="3 2"/>
+    <line x1="114" y1="46" x2="114" y2="54" stroke="#3253d1" stroke-width="1.3" stroke-linecap="round" opacity=".7"/>
+    <line x1="110" y1="50" x2="118" y2="50" stroke="#3253d1" stroke-width="1.3" stroke-linecap="round" opacity=".7"/>
+  </svg>`;
+  if(t==='int')return`<svg viewBox="0 0 160 100" fill="none">
+    <rect x="16" y="34" width="40" height="32" rx="6" fill="white" fill-opacity=".85" stroke="#9ca1b5" stroke-width="1.4"/>
+    <line x1="16" y1="46" x2="56" y2="46" stroke="#eceef4" stroke-width="1"/>
+    <circle cx="26" cy="40" r="2.5" fill="#3253d1" fill-opacity=".35"/>
+    <circle cx="34" cy="40" r="2.5" fill="#3253d1" fill-opacity=".2"/>
+    <rect x="104" y="34" width="40" height="32" rx="6" fill="white" fill-opacity=".85" stroke="#9ca1b5" stroke-width="1.4"/>
+    <line x1="104" y1="46" x2="144" y2="46" stroke="#eceef4" stroke-width="1"/>
+    <circle cx="114" cy="40" r="2.5" fill="#10b981" fill-opacity=".5"/>
+    <circle cx="122" cy="40" r="2.5" fill="#10b981" fill-opacity=".3"/>
+    <path d="M58 47 L102 47" stroke="#3253d1" stroke-width="1.4" stroke-linecap="round"/>
+    <path d="M94 43 L102 47 L94 51" stroke="#3253d1" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <path d="M102 54 L58 54" stroke="#9ca1b5" stroke-width="1.3" stroke-linecap="round"/>
+    <path d="M66 50 L58 54 L66 58" stroke="#9ca1b5" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  </svg>`;
+  if(t==='auth')return`<svg viewBox="0 0 160 100" fill="none">
+    <path d="M80 12 L112 24 L112 52 C112 70 96 82 80 88 C64 82 48 70 48 52 L48 24 Z" stroke="#3253d1" stroke-width="1.5" fill="#3253d1" fill-opacity=".05"/>
+    <rect x="70" y="50" width="20" height="16" rx="3.5" stroke="#3253d1" stroke-width="1.5" fill="none"/>
+    <path d="M73 50 L73 45 Q73 39 80 39 Q87 39 87 45 L87 50" stroke="#3253d1" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+    <circle cx="80" cy="58" r="2.2" fill="#3253d1" opacity=".6"/>
+    <circle cx="53" cy="28" r="6" fill="#10b981" fill-opacity=".15" stroke="#10b981" stroke-width="1.2"/>
+    <path d="M50 28 L52.5 30.5 L57 25.5" stroke="#10b981" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="107" cy="28" r="6" fill="#10b981" fill-opacity=".15" stroke="#10b981" stroke-width="1.2"/>
+    <path d="M104 28 L106.5 30.5 L111 25.5" stroke="#10b981" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>`;
+  return '';
+}
+
+/* ─── SIDEBAR DRAG ─── */
+function sbDragStart(e,type){
+  // Allow drag for doc if fewer than 2 docs exist, otherwise block
+  const docCount=pipeline.filter(s=>s.type===type).length;
+  if(type==='doc'&&docCount>=2){e.preventDefault();return;}
+  if(type!=='doc'&&pipeline.find(s=>s.type===type)){e.preventDefault();return;}
+  dragType=type;
+  e.dataTransfer.setData('text/plain','SB:'+type);
+  e.dataTransfer.effectAllowed='copy';
+  e.currentTarget.classList.add('dragging');
+  document.body.classList.add('is-dragging');
+}
+function sbDragEnd(e){
+  e.currentTarget.classList.remove('dragging');
+  document.body.classList.remove('is-dragging');
+  dragType=null;
+}
+
+/* ─── CANVAS REORDER DRAG ─── */
+const GRIP_SVG=`<svg viewBox="0 0 18 8" fill="currentColor"><circle cx="3" cy="2" r="1.4"/><circle cx="9" cy="2" r="1.4"/><circle cx="15" cy="2" r="1.4"/><circle cx="3" cy="6" r="1.4"/><circle cx="9" cy="6" r="1.4"/><circle cx="15" cy="6" r="1.4"/></svg>`;
+
+function buildStepHTML(s,i,dragging,isAddon){
+  const d=MODS[s.type];
+  const done=s.config||Object.keys(s.addons||{}).length>0||Object.keys(s.intOpts||{}).length>0;
+  const on=s.id===activeId;
+  const tok=getTok(s);
+  const statusCls=(done&&!on)?'cfgd':(done&&on?'editing':'uncfg');
+  const statusLabel=done?'Configured':'Not configured';
+  const isExt=s.type==='ext';const isInt=s.type==='int';
+  const extraCls=(isExt?' ext-step':isInt?' int-step':'')+(isAddon?' addon-step':'');
+  const draggingCls=dragging?' step-dragging':'';
+  const dragAttrs=isAddon?'':`draggable="true" ondragstart="cStepDragStart(event,'${s.id}')" ondragend="cStepDragEnd(event)" ondragover="cStepDragOver(event,'${s.id}',${i})" ondrop="cStepDrop(event,'${s.id}',${i})"`;
+  const kbAttrs=isAddon?'':`onkeydown="stepKeyDown(event,'${s.id}',${i})"`;
+  const ariaLabel=`${d.name}, ${statusLabel}${done&&tok>0?', '+tok+' tokens':''}`;
+  let h=`<div class="step${extraCls}${on?' active':''}${done?' done':''}${draggingCls}" role="button" tabindex="0" aria-pressed="${on}" aria-label="${ariaLabel}" data-sid="${s.id}" ${dragAttrs} onclick="setActive('${s.id}')" ${kbAttrs}>`;
+  h+=`<div class="step-grip" aria-hidden="true" onclick="event.stopPropagation()" title="Drag to reorder · Alt+↑↓ with keyboard">${GRIP_SVG}</div>`;
+  h+=`<button class="step-rm" onclick="event.stopPropagation();removeMod('${s.id}')" aria-label="Remove ${d.name}" title="Remove step">${SV.x}</button>`;
+  const checkHTML=done?`<div class="step-status" aria-hidden="true" title="Configured"><svg viewBox="0 0 14 14" fill="none"><path d="M3.5 7.3l2.3 2.3 4.7-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>`:'';
+  h+=`<div class="step-body"><div class="step-ico" aria-hidden="true">${d.icon}</div><div class="step-info"><div class="step-name" aria-hidden="true">${d.name}</div><div class="step-sub" aria-hidden="true">${stepSub(s)}</div></div>${checkHTML}</div>`;
+  if(done&&tok>0){
+    const lbl=s.type==='ext'?Object.keys(s.addons).length+' add-on'+(Object.keys(s.addons).length>1?'s':''):'Configured';
+    h+=`<div class="step-foot" aria-hidden="true"><span style="font-size:11px;color:var(--t5);font-weight:500">${lbl}</span><div style="display:flex;align-items:baseline;gap:2px"><span class="step-tok-val">${tok}</span><span class="step-tok-lbl">tok</span></div></div>`;
+  }else{
+    h+=`<div class="step-foot" aria-hidden="true"><span style="font-size:11px;color:var(--t5)">Not configured</span><div class="step-tok">— tok</div></div>`;
+  }
+  return h+'</div>';
+}
+
+function _renderFlowHTML(items,draggingId){
+  const coreItems=items.filter(s=>s.type!=='ext'&&s.type!=='int');
+  const addonItems=items.filter(s=>s.type==='ext'||s.type==='int');
+  let h='<div class="flow">';
+  h+=`<div class="flow-cap start" aria-hidden="true">Start</div>`;
+  // Track doc steps to detect the second one
+  const docStepsRendered=[];
+  coreItems.forEach((s,i)=>{
+    h+=`<div class="conn" aria-hidden="true" data-di="${i}" ondragover="cConnOver(event,${i})" ondrop="cConnDrop(event,${i})"></div>`;
+    const isSecondDoc=s.type==='doc'&&docStepsRendered.length>0;
+    if(s.type==='doc') docStepsRendered.push(s.id);
+
+    // Second doc rendering with role badge
+    if(isSecondDoc){
+      const roleLbl=s.docRole==='fallback'?'Fallback doc':s.docRole==='secondary'?'Secondary required':'Role not set';
+      const roleCls=s.docRole==='fallback'?'fallback':s.docRole==='secondary'?'secondary':'';
+      const badgeHtml=`<span class="doc-role-badge ${roleCls}">${roleLbl}</span>`;
+      // If fallback doc, render it in a sub-card style similar to fallback cards
+      if(s.docRole==='fallback'){
+        h+=`<div class="step-fb-group">`;
+        h+=`<div class="fb-conn${s.config?'':' fb-conn-uncfg'}" aria-hidden="true"></div>`;
+        h+=`<div class="fb-sub-card-wrap"><div class="fb-sub-card${s.config?'':' fb-sub-uncfg'}" onclick="setActive('${s.id}');event.stopPropagation()">`;
+        h+=`<div class="fb-sub-badge">${SV.branch} Fallback document</div>`;
+        h+=`<div class="fb-sub-name">${s.config?s.config.l:'Not configured'}</div>`;
+        h+=`<button class="step-rm" onclick="event.stopPropagation();removeMod('${s.id}')" aria-label="Remove fallback document" title="Remove">${SV.x}</button>`;
+        h+=`<button style="position:absolute;bottom:8px;right:10px;font-size:10px;font-weight:600;color:var(--t4);background:none;border:none;cursor:pointer;font-family:inherit;padding:2px 6px;border-radius:5px" onclick="event.stopPropagation();openDocRolePopup('${s.id}',event)" title="Change role">Change role</button>`;
+        h+=`</div></div>`;
+        h+=`</div>`;
+      } else {
+        // Secondary required: render as normal step with a badge in the name
+        let stepHtml=buildStepHTML(s,i,s.id===draggingId,false);
+        // Insert badge after step-name closing tag
+        stepHtml=stepHtml.replace(
+          `<div class="step-name" aria-hidden="true">${MODS['doc'].name}</div>`,
+          `<div class="step-name" aria-hidden="true">${MODS['doc'].name} ${badgeHtml}</div>`
+        );
+        h+=stepHtml;
+        // Change role button
+        h+=`<div style="position:absolute;bottom:12px;right:44px;z-index:3">`;
+        h+=`<button style="font-size:10px;font-weight:600;color:var(--t4);background:none;border:1px solid var(--brd-l);cursor:pointer;font-family:inherit;padding:3px 8px;border-radius:5px" onclick="event.stopPropagation();openDocRolePopup('${s.id}',event)">Role</button>`;
+        h+=`</div>`;
+      }
+      return;
+    }
+
+    const presetHasFb=s.type==='doc'&&s.config&&s.config.fb;
+    if(presetHasFb){
+      const fbChosen=s.fb&&s.fb!=='none';
+      const fbLabel=fbChosen?(s.fb==='video'?'Video capture':'Photo capture'):'Not selected';
+      const fbCls=fbChosen?'':'fb-sub-uncfg';
+      const chkFb=`<div class="step-status" aria-hidden="true"><svg viewBox="0 0 14 14" fill="none"><path d="M3.5 7.3l2.3 2.3 4.7-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>`;
+      h+=`<div class="step-fb-group">`;
+      h+=buildStepHTML(s,i,s.id===draggingId,false);
+      const fbIcon=s.fb==='video'?SV.fbVideo:s.fb==='photo'?SV.fbPhoto:SV.branch;
+      h+=`<div class="fb-conn${fbChosen?'':' fb-conn-uncfg'}" aria-hidden="true"></div><div class="fb-sub-card-wrap"><div class="fb-sub-card ${fbCls}" onclick="openFbPopup('${s.id}',event)"><div class="fb-card-body"><div class="step-ico">${fbIcon}</div><div class="step-info"><div class="step-name">Fallback</div><div class="step-sub">${fbLabel}</div></div></div></div></div>`;
+      h+=`</div>`;
+    } else {
+      h+=buildStepHTML(s,i,s.id===draggingId,false);
+    }
+  });
+  if(addonItems.length){
+    addonItems.forEach((s,i)=>{
+      h+=`<div class="conn" aria-hidden="true"></div>`;
+      h+=buildStepHTML(s,coreItems.length+i,false,true);
+    });
+  }
+  const avail=(mode==='auth'?['auth','int']:['doc','face','ext','int']).filter(t=>{
+    if(t==='doc') return items.filter(s=>s.type==='doc').length < 2;
+    return !items.find(s=>s.type===t);
+  });
+  if(avail.length){
+    const di=coreItems.length;
+    h+=`<div class="conn dashed" aria-hidden="true" data-di="${di}" ondragover="cConnOver(event,${di})" ondrop="cConnDrop(event,${di})"></div>`;
+    h+=`<button class="add-node" onclick="addNodeClick(event)" aria-label="Add a step to the workflow" title="Add step"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>`;
+  }
+  h+=`<div class="conn dashed" aria-hidden="true"></div>`;
+  h+=`<div class="flow-cap end" aria-hidden="true">End</div>`;
+  return h+'</div>';
+}
+
+function cStepDragStart(e,id){
+  e.stopPropagation();
+  canvasDragId=id;
+  liveInsertIdx=pipeline.filter(s=>s.type!=='ext'&&s.type!=='int').findIndex(s=>s.id===id);
+  e.dataTransfer.setData('text/plain','CS:'+id);
+  e.dataTransfer.effectAllowed='move';
+  document.body.classList.add('is-reordering');
+  setTimeout(()=>_renderPreview(liveInsertIdx),0);
+}
+function cStepDragEnd(e){
+  if(e.currentTarget)e.currentTarget.classList.remove('step-dragging');
+  canvasDragId=null;liveInsertIdx=-1;
+  if(dragRaf){cancelAnimationFrame(dragRaf);dragRaf=null;}
+  document.body.classList.remove('is-reordering');
+  renderCanvas();
+}
+function _updateLive(idx){
+  if(idx===liveInsertIdx)return;
+  liveInsertIdx=idx;
+  if(!dragRaf)dragRaf=requestAnimationFrame(()=>{if(canvasDragId)_renderPreview(liveInsertIdx);dragRaf=null;});
+}
+function _renderPreview(insertIdx){
+  const cv=$('canvas');if(!cv||!canvasDragId)return;
+  const coreOnly=pipeline.filter(s=>s.type!=='ext'&&s.type!=='int');
+  const fromIdx=coreOnly.findIndex(s=>s.id===canvasDragId);
+  if(fromIdx===-1)return;
+  const others=coreOnly.filter(s=>s.id!==canvasDragId);
+  const adj=Math.max(0,Math.min(insertIdx>fromIdx?insertIdx-1:insertIdx,others.length));
+  const previewCore=[...others];previewCore.splice(adj,0,coreOnly[fromIdx]);
+  const addons=pipeline.filter(s=>s.type==='ext'||s.type==='int');
+  const previewAll=[...previewCore,...addons];
+  cv.style.removeProperty('align-items');cv.style.removeProperty('justify-content');cv.style.removeProperty('padding');
+  cv.innerHTML=_renderFlowHTML(previewAll,canvasDragId);
+}
+function cStepDragOver(e,stepId,stepIdx){
+  if(!canvasDragId){e.preventDefault();return;}
+  if(canvasDragId===stepId)return;
+  e.preventDefault();e.stopPropagation();
+  const rect=e.currentTarget.getBoundingClientRect();
+  const srcIdx=pipeline.filter(s=>s.type!=='ext'&&s.type!=='int').findIndex(s=>s.id===canvasDragId);
+  const thr=stepIdx>srcIdx?rect.height*.3:rect.height*.7;
+  _updateLive(e.clientY<rect.top+thr?stepIdx:stepIdx+1);
+}
+function cConnOver(e,idx){
+  if(!canvasDragId){e.preventDefault();return;}
+  e.preventDefault();e.stopPropagation();
+  _updateLive(idx);
+}
+function _doReorder(insertIdx){
+  const coreOnly=pipeline.filter(s=>s.type!=='ext'&&s.type!=='int');
+  const coreFromIdx=coreOnly.findIndex(s=>s.id===canvasDragId);
+  const pipelineFromIdx=pipeline.findIndex(s=>s.id===canvasDragId);
+  const [item]=pipeline.splice(pipelineFromIdx,1);
+  const coreLen=pipeline.filter(s=>s.type!=='ext'&&s.type!=='int').length;
+  const adj=Math.max(0,Math.min(insertIdx>coreFromIdx?insertIdx-1:insertIdx,coreLen));
+  pipeline.splice(adj,0,item);
+  canvasDragId=null;liveInsertIdx=-1;
+  document.body.classList.remove('is-reordering');
+  renderAll();
+}
+function cStepDrop(e,stepId,stepIdx){
+  if(!canvasDragId||canvasDragId===stepId)return;
+  e.preventDefault();e.stopPropagation();
+  const rect=e.currentTarget.getBoundingClientRect();
+  const srcIdx2=pipeline.filter(s=>s.type!=='ext'&&s.type!=='int').findIndex(s=>s.id===canvasDragId);
+  const thr2=stepIdx>srcIdx2?rect.height*.3:rect.height*.7;
+  _doReorder(e.clientY<rect.top+thr2?stepIdx:stepIdx+1);
+}
+function cConnDrop(e,idx){
+  if(!canvasDragId)return;
+  e.preventDefault();e.stopPropagation();
+  _doReorder(idx);
+}
+
+let _deCount=0;
+function canvasDragEnter(e){e.preventDefault();_deCount++;}
+function canvasDragLeave(e){_deCount--;if(_deCount<=0)_deCount=0;}
+function canvasDrop(e){
+  e.preventDefault();_deCount=0;
+  document.body.classList.remove('is-dragging');
+  const raw=e.dataTransfer.getData('text/plain');
+  if(raw.startsWith('CS:')){
+    // Use last known liveInsertIdx, or fall back to cursor-based position
+    if(canvasDragId){
+      let idx=liveInsertIdx;
+      if(idx<0){
+        const steps=[...document.querySelectorAll('.step:not(.step-dragging)')];
+        idx=pipeline.filter(s=>s.type!=='ext'&&s.type!=='int').length;
+        for(let i=0;i<steps.length;i++){const r=steps[i].getBoundingClientRect();if(e.clientY<r.top+r.height/2){idx=i;break;}}
+      }
+      _doReorder(idx);
+    } else {canvasDragId=null;document.body.classList.remove('is-reordering');renderAll();}
+    return;
+  }
+  const type=raw.startsWith('SB:')?raw.slice(3):raw;
+  dragType=null;document.body.classList.remove('is-dragging');
+  const docCount=pipeline.filter(s=>s.type==='doc').length;
+  if(!type||(type==='doc'&&docCount>=2)||(type!=='doc'&&pipeline.find(s=>s.type===type)))return;
+  const steps=[...document.querySelectorAll('.step')];
+  let idx=pipeline.length;
+  for(let i=0;i<steps.length;i++){const r=steps[i].getBoundingClientRect();if(e.clientY<r.top+r.height/2){idx=i;break;}}
+  const id=type+'_'+Date.now();
+  const isSecondDoc=type==='doc'&&pipeline.filter(s=>s.type==='doc').length===1;
+  pipeline.splice(idx,0,{id,type,config:null,fb:null,addons:{}});
+  activeId=id;renderAll();
+  if(isSecondDoc){
+    setTimeout(()=>{
+      const el=document.querySelector(`.step[data-sid="${id}"]`);
+      if(el){
+        _pendingDocRoleId=id;
+        const popup=document.getElementById('docRolePopup');
+        popup.style.display='block';
+        const r=el.getBoundingClientRect();
+        popup.style.left=(r.right+12)+'px';
+        popup.style.top=r.top+'px';
+      }
+    },80);
+  }
+}
+
+/* ─── CORE ─── */
+function removeMod(id){
+  const s=pipeline.find(x=>x.id===id);
+  const name=s?MODS[s.type].name:'Step';
+  const idx=pipeline.findIndex(x=>x.id===id);
+  if(idx===-1)return;
+  lastRemoved={item:pipeline[idx],idx,prevActiveId:activeId};
+  pipeline.splice(idx,1);
+  if(activeId===id)activeId=pipeline.length?pipeline[pipeline.length-1].id:null;
+  announceA11y(name+' removed. Press Ctrl+Z to undo.');
+  renderAll();
+  showUndoToast(name+' removed');
+}
+function showUndoToast(msg){
+  document.querySelectorAll('.undo-toast').forEach(t=>t.remove());
+  if(undoTimer)clearTimeout(undoTimer);
+  const toast=document.createElement('div');
+  toast.className='undo-toast';
+  toast.setAttribute('role','status');
+  toast.innerHTML=`<span>${msg}</span><button class="undo-btn" onclick="undoRemove()">Undo</button>`;
+  document.body.appendChild(toast);
+  undoTimer=setTimeout(()=>{toast.classList.add('out');setTimeout(()=>toast.remove(),200);},4000);
+}
+function undoRemove(){
+  if(!lastRemoved)return;
+  document.querySelectorAll('.undo-toast').forEach(t=>t.remove());
+  if(undoTimer)clearTimeout(undoTimer);
+  const {item,idx,prevActiveId}=lastRemoved;
+  pipeline.splice(idx,0,item);
+  activeId=prevActiveId;
+  lastRemoved=null;
+  announceA11y(MODS[item.type].name+' restored');
+  renderAll();
+}
+function pickPreset(sid,p){const s=pipeline.find(x=>x.id===sid);if(!s)return;s.config={...p};s.fb=null;renderAll()}
+function pickFb(sid,v){const s=pipeline.find(x=>x.id===sid);if(s){s.fb=v;renderAll()}}
+let _fbPopupSid=null;
+function openFbPopup(sid,event){
+  event.stopPropagation();
+  const popup=document.getElementById('fbPopup');
+  if(_fbPopupSid===sid){closeFbPopup();return;}
+  _fbPopupSid=sid;
+  const s=pipeline.find(x=>x.id===sid);if(!s)return;
+  const fbOpts=(s.config&&s.config.fbOpts)||['none','video','photo'];
+  const labels={none:'None',video:'Video capture',photo:'Photo capture'};
+  popup.innerHTML=fbOpts.map(o=>{
+    const on=(s.fb||'none')===o;
+    return`<button class="fb-pop-opt${on?' on':''}" onclick="pickFbOpt('${sid}','${o}')">`+
+      `<div class="fpo-chk"></div>${labels[o]||o}</button>`;
+  }).join('');
+  popup.style.display='block';
+  const rect=event.currentTarget.getBoundingClientRect();
+  let left=rect.left;
+  if(left+200>window.innerWidth-12)left=window.innerWidth-212;
+  popup.style.left=left+'px';
+  popup.style.top=(rect.bottom+4)+'px';
+}
+function closeFbPopup(){
+  _fbPopupSid=null;
+  const popup=document.getElementById('fbPopup');
+  if(popup)popup.style.display='none';
+}
+function pickFbOpt(sid,v){
+  const s=pipeline.find(x=>x.id===sid);if(!s)return;
+  s.fb=v;
+  closeFbPopup();
+  renderAll();
+}
+function focusFallback(sid){
+  setActive(sid);
+  setTimeout(()=>{
+    const fbEl=document.querySelector('.fb-inline');
+    if(fbEl)fbEl.scrollIntoView({behavior:'smooth',block:'nearest'});
+  },60);
+}
+function togAddon(sid,k,t,l){const s=pipeline.find(x=>x.id===sid);if(!s)return;if(s.addons[k])delete s.addons[k];else s.addons[k]={t,l};renderAll()}
+function togDocCoherence(sid,key){const s=pipeline.find(x=>x.id===sid);if(!s)return;if(!s.coherence)s.coherence={};s.coherence[key]=!s.coherence[key];renderAll();}
+function setActive(id){activeId=activeId===id?null:id;renderAll()}
+function setActiveByType(t){const s=pipeline.find(x=>x.type===t);if(s){activeId=s.id;renderAll();}}
+function setMode(m){
+  savedActiveIds[mode]=activeId;
+  mode=m;
+  pipeline=savedPipelines[mode];
+  activeId=savedActiveIds[mode]||null;
+  renderAll();
+}
+function syncModeBtns(){
+  const onb=$('modeOnb'),auth=$('modeAuth');
+  if(onb){onb.classList.toggle('on',mode==='onboarding');onb.setAttribute('aria-pressed',mode==='onboarding');}
+  if(auth){auth.classList.toggle('on',mode==='auth');auth.setAttribute('aria-pressed',mode==='auth');}
+}
+function closePanel(){activeId=null;renderAll()}
+
+/* ─── ACCESSIBILITY HELPERS ─── */
+document.addEventListener('keydown',e=>{
+  if((e.ctrlKey||e.metaKey)&&e.key==='z'&&!e.shiftKey&&lastRemoved){
+    e.preventDefault();undoRemove();
+  }
+});
+function announceA11y(msg){
+  const el=$('a11y-live');if(!el)return;
+  el.textContent='';
+  setTimeout(()=>el.textContent=msg,60);
+}
+function applyTemplate(tpl){
+  const templates={
+    basic:[
+      {type:'doc',config:{v:'basique_plus',l:'Basique+',d:'Photo + anti-spoofing',t:2,fb:0,fbLevel:1,rec:1},fb:null},
+      {type:'face',config:{v:'basic',l:'Basic',d:'Passive liveness',t:1},fb:null},
+    ],
+    substantial:[
+      {type:'doc',config:{v:'substantial',l:'Substantiel',d:'NFC + video fallback',t:4,fb:1,fbLevel:3,fbOpts:['none','video','photo']},fb:'video'},
+      {type:'face',config:{v:'substantial',l:'Substantiel',d:'Active liveness',t:2},fb:null},
+    ],
+    advanced:[
+      {type:'doc',config:{v:'advanced',l:'Advanced',d:'NFC only, no fallback',t:3,fb:0,fbLevel:3},fb:null},
+      {type:'face',config:{v:'high',l:'High',d:'Max assurance',t:5},fb:null},
+      {type:'auth',config:{v:'mfa_3',l:'MFA 3.0',d:'Active liveness auth',t:1,type:'mfa',rec:1},fb:null},
+    ],
+  };
+  const steps=templates[tpl];
+  if(!steps)return;
+  pipeline=steps.map(s=>({id:s.type+'_'+Date.now()+Math.random().toString(36).slice(2),type:s.type,config:s.config,fb:s.fb,addons:{}}));
+  activeId=null;
+  renderAll();
+  save();
+}
+function stepKeyDown(e,id,i){
+  if(e.key==='Enter'||e.key===' '){e.preventDefault();setActive(id);}
+  if(e.altKey&&e.key==='ArrowUp'){e.preventDefault();moveStep(id,-1);}
+  if(e.altKey&&e.key==='ArrowDown'){e.preventDefault();moveStep(id,1);}
+}
+function moveStep(id,dir){
+  const coreOnly=pipeline.filter(s=>s.type!=='ext'&&s.type!=='int');
+  const ci=coreOnly.findIndex(s=>s.id===id);
+  if(ci===-1)return;
+  const ni=ci+dir;
+  if(ni<0||ni>=coreOnly.length)return;
+  const pi=pipeline.findIndex(s=>s.id===coreOnly[ci].id);
+  const pj=pipeline.findIndex(s=>s.id===coreOnly[ni].id);
+  [pipeline[pi],pipeline[pj]]=[pipeline[pj],pipeline[pi]];
+  announceA11y(MODS[pipeline[pi].type].name+' moved '+(dir>0?'down':'up'));
+  renderAll();
+  setTimeout(()=>{const el=document.querySelector(`.step[data-sid="${id}"]`);if(el)el.focus();},50);
+}
+
+function renderAll(){
+  const badge=$('modeBadge');
+  if(badge)badge.textContent=mode==='auth'?'Authentication':'Onboarding';
+  syncModeBtns();renderSidebar();renderCanvas();renderPanel();renderTopbar();
+  autoSave();
+}
+
+function renderTopbar(){
+  let t=0;pipeline.forEach(s=>t+=getTok(s));
+  const empty=pipeline.length===0;
+  const ok=!empty&&pipeline.filter(s=>s.type!=='int').every(s=>s.type==='ext'?Object.keys(s.addons||{}).length>0:!!s.config);
+  const topCta=$('tbCtaTop');
+  const pricingHref='pricing.html'+(currentWorkspaceId?('?w='+encodeURIComponent(currentWorkspaceId)):'');
+  if(topCta){
+    topCta.className='bb-cta'+(ok?'':' off');
+    topCta.setAttribute('aria-disabled',ok?'false':'true');
+    if(ok)topCta.setAttribute('href',pricingHref);else topCta.removeAttribute('href');
+  }
+  const tEl=$('ctokN');
+  if(tEl.textContent!==String(t))tEl.textContent=t;
+}
+function savePricingData(){
+  try{
+    savedPipelines[mode]=pipeline;
+    let t=0;pipeline.forEach(s=>t+=getTok(s));
+    const calcTok=(pl)=>{let x=0;(pl||[]).forEach(s=>x+=getTok(s));return x;};
+    const flows={
+      onboarding:{pipeline:savedPipelines.onboarding||[],totalTok:calcTok(savedPipelines.onboarding)},
+      auth:{pipeline:savedPipelines.auth||[],totalTok:calcTok(savedPipelines.auth)}
+    };
+    localStorage.setItem('shareid_workflow',JSON.stringify({pipeline,mode,totalTok:t,flows}));
+    // Also persist to active workspace
+    if(currentWorkspace){
+      currentWorkspace.flows=flows;
+      currentWorkspace.updatedAt=Date.now();
+      const idx=workspaces.findIndex(w=>w.id===currentWorkspaceId);
+      if(idx>=0)workspaces[idx]=currentWorkspace;
+      saveWorkspaces(workspaces);
+    }
+  }catch(e){}
+}
+function clearPricingData(){try{localStorage.removeItem('shareid_workflow');}catch(e){}}
+
+function renderSidebar(){
+  const badge=$('sbModeBadge');
+  if(badge)badge.textContent=mode==='auth'?'Authentication':'Onboarding';
+  const added=new Set(pipeline.map(s=>s.type));
+  const activeType=activeId?pipeline.find(s=>s.id===activeId)?.type:null;
+  function renderGroup(types,label,extraCls=''){
+    let h=`<div class="sb-group${extraCls?' '+extraCls:''}" role="listitem"><div class="sb-label" aria-hidden="true">${label}</div>`;
+    h+=`<div role="list" aria-label="${label}">`;
+    types.forEach(t=>{
+      const d=MODS[t];
+      // For doc: "used" (grayed out / not addable) only if 2 docs already exist
+      const docCount=t==='doc'?pipeline.filter(s=>s.type==='doc').length:0;
+      const used=t==='doc'?(docCount>=2):added.has(t);
+      const isActive=added.has(t)&&t===activeType;
+      const stepInPipeline=pipeline.find(s=>s.type===t);
+      const isCfgd=added.has(t)&&stepInPipeline&&(stepInPipeline.config||Object.keys(stepInPipeline.addons||{}).length>0||Object.keys(stepInPipeline.intOpts||{}).length>0);
+      let cls='sb-item';
+      if(used&&isCfgd)cls+=' configured';
+      else if(used)cls+=' used';
+      if(isActive)cls+=' type-active';
+      // For doc with 1 already: allow add (not used), show "1 added" hint
+      const docOneAdded = t==='doc' && docCount===1;
+      let stateLabel;
+      if(docOneAdded) stateLabel='1 added — click to add a second';
+      else if(isCfgd) stateLabel='configured';
+      else if(used) stateLabel='not configured, click to configure';
+      else stateLabel='click to add, or drag onto canvas';
+      const ariaLabel=`${d.name}: ${stateLabel}`;
+      const clickHandler=(used&&!docOneAdded)?`onclick="setActiveByType('${t}')"` : `onclick="sbClickAdd('${t}')"`;
+      const canDrag = !used || docOneAdded;
+      const dragAttrs=canDrag?`draggable="true" ondragstart="sbDragStart(event,'${t}')" ondragend="sbDragEnd(event)"`:'';
+      const ariaPressed=isActive?'true':'false';
+      h+=`<div role="listitem"><button class="${cls}" data-type="${t}" ${dragAttrs} ${clickHandler} aria-label="${ariaLabel}" aria-pressed="${ariaPressed}">`;
+      h+=`<div class="sb-ico" aria-hidden="true">${d.icon}</div>`;
+      h+=`<div class="sb-info"><div class="sb-name" aria-hidden="true">${d.name}</div>`;
+      if(docOneAdded) h+=`<div class="sb-desc" aria-hidden="true" style="color:var(--blue);font-size:10px">1 added · click to add second</div>`;
+      else if(used&&isCfgd)h+=`<div class="sb-desc desc-cfgd" aria-hidden="true">Configured</div>`;
+      else if(used)h+=`<div class="sb-desc desc-pending" aria-hidden="true">Not configured</div>`;
+      else h+=`<div class="sb-desc" aria-hidden="true">${d.desc}</div>`;
+      h+=`</div>`;
+      if(used&&isCfgd&&!isActive&&!docOneAdded)h+=`<div class="sb-check" aria-hidden="true"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>`;
+      else if(canDrag)h+=`<div class="sb-drag" aria-hidden="true">${SV.dots}</div>`;
+      h+=`</button></div>`;
+    });
+    return h+'</div></div>';
+  }
+  if(mode==='auth'){
+    $('sbList').innerHTML=renderGroup(['auth'],'Core')+renderGroup(['int'],'Integration','addons');
+  } else {
+    $('sbList').innerHTML=renderGroup(['doc','face','auth'],'Core modules')+renderGroup(['ext','int'],'Add-ons','addons');
+  }
+}
+
+function renderCanvas(){
+  const cv=$('canvas');
+  if(!cv)return;
+  if(!pipeline.length){
+    cv.style.alignItems='center';
+    cv.style.justifyContent='center';
+    cv.style.padding='0';
+    cv.innerHTML=`<div class="canvas-empty" role="status" aria-live="polite"><svg width="44" height="44" viewBox="0 0 56 48" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><rect x="1" y="8" width="18" height="14" rx="4" stroke-dasharray="3 3"/><rect x="19" y="8" width="18" height="14" rx="4" stroke-dasharray="3 3"/><rect x="37" y="8" width="18" height="14" rx="4" stroke-dasharray="3 3"/><path d="M10 22v8c0 2 1 3 3 3h30c2 0 3-1 3-3v-8" stroke-linecap="round"/><path d="M28 33v8M22 41h12" stroke-linecap="round"/></svg><h2>No steps yet</h2><p>Click a module in the left sidebar to add it, or drag it onto the canvas</p></div>`;
+    return;
+  }
+  cv.style.removeProperty('align-items');
+  cv.style.removeProperty('justify-content');
+  cv.style.removeProperty('padding');
+  cv.innerHTML=_renderFlowHTML(pipeline,null);
+  window._seenSteps=window._seenSteps||new Set();
+  cv.querySelectorAll('.step[data-sid]').forEach(el=>{
+    const sid=el.getAttribute('data-sid');
+    if(!window._seenSteps.has(sid)){el.classList.add('step-new');window._seenSteps.add(sid);}
+  });
+}
+
+function addNodeClick(e){
+  e.stopPropagation();
+  const avail=(mode==='auth'?['auth','int']:['doc','face','ext','int']).filter(t=>{
+    if(t==='doc') return pipeline.filter(s=>s.type==='doc').length < 2;
+    return !pipeline.find(s=>s.type===t);
+  });
+  if(!avail.length)return;
+  document.querySelectorAll('.add-menu').forEach(m=>m.remove());
+  const menu=document.createElement('div');
+  menu.className='add-menu';
+  menu.setAttribute('role','menu');
+  menu.setAttribute('aria-label','Add a module');
+  avail.forEach(t=>{
+    const d=MODS[t];
+    const icoBg=t==='doc'||t==='face'||t==='auth'||t==='ext'?'background:var(--blue-bg);color:var(--blue)':'background:var(--bg);color:var(--t4)';
+    const btn=document.createElement('button');
+    btn.className='add-menu-item';
+    btn.setAttribute('role','menuitem');
+    btn.innerHTML=`<div class="ami-ico" aria-hidden="true" style="${icoBg}">${d.icon}</div>${d.name}`;
+    btn.onclick=()=>{
+      const isSecondDoc=t==='doc'&&pipeline.filter(s=>s.type==='doc').length===1;
+      const id=t+'_'+Date.now();
+      pipeline.push({id,type:t,config:null,fb:null,addons:{}});
+      activeId=id;menu.remove();renderAll();
+      if(isSecondDoc){
+        setTimeout(()=>{
+          const el=document.querySelector(`.step[data-sid="${id}"]`);
+          if(el){
+            _pendingDocRoleId=id;
+            const popup=document.getElementById('docRolePopup');
+            popup.style.display='block';
+            const r=el.getBoundingClientRect();
+            popup.style.left=(r.right+12)+'px';
+            popup.style.top=r.top+'px';
+          }
+        },80);
+      }
+    };
+    menu.appendChild(btn);
+  });
+  document.body.appendChild(menu);
+  const r=e.currentTarget.getBoundingClientRect();
+  menu.style.left=Math.min(r.left,window.innerWidth-menu.offsetWidth-8)+'px';
+  menu.style.top=(r.top-menu.offsetHeight-6)+'px';
+  setTimeout(()=>document.addEventListener('click',()=>menu.remove(),{once:true}),10);
+}
+
+function renderPanel(){
+  const s=activeId?pipeline.find(x=>x.id===activeId):null;
+  const panel=$('panel');
+  if(!s){
+    if(panel)panel.classList.remove('open');
+    $('panelHd').innerHTML='';
+    $('panelHd').style.borderBottom='none';
+    $('panelBody').innerHTML=`
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;opacity:.38;pointer-events:none">
+        <svg width="36" height="36" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.4" color="var(--t4)">
+          <rect x="11" y="3" width="18" height="34" rx="4"/>
+          <path d="M11 9h18M11 15h18M11 21h12" stroke-linecap="round"/>
+          <path d="M15 35h10" stroke-linecap="round" opacity=".5"/>
+        </svg>
+        <span style="font-size:12px;font-weight:600;color:var(--t4);text-align:center;line-height:1.5">Select a step<br>to configure it</span>
+      </div>`;
+    return;
+  }
+  if(panel)panel.classList.add('open');
+  $('panelHd').style.borderBottom='';
+  const def=MODS[s.type];
+  const hasOpts=def.presets||def.chips||def.options||def.paths||s.type==='int';
+  if(!hasOpts){$('panelHd').innerHTML='';$('panelBody').innerHTML='';return;}
+  const icoBg='var(--blue)';
+  const icoColor='white';
+  const illust=getIllust(s.type,s.type==='ext'?null:s.config?.v);
+  $('panelHd').innerHTML=`
+    <button class="panel-close-btn" onclick="closePanel()" aria-label="Close configuration panel" title="Close panel">${SV.x}</button>
+    <div class="panel-preview" style="background:${getPhonePrevBg(s.type)}">
+      ${illust?`<img src="${illust}" class="panel-illust" alt="" draggable="false">`:`<div class="phone-wrap"><div class="phone-frame"><div class="phone-notch"></div><div class="phone-screen">${getPhoneScreen(s.type)}</div></div></div>`}
+    </div>
+    <div class="panel-hd-row">
+      <div class="panel-ico" aria-hidden="true" style="background:${icoBg};color:${icoColor}">${def.icon}</div>
+      <div style="flex:1">
+        <div class="panel-name">${def.name}</div>
+        <div class="panel-desc">${def.desc}</div>
+      </div>
+    </div>`;
+  let h='';
+  if(s.type==='ext'){
+    h+='<div class="ext-list" role="group" aria-label="Extension modules">';
+    def.chips.forEach(c=>{
+      const isOn=!!(s.addons||{})[c.key];
+      const stateLabel=isOn?'enabled':'disabled';
+      h+=`<button class="ext-item${isOn?' on':''}" onclick="togAddon('${s.id}','${c.key}',${c.t},'${c.l}')" aria-pressed="${isOn}" aria-label="${c.l}, ${c.t} tokens, ${stateLabel}"><div class="ext-cb" aria-hidden="true">${SV.chk}</div><div class="ext-item-info"><div class="ext-item-name" aria-hidden="true">${c.l}</div></div><div class="ext-item-tok" aria-hidden="true">+${c.t} tok</div></button>`;
+    });
+    h+='</div>';
+  }else if(s.type==='int'){
+    h+=`<label for="callbackUrl" class="int-label">Callback URL</label><input class="int-input" id="callbackUrl" type="url" placeholder="https://yourdomain.com/callback" autocomplete="url" oninput="renderTopbar()">`;
+    if(def.options){
+      h+=`<div class="ext-list" style="margin-top:12px" role="group" aria-label="Integration options">`;
+      def.options.forEach(o=>{
+        const isOn=!!(s.intOpts&&s.intOpts[o.key]);
+        const stateLabel=isOn?'enabled':'disabled';
+        h+=`<button class="ext-item${isOn?' on':''}" onclick="togIntOpt('${s.id}','${o.key}')" aria-pressed="${isOn}" aria-label="${o.l}, ${stateLabel}"><div class="ext-cb" aria-hidden="true">${SV.chk}</div><div class="ext-item-info"><div class="ext-item-name" aria-hidden="true">${o.l}</div><div class="ext-item-desc" aria-hidden="true">${o.d}</div></div></button>`;
+      });
+      h+=`</div>`;
+    }
+  }else if(s.type==='doc'&&def.paths){
+    const curPath=s.path||'document';
+    h+=`<div class="path-toggle" role="group" aria-label="Verification path"><button class="path-btn${curPath==='document'?' on':''}" onclick="switchPath('${s.id}','document')">Document</button><button class="path-btn${curPath==='wallet'?' on':''}" onclick="switchPath('${s.id}','wallet')">Wallet</button></div>`;
+    const activePresets=def.paths[curPath].presets;
+    activePresets.forEach(g=>{
+      if(g.group)h+=`<div class="pgrp" role="heading" aria-level="3">${g.group}</div>`;
+      h+=`<div role="radiogroup" aria-label="${g.group||'Options'}">`;
+      g.items.forEach(p=>{
+        const isOn=!!(s.config&&s.config.v===p.v);
+        const optLabel=`${p.l}: ${p.d}, ${p.t} token${p.t!==1?'s':''}${p.rec?' (recommended)':''}`;
+        const hasFbInline=isOn&&p.fb;
+        if(hasFbInline)h+=`<div class="opt-fb-wrap on">`;
+        h+=`<button class="opt${isOn?' on':''}${hasFbInline?' no-bottom-radius':''}" onclick="pickPreset('${s.id}',${JSON.stringify(p).replace(/"/g,'&quot;')})" role="radio" aria-checked="${isOn}" aria-label="${optLabel}"><div class="ri" aria-hidden="true"><i></i></div><div class="opt-body"><div class="opt-name" aria-hidden="true">${p.l}${p.rec?' <span class="rec" aria-hidden="true">Rec</span>':''}</div><div class="opt-desc" aria-hidden="true">${p.d}</div></div><div class="opt-tok" aria-hidden="true">${p.t} tok</div></button>`;
+        if(hasFbInline){
+          const fbOpts=p.fbOpts||['none','video','photo'];
+          const fbLabels={none:'None',video:'Video',photo:'Photo'};
+          const fbPills=fbOpts.map(o=>{const isOn=o==='none'?(!s.fb||s.fb==='none'):s.fb===o;return`<button class="fb-pill${isOn?' on':''}" onclick="pickFb('${s.id}','${o}')">${fbLabels[o]}</button>`;}).join('');
+          h+=`<div class="fb-inline"><div class="fb-inline-lbl">If NFC fails:</div><div class="fb-pills">${fbPills}</div></div></div>`;
+        }
+      });
+      h+=`</div>`;
+    });
+  }else if(def.presets){
+    def.presets.forEach(g=>{
+      if(g.group)h+=`<div class="pgrp" role="heading" aria-level="3">${g.group}</div>`;
+      h+=`<div role="radiogroup" aria-label="${g.group||'Options'}">`;
+      g.items.forEach(p=>{
+        const isOn=!!(s.config&&s.config.v===p.v);
+        const optLabel=`${p.l}: ${p.d}, ${p.t} token${p.t!==1?'s':''}${p.rec?' (recommended)':''}`;
+        h+=`<button class="opt${isOn?' on':''}" onclick="pickPreset('${s.id}',${JSON.stringify(p).replace(/"/g,'&quot;')})" role="radio" aria-checked="${isOn}" aria-label="${optLabel}"><div class="ri" aria-hidden="true"><i></i></div><div class="opt-body"><div class="opt-name" aria-hidden="true">${p.l}${p.rec?' <span class="rec" aria-hidden="true">Rec</span>':''}</div><div class="opt-desc" aria-hidden="true">${p.d}</div></div><div class="opt-tok" aria-hidden="true">${p.t} tok</div></button>`;
+      });
+      h+=`</div>`;
+    });
+  }
+  // Secondary doc coherence checks
+  if(s.type==='doc'&&s.docRole==='secondary'){
+    const coherence=s.coherence||{};
+    h+=`<div class="pgrp" role="heading" aria-level="3">Coherence checks</div>`;
+    h+=`<div class="ext-list" role="group" aria-label="Coherence checks">`;
+    const coherenceOpts=[
+      {key:'face_coherence',l:'Face check coherence',d:'Verify face matches across both documents'},
+      {key:'data_coherence',l:'Data extraction coherence',d:'Cross-check extracted data between documents'},
+    ];
+    coherenceOpts.forEach(o=>{
+      const isOn=!!(coherence[o.key]);
+      h+=`<button class="ext-item${isOn?' on':''}" onclick="togDocCoherence('${s.id}','${o.key}')" aria-pressed="${isOn}" aria-label="${o.l}">
+        <div class="ext-cb" aria-hidden="true">${SV.chk}</div>
+        <div class="ext-item-info">
+          <div class="ext-item-name" aria-hidden="true">${o.l}</div>
+          <div class="ext-item-desc" aria-hidden="true">${o.d}</div>
+        </div>
+      </button>`;
+    });
+    h+=`</div>`;
+  }
+  $('panelBody').innerHTML=h;
+  const pf=$('panelFoot');
+  if(pf){
+    pf.innerHTML=`<button class="panel-rm-btn" onclick="removeMod('${s.id}')" aria-label="Remove ${def.name} from workflow"><svg width="12" height="12" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M2.5 4h9M5.5 4V2.8a.8.8 0 01.8-.8h1.4a.8.8 0 01.8.8V4M4 4l.5 7a1 1 0 001 .9h3a1 1 0 001-.9L10 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>Remove module</button>`;
+    pf.style.display='';
+  }
+}
+
+function buildJSON(){
+  const cbEl=document.querySelector('.int-input'),cb=cbEl?cbEl.value:'',cbUrl=cb||'https://yourdomain.com/shareid/callback';
+  const levels={};
+  pipeline.forEach(s=>{
+    if(s.type==='doc'&&s.config)levels.doc_idv={idv_level:s.config.v};
+    if(s.type==='face'&&s.config)levels.face_idv={idv_level:s.config.v};
+    if(s.type==='ext')for(const k of Object.keys(s.addons||{}))levels[k]={enabled:true};
+    if(s.type==='auth'&&s.config){if(s.config.type==='mfa')levels.authentication={method:'mfa_3'};else levels.eudiw_pid={enabled:true}}
+  });
+  const cfg={credentials:{business_hash:"YOUR_HASH",api_key:"YOUR_KEY"},levels,options:{callback:{urls:[cbUrl]}}};
+  const ds=pipeline.find(s=>s.type==='doc'&&s.config);
+  if(ds&&ds.config.fb&&ds.fb&&ds.fb!=='none')cfg.options.fallback={enabled:true,method:ds.fb==='video'?'video_capture':'photo_capture'};
+  return cfg;
+}
+function showJSON(){
+  const j=JSON.stringify(buildJSON(),null,2);
+  const colored=j.replace(/"([^"]+)":/g,'<span class="k">"$1"</span>:').replace(/: "([^"]+)"/g,': <span class="s">"$1"</span>').replace(/: (true|false)/g,': <span class="s">$1</span>');
+  const d=document.createElement('div');
+  d.className='modal-bg';
+  d.setAttribute('role','dialog');
+  d.setAttribute('aria-modal','true');
+  d.setAttribute('aria-labelledby','modal-cfg-title');
+  d.onclick=e=>{if(e.target===d){d.remove();onEscKey&&document.removeEventListener('keydown',onEscKey);}};
+  d.innerHTML=`<div class="modal"><div class="modal-hd"><div class="modal-t" id="modal-cfg-title">API Configuration</div><div style="display:flex;gap:6px"><button class="modal-cp" aria-label="Copy configuration to clipboard" onclick="navigator.clipboard.writeText(JSON.stringify(buildJSON(),null,2));this.textContent='Copied!';this.setAttribute('aria-label','Copied to clipboard');announceA11y('Configuration copied to clipboard');setTimeout(()=>{this.textContent='Copy';this.setAttribute('aria-label','Copy configuration to clipboard');},1200)">Copy</button><button class="modal-x" onclick="this.closest('[role=dialog]').remove();document.removeEventListener('keydown',window._modalEsc);" aria-label="Close modal">${SV.x}</button></div></div><div class="r-code"><pre aria-label="API configuration JSON">${colored}</pre></div></div>`;
+  document.body.appendChild(d);
+  window._modalEsc=e=>{if(e.key==='Escape'){d.remove();document.removeEventListener('keydown',window._modalEsc);}};
+  document.addEventListener('keydown',window._modalEsc);
+  setTimeout(()=>{const x=d.querySelector('.modal-x');if(x)x.focus();},50);
+}
+/* ─── ITEM 7: Second doc step / doc role ─── */
+let _pendingDocRoleId = null;
+function openDocRolePopup(id, event) {
+  event.stopPropagation();
+  _pendingDocRoleId = id;
+  const popup = document.getElementById('docRolePopup');
+  popup.style.display = 'block';
+  const r = event.currentTarget.getBoundingClientRect();
+  let left = r.right + 8;
+  if(left + 210 > window.innerWidth - 8) left = r.left - 218;
+  popup.style.left = left + 'px';
+  popup.style.top = r.top + 'px';
+}
+function pickDocRole(role) {
+  const s = pipeline.find(x => x.id === _pendingDocRoleId);
+  if (s) { s.docRole = role; renderAll(); }
+  document.getElementById('docRolePopup').style.display = 'none';
+  _pendingDocRoleId = null;
+}
+function closeDocRolePopup() {
+  document.getElementById('docRolePopup').style.display = 'none';
+  _pendingDocRoleId = null;
+}
+
+function sbClickAdd(t) {
+  if (t === 'doc') {
+    const existing = pipeline.filter(s => s.type === 'doc');
+    if (existing.length >= 2) return; // already 2
+    if (existing.length === 1) {
+      // Add second doc
+      const id = 'doc_' + Date.now();
+      pipeline.push({id, type:'doc', config:null, fb:null, addons:{}, docRole:null});
+      activeId = id;
+      renderAll();
+      announceA11y('Second Identity document added to workflow');
+      // Show role popup on the sidebar item
+      setTimeout(() => {
+        const sbItem = document.querySelector('[data-type="doc"]');
+        if (sbItem) {
+          const fakeEvt = { stopPropagation:()=>{}, currentTarget: sbItem };
+          _pendingDocRoleId = id;
+          const popup = document.getElementById('docRolePopup');
+          popup.style.display = 'block';
+          const r = sbItem.getBoundingClientRect();
+          popup.style.left = (r.right + 8) + 'px';
+          popup.style.top = r.top + 'px';
+        }
+      }, 80);
+      return;
+    }
+    // First doc — normal add
+    const id = 'doc_' + Date.now();
+    pipeline.push({id, type:'doc', config:null, fb:null, addons:{}});
+    activeId = id;
+    renderAll();
+    announceA11y(MODS['doc'].name + ' added to workflow');
+    return;
+  }
+  if (pipeline.find(s => s.type === t)) return;
+  const id = t + '_' + Date.now();
+  pipeline.push({id, type:t, config:null, fb:null, addons:{}});
+  activeId = id;
+  renderAll();
+  announceA11y(MODS[t].name + ' added to workflow');
+}
+
+/* ─── ITEM 8: Test + Integrate modals ─── */
+let _testDevice = 'web';
+let _intPlatform = 'web';
+
+function openTestModal() {
+  _testDevice = 'web';
+  renderTestModal();
+  document.getElementById('testModal').classList.add('open');
+}
+function closeTestModal() { document.getElementById('testModal').classList.remove('open'); }
+function switchTestDevice(d) {
+  _testDevice = d;
+  ['web','ios','android'].forEach(x => {
+    const tab = document.getElementById('devTab' + x.charAt(0).toUpperCase() + x.slice(1));
+    if(tab) tab.classList.toggle('on', x === d);
+  });
+  renderTestModal();
+}
+function renderTestModal() {
+  const el = document.getElementById('testModalContent');
+  if(!el) return;
+  ['web','ios','android'].forEach(x => {
+    const tab = document.getElementById('devTab' + x.charAt(0).toUpperCase() + x.slice(1));
+    if(tab) tab.classList.toggle('on', x === _testDevice);
+  });
+  if(_testDevice === 'web') {
+    el.innerHTML = `
+      <div class="qr-box">
+        <svg class="qr-icon" viewBox="0 0 80 80" fill="none">
+          <rect x="4" y="4" width="28" height="28" rx="3" stroke="currentColor" stroke-width="3"/>
+          <rect x="10" y="10" width="16" height="16" rx="1" fill="currentColor"/>
+          <rect x="48" y="4" width="28" height="28" rx="3" stroke="currentColor" stroke-width="3"/>
+          <rect x="54" y="10" width="16" height="16" rx="1" fill="currentColor"/>
+          <rect x="4" y="48" width="28" height="28" rx="3" stroke="currentColor" stroke-width="3"/>
+          <rect x="10" y="54" width="16" height="16" rx="1" fill="currentColor"/>
+          <rect x="48" y="48" width="8" height="8" rx="1" fill="currentColor"/>
+          <rect x="62" y="48" width="8" height="8" rx="1" fill="currentColor"/>
+          <rect x="48" y="62" width="8" height="8" rx="1" fill="currentColor"/>
+          <rect x="62" y="62" width="8" height="8" rx="1" fill="currentColor"/>
+        </svg>
+        <div style="font-size:13px;font-weight:600;color:var(--t2);text-align:center">Scan to open the SDK in your browser</div>
+        <div style="font-size:11px;color:var(--t5);text-align:center">Use your camera to scan this code</div>
+      </div>
+      <div class="modal-act-row">
+        <button class="tb-btn" onclick="navigator.clipboard.writeText(location.href).then(()=>{this.textContent='Copied!';setTimeout(()=>this.textContent='Copy link',1400)})">Copy link</button>
+      </div>`;
+  } else {
+    el.innerHTML = `
+      <div class="mobile-section">
+        <div class="mobile-card">
+          <div class="mobile-card-title">Already have the Pilote app?</div>
+          <div class="mobile-card-desc">Open the app and refresh your profile to load the updated flow.</div>
+          <button class="tb-btn" style="width:100%;justify-content:center">Open app and refresh profile</button>
+        </div>
+        <div class="mobile-card">
+          <div class="mobile-card-title">Don't have it yet?</div>
+          <div class="mobile-card-desc">Use your professional email to connect. You should have received your login and password by text message or email.</div>
+          <button class="tb-btn" style="width:100%;justify-content:center">Download Pilote app</button>
+        </div>
+      </div>`;
+  }
+}
+
+function openIntegrateModal() {
+  _intPlatform = 'web';
+  renderIntegrateModal();
+  document.getElementById('integrateModal').classList.add('open');
+}
+function closeIntegrateModal() { document.getElementById('integrateModal').classList.remove('open'); }
+function switchIntPlatform(p) {
+  _intPlatform = p;
+  ['web','ios','android'].forEach(x => {
+    const tab = document.getElementById('intTab' + x.charAt(0).toUpperCase() + x.slice(1));
+    if(tab) tab.classList.toggle('on', x === p);
+  });
+  renderIntegrateModal();
+}
+function renderIntegrateModal() {
+  const el = document.getElementById('integrateModalContent');
+  if(!el) return;
+  ['web','ios','android'].forEach(x => {
+    const tab = document.getElementById('intTab' + x.charAt(0).toUpperCase() + x.slice(1));
+    if(tab) tab.classList.toggle('on', x === _intPlatform);
+  });
+  const cfg = buildJSON();
+  const tokenJson = JSON.stringify({credentials:cfg.credentials}, null, 2);
+  let sdkCode = '';
+  if(_intPlatform === 'web') {
+    sdkCode = `import { ShareIDSDK } from '@shareid/sdk-web';
+
+const sdk = new ShareIDSDK({
+  apiKey: 'YOUR_KEY',
+  businessHash: 'YOUR_HASH',
+  onSuccess: (result) => console.log('Verified', result),
+  onError: (err) => console.error('Error', err),
+});
+
+sdk.start();`;
+  } else if(_intPlatform === 'ios') {
+    sdkCode = `import ShareIDSDK
+
+let config = ShareIDConfig(
+    apiKey: "YOUR_KEY",
+    businessHash: "YOUR_HASH"
+)
+
+let sdk = ShareIDSDK(config: config)
+sdk.start(from: self) { result in
+    switch result {
+    case .success(let data): print("Verified:", data)
+    case .failure(let error): print("Error:", error)
+    }
+}`;
+  } else {
+    sdkCode = `import com.shareid.sdk.ShareIDSDK
+import com.shareid.sdk.ShareIDConfig
+
+val config = ShareIDConfig(
+    apiKey = "YOUR_KEY",
+    businessHash = "YOUR_HASH"
+)
+
+val sdk = ShareIDSDK(config)
+sdk.start(this) { result ->
+    when (result) {
+        is Result.Success -> Log.d("ShareID", "Verified: \${result.data}")
+        is Result.Failure -> Log.e("ShareID", "Error: \${result.error}")
+    }
+}`;
+  }
+  const escHtml = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  el.innerHTML = `
+    <div style="margin-bottom:12px">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--t5);margin-bottom:6px">API Token</div>
+      <pre class="int-code-block">${escHtml(tokenJson)}</pre>
+    </div>
+    <div>
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--t5);margin-bottom:6px">SDK Integration${_intPlatform === 'web' ? ' (React)' : _intPlatform === 'ios' ? ' (Swift)' : ' (Kotlin)'}</div>
+      <pre class="int-code-block">${escHtml(sdkCode)}</pre>
+    </div>
+    <div class="modal-act-row">
+      <button class="tb-btn" onclick="const t=document.getElementById('integrateModal').querySelectorAll('.int-code-block');let txt='';t.forEach(b=>txt+=b.textContent+'\\n\\n');navigator.clipboard.writeText(txt.trim()).then(()=>{this.textContent='Copied!';setTimeout(()=>this.textContent='Copy code',1400)})">Copy code</button>
+    </div>`;
+}
+
+/* ─── Workflow name (top bar) ─── */
+function initWfName(){
+  const inp=$('wfNameInput');
+  if(!inp||!currentWorkspace)return;
+  inp.value=currentWorkspace.name||'Untitled workflow';
+  document.title='ShareID — '+(currentWorkspace.name||'Workflow');
+  let last=inp.value;
+  inp.addEventListener('focus',()=>{last=inp.value;inp.select();});
+  inp.addEventListener('keydown',(e)=>{
+    if(e.key==='Enter'){e.preventDefault();inp.blur();}
+    if(e.key==='Escape'){e.preventDefault();inp.value=last;inp.blur();}
+  });
+  inp.addEventListener('blur',()=>{
+    const v=(inp.value||'').trim();
+    if(!v){inp.value=last;return;}
+    if(v===currentWorkspace.name)return;
+    currentWorkspace.name=v;
+    document.title='ShareID — '+v;
+    autoSave();
+  });
+}
+initWfName();
+renderAll();
+</script>
+
+</div><!-- /app -->
+<div id="fbPopup"></div>
+<script>
+document.addEventListener('click',function(e){
+  if(!e.target.closest('#fbPopup')&&!e.target.closest('.fb-sub-card'))closeFbPopup();
+  if(!e.target.closest('#docRolePopup')&&!e.target.closest('[onclick*="openDocRolePopup"]'))closeDocRolePopup();
+});
+
+// Backdrop clicks for new modals
+document.getElementById('testModal').addEventListener('click',function(e){if(e.target===this)closeTestModal();});
+document.getElementById('integrateModal').addEventListener('click',function(e){if(e.target===this)closeIntegrateModal();});
+
+// Escape key for new modals
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape'){
+    if(document.getElementById('testModal').classList.contains('open')){closeTestModal();return;}
+    if(document.getElementById('integrateModal').classList.contains('open')){closeIntegrateModal();return;}
+    if(document.getElementById('docRolePopup').style.display==='block'){closeDocRolePopup();return;}
+  }
+});
+</script>
+</body>
+</html>

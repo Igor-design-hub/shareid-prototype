@@ -1,0 +1,98 @@
+import { memo, useCallback } from 'react';
+import { MODS, Icons, getTok, getStepSub } from '../../data/modules';
+import { useStore } from '../../store/useStore';
+
+const StepCard = memo(function StepCard({ step, isSecondDoc }) {
+  const activeId = useStore((s) => s.activeId);
+  const setActive = useStore((s) => s.setActive);
+  const removeStep = useStore((s) => s.removeStep);
+
+  const mod = MODS[step.type];
+  const isActive = activeId === step.id;
+  const tok = getTok(step);
+  const sub = getStepSub(step);
+
+  const baseDone = step.config || Object.keys(step.addons || {}).length > 0 || Object.keys(step.intOpts || {}).length > 0;
+  const done = isSecondDoc ? (baseDone && !!step.docRole) : baseDone;
+
+  const isAddon = step.type === 'ext' || step.type === 'int';
+
+  let cardName = mod.name;
+  let roleBadge = null;
+  if (isSecondDoc) {
+    cardName = step.docRole === 'secondary' ? 'Second document' : 'Backup document';
+    const lbl = step.docRole === 'secondary' ? 'Secondary' : 'Fallback';
+    const cls = step.docRole === 'secondary' ? 'secondary' : (step.docRole ? 'fallback' : 'unset');
+    roleBadge = <span className={`doc-role-badge ${cls}`}>{step.docRole ? lbl : 'Role?'}</span>;
+  }
+
+  let cls = 'step';
+  if (isActive) cls += ' active';
+  if (done) cls += ' done';
+  if (isAddon) cls += ` ${step.type}-step addon-step`;
+  if (isSecondDoc) cls += ' second-doc';
+
+  const handleClick = useCallback((e) => {
+    e.stopPropagation();
+    setActive(step.id);
+  }, [step.id, setActive]);
+
+  const handleRemove = useCallback((e) => {
+    e.stopPropagation();
+    removeStep(step.id);
+  }, [step.id, removeStep]);
+
+  return (
+    <div className={cls} onClick={handleClick} tabIndex={0} onKeyDown={(e) => e.key === 'Enter' && handleClick(e)}>
+      {/* Drag grip (only for core steps) */}
+      {!isAddon && !isSecondDoc && (
+        <div className="step-grip" title="Drag to reorder">
+          <svg viewBox="0 0 18 8" fill="none">
+            <circle cx="5" cy="2" r="1.2" fill="currentColor"/>
+            <circle cx="13" cy="2" r="1.2" fill="currentColor"/>
+            <circle cx="5" cy="6" r="1.2" fill="currentColor"/>
+            <circle cx="13" cy="6" r="1.2" fill="currentColor"/>
+            <circle cx="9" cy="2" r="1.2" fill="currentColor"/>
+            <circle cx="9" cy="6" r="1.2" fill="currentColor"/>
+          </svg>
+        </div>
+      )}
+
+      <div className="step-body">
+        <div className="step-ico" dangerouslySetInnerHTML={{ __html: Icons[mod.iconKey] }} />
+        <div className="step-info">
+          <div className="step-name">
+            <span className="step-name-text">{cardName}</span>
+            {roleBadge}
+          </div>
+          {done && <div className="step-sub">{sub}</div>}
+        </div>
+      </div>
+
+      <div className="step-foot">
+        {done ? (
+          <span className="step-tok-pill">
+            <span className="step-tok-val">{tok}</span>
+            <span className="step-tok-lbl">tok</span>
+          </span>
+        ) : (
+          <div className="step-cfg-badge">
+            <svg viewBox="0 0 10 10" fill="none" width="9" height="9">
+              <path d="M5 2v3.5M5 7.5v.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+            </svg>
+            Add configuration
+          </div>
+        )}
+      </div>
+
+      {/* Remove button */}
+      <button className="step-rm" onClick={handleRemove} title="Remove step">
+        <svg viewBox="0 0 8 8" fill="none">
+          <path d="M1 1l6 6M7 1L1 7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+        </svg>
+      </button>
+    </div>
+  );
+});
+
+export default StepCard;

@@ -1,0 +1,167 @@
+import { create } from 'zustand';
+import { TEMPLATES, getTok } from '../data/modules';
+
+const genId = (type) => `${type}_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
+
+const blankStep = (type) => ({
+  id: genId(type),
+  type,
+  config: null,
+  fb: null,
+  addons: {},
+  intOpts: {},
+  docRole: null,
+  coherence: {},
+});
+
+const pushHistory = (past, pipeline) => [...past.slice(-30), pipeline];
+
+export const useStore = create((set, get) => ({
+  // ── State ───────────────────────────────────────────────────────────────────
+  mode: 'onboarding',
+  pipeline: [],
+  activeId: null,
+  savedPipelines: { onboarding: [], auth: [] },
+  past: [],
+  future: [],
+  zoom: 1,
+  isDirty: false,
+  lastSavedAt: null,
+
+  // ── Selectors ───────────────────────────────────────────────────────────────
+  getActiveStep: () => {
+    const { pipeline, activeId } = get();
+    return pipeline.find((s) => s.id === activeId) ?? null;
+  },
+
+  totalTokens: () => get().pipeline.reduce((sum, s) => sum + getTok(s), 0),
+
+  isValid: () => {
+    const { pipeline } = get();
+    if (!pipeline.length) return false;
+    const docSteps = pipeline.filter((s) => s.type === 'doc');
+    return pipeline.every((s) => {
+      if (s.type === 'ext') return Object.keys(s.addons ?? {}).length > 0;
+      if (s.type === 'int') return true;
+      if (s.type === 'doc' && docSteps.length > 1 && docSteps.indexOf(s) > 0) {
+        return !!s.config && !!s.docRole;
+      }
+      return !!s.config;
+    });
+  },
+
+  // ── Pipeline actions ─────────────────────────────────────────────────────────
+  addStep: (type) => {
+    const { pipeline, past } = get();
+    const docCount = pipeline.filter((s) => s.type === 'doc').length;
+    if (type !== 'doc' && pipeline.find((s) => s.type === type)) return;
+    if (type === 'doc' && docCount >= 2) return;
+
+    const step = blankStep(type);
+    if (type === 'doc' && docCount === 1) {
+      const firstDocIdx = pipeline.findIndex((s) => s.type === 'doc');
+      step.docRole = 'fallback';
+      const next = [...pipeline];
+      next.splice(firstDocIdx + 1, 0, step);
+      set({ pipeline: next, activeId: step.id, past: pushHistory(past, pipeline), future: [], isDirty: true });
+    } else {
+      set({ pipeline: [...pipeline, step], activeId: step.id, past: pushHistory(past, pipeline), future: [], isDirty: true });
+    }
+  },
+
+  addBackupDoc: () => {
+    const { pipeline, past } = get();
+    const docSteps = pipeline.filter((s) => s.type === 'doc');
+    if (!docSteps.length || docSteps.length >= 2) return;
+    const step = { ...blankStep('doc'), docRole: 'fallback' };
+    const firstDocIdx = pipeline.findIndex((s) => s.type === 'doc');
+    const next = [...pipeline];
+    next.splice(firstDocIdx + 1, 0, step);
+    set({ pipeline: next, activeId: step.id, past: pushHistory(past, pipeline), future: [], isDirty: true });
+  },
+
+  removeStep: (id) => {
+    const { pipeline, activeId, past } = get();
+    const next = pipeline.filter((s) => s.id !== id);
+    set({
+      pipeline: next,
+      activeId: activeId === id ? (next[0]?.id ?? null) : activeId,
+      past: pushHistory(past, pipeline),
+      future: [],
+      isDirty: true,
+    });
+  },
+
+  updateStep: (id, patch) => {
+    const { pipeline, past } = get();
+    set({
+      pipeline: pipeline.map((s) => (s.id === id ? { ...s, ...patch } : s)),
+      past: pushHistory(past, pipeline),
+      future: [],
+      isDirty: true,
+    });
+  },
+
+  setActive: (id) => set({ activeId: id }),
+
+  reorderSteps: (fromIdx, toIdx) => {
+    const { pipeline, past } = get();
+    const next = [...pipeline];
+    const [moved] = next.splice(fromIdx, 1);
+    next.splice(toIdx, 0, moved);
+    set({ pipeline: next, past: pushHistory(past, pipeline), future: [], isDirty: true });
+  },
+
+  // ── Mode ─────────────────────────────────────────────────────────────────────
+  setMode: (mode) => {
+    const { pipeline, savedPipelines, mode: currentMode } = get();
+    set({
+      savedPipelines: { ...savedPipelines, [currentMode]: pipeline },
+      pipeline: savedPipelines[mode] ?? [],
+      activeId: null,
+      mode,
+      past: [],
+      future: [],
+    });
+  },
+
+  // ── Templates ────────────────────────────────────────────────────────────────
+  applyTemplate: (templateName) => {
+    const { pipeline, past } = get();
+    const tpl = TEMPLATES.find((t) => t.name === templateName);
+    if (!tpl) return;
+    const next = tpl.pipeline.map((step) => ({
+      ...step,
+      id: genId(step.type),
+      addons: step.addons ?? {},
+      intOpts: step.intOpts ?? {},
+      docRole: step.docRole ?? null,
+      coherence: step.coherence ?? {},
+    }));
+    set({ pipeline: next, activeId: next[0]?.id ?? null, past: pushHistory(past, pipeline), future: [], isDirty: true });
+  },
+
+  clearPipeline: () => {
+    const { pipeline, past } = get();
+    set({ pipeline: [], activeId: null, past: pushHistory(past, pipeline), future: [], isDirty: true });
+  },
+
+  // ── Undo / Redo ──────────────────────────────────────────────────────────────
+  undo: () => {
+    const { past, pipeline, future } = get();
+    if (!past.length) return;
+    set({ past: past.slice(0, -1), pipeline: past[past.length - 1], future: [pipeline, ...future], activeId: null, isDirty: true });
+  },
+
+  redo: () => {
+    const { past, pipeline, future } = get();
+    if (!future.length) return;
+    set({ past: [...past, pipeline], pipeline: future[0], future: future.slice(1), activeId: null, isDirty: true });
+  },
+
+  // ── Zoom ─────────────────────────────────────────────────────────────────────
+  setZoom: (z) => set({ zoom: Math.min(2, Math.max(0.25, Math.round(z * 100) / 100)) }),
+
+  // ── Save ─────────────────────────────────────────────────────────────────────
+  markSaved: () => set({ isDirty: false, lastSavedAt: Date.now() }),
+}));

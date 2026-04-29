@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ShareID — Pricing</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --blue:#3253d1;--blue-h:#2843b8;--blue-bg:#eef1fb;--blue-l:#dde5fc;
+  --green:#1b9764;--green-l:#d3ede3;--green-bg:#eaf5f0;
+  --navy:#0D1122;
+  --white:#fff;--bg:#f0f1f5;
+  --brd:#dde0e8;--brd-l:#eceef4;
+  --t1:#0D1122;--t4:#606880;--t5:#9299ad;
+  --shadow:0 4px 24px rgba(0,0,0,.08);
+}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--t1);-webkit-font-smoothing:antialiased;min-height:100vh}
+
+/* TOPBAR */
+.topbar{height:64px;background:var(--white);border-bottom:1px solid var(--brd-l);display:flex;align-items:center;justify-content:space-between;padding:0 32px;position:sticky;top:0;z-index:50}
+.logo{display:flex;align-items:center;gap:8px;font-weight:700;font-size:16px;color:var(--navy);text-decoration:none}
+.logo svg{width:24px;height:24px}
+.topbar-label{font-size:12px;font-weight:600;color:var(--t5)}
+
+/* PAGE */
+.page{max-width:1020px;margin:0 auto;padding:36px 28px 80px}
+
+/* BREADCRUMB */
+.breadcrumb{display:flex;align-items:center;gap:6px;margin-bottom:32px}
+.bc-back{display:flex;align-items:center;gap:5px;font-size:13px;font-weight:600;color:var(--t4);text-decoration:none;transition:color .12s}
+.bc-back:hover{color:var(--blue)}
+.bc-sep{color:var(--brd);font-size:14px}
+.bc-cur{font-size:13px;font-weight:600;color:var(--t1)}
+
+/* LAYOUT */
+.layout{display:grid;grid-template-columns:1fr 380px;gap:24px;align-items:start}
+
+/* CARD */
+.card{background:var(--white);border:1px solid var(--brd-l);border-radius:14px;box-shadow:var(--shadow)}
+
+/* SECTION LABEL */
+.sec-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--t5);margin-bottom:10px}
+
+/* LEFT */
+.left{display:flex;flex-direction:column;gap:16px}
+
+/* Workflow card */
+.wf-card{padding:24px}
+.wf-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.wf-title{display:flex;align-items:center;gap:8px}
+.wf-title-text{font-size:14px;font-weight:700}
+.wf-badge{font-size:11px;font-weight:700;padding:3px 10px;border-radius:99px;background:var(--blue-bg);color:var(--blue)}
+.wf-edit{font-size:12px;font-weight:600;color:var(--blue);text-decoration:none}
+.wf-edit:hover{text-decoration:underline}
+.wf-actions{display:flex;gap:14px;align-items:center}
+
+/* Preset picker */
+body.ws-mode .preset-picks,body.ws-mode .pp.custom,body.ws-mode .pp-build{display:none!important}
+body.ws-mode .mode-switch{display:none}
+.preset-picks{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--brd-l)}
+.pp{padding:5px 12px;border-radius:8px;border:1px solid var(--brd);font-size:12px;font-weight:600;color:var(--t4);background:var(--white);cursor:pointer;transition:all .12s;white-space:nowrap}
+.pp:hover{border-color:var(--blue);color:var(--blue)}
+.pp.on{border-color:var(--blue);color:var(--blue);background:var(--blue-bg)}
+.pp.custom{border-style:dashed}
+.pp-build{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:8px;border:1.5px dashed var(--blue);font-size:12px;font-weight:600;color:var(--blue);background:var(--white);cursor:pointer;font-family:inherit;transition:all .12s;white-space:nowrap}
+.pp-build:hover{background:var(--blue-bg);border-style:solid}
+
+.modules-list{display:flex;flex-direction:column;gap:10px}
+.addons-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--t5);margin-top:8px;margin-bottom:2px;padding:0 2px}
+.addon-hd{display:flex;align-items:center;justify-content:space-between;cursor:pointer;gap:8px}
+.addon-hd-info{display:flex;align-items:center;gap:8px}
+.addon-summary{font-size:11px;color:var(--t5);font-weight:500}
+.addon-summary.has-sel{color:var(--blue)}
+.addon-chev{width:14px;height:14px;color:var(--t5);transition:transform .15s;flex-shrink:0}
+.addon-chev.open{transform:rotate(180deg)}
+.addon-opts{display:flex;flex-direction:column;gap:4px;margin-top:8px}
+.addon-opt{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;border:1px solid var(--brd-l);background:var(--white);cursor:pointer;transition:border-color .12s,background .12s;user-select:none}
+.addon-opt.on{border-color:var(--blue-l);background:var(--blue-bg)}
+.ao-box{width:16px;height:16px;border-radius:4px;border:1.5px solid var(--brd);background:var(--white);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .12s}
+.addon-opt.on .ao-box{background:var(--blue);border-color:var(--blue)}
+.ao-box svg{opacity:0;width:10px;height:10px;color:#fff;transition:opacity .1s}
+.addon-opt.on .ao-box svg{opacity:1}
+.addon-opt-info{flex:1;min-width:0}
+.addon-opt-name{font-size:12px;font-weight:600;color:var(--t2)}
+.addon-opt-desc{font-size:11px;color:var(--t5);margin-top:1px}
+.addon-opt-tok{font-size:11px;font-weight:700;color:var(--t4);white-space:nowrap;flex-shrink:0}
+.addon-opt.on .addon-opt-tok{color:var(--blue)}
+.addon-url{width:100%;margin-top:6px;padding:8px 10px;border-radius:8px;border:1px solid var(--brd-l);font:500 12px/1 Inter,sans-serif;color:var(--t2);background:var(--white);outline:none;transition:border-color .12s,box-shadow .12s}
+.addon-url:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(50,83,209,.10)}
+.addon-url::placeholder{color:var(--t5)}
+.module-row{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:12px;border:1px solid var(--brd-l)}
+.module-row.core-doc{background:var(--white);border-color:var(--brd-l)}
+.module-row.core-face,.module-row.core-auth{background:var(--white);border-color:var(--brd-l)}
+.module-row.addon-row{background:var(--white);border-style:dashed}
+.module-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.mi-doc{background:var(--blue-bg)}
+.mi-face,.mi-auth{background:var(--blue-bg)}
+.mi-ext{background:#f0f2f8}
+.mi-int{background:var(--bg);border:1px solid var(--brd)}
+.module-info{flex:1;min-width:0}
+.module-name{font-size:13px;font-weight:700;color:var(--t1)}
+.module-preset{font-size:11px;color:var(--t5);margin-top:1px}
+.module-preset-sel{font-size:11px;color:var(--blue);font-weight:600;margin-top:4px;background:var(--blue-bg);border:1px solid transparent;border-radius:6px;padding:4px 24px 4px 10px;font-family:inherit;cursor:pointer;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10' fill='none'><path d='M2.5 4 5 6.5 7.5 4' stroke='%233253d1' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'/></svg>");background-repeat:no-repeat;background-position:right 8px center;transition:border-color .12s;position:relative}
+.module-preset-sel:hover{border-color:var(--blue)}
+.module-preset-sel:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 2px var(--blue-l)}
+.module-tok{font-size:12px;font-weight:700;color:var(--t4);white-space:nowrap}
+.module-rm{margin-left:4px;width:24px;height:24px;border-radius:50%;border:1px solid var(--brd-l);background:var(--white);color:var(--t5);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all .12s;padding:0}
+.module-rm:hover{background:#fef2f2;border-color:#fca5a5;color:#dc2626}
+.add-mod-wrap{position:relative;margin-top:4px}
+.add-mod-btn{display:inline-flex;align-items:center;gap:6px;padding:10px 14px;border-radius:10px;border:1.5px dashed var(--brd);background:var(--white);color:var(--t4);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .12s;width:100%;justify-content:center}
+.add-mod-btn:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-bg);border-style:solid}
+.add-mod-menu{position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--white);border:1px solid var(--brd-l);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.1);padding:4px;z-index:20;display:none;flex-direction:column;gap:2px}
+.add-mod-menu.open{display:flex;animation:addMenuIn .18s ease-out}
+@keyframes addMenuIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+.add-mod-item{padding:8px 12px;border-radius:6px;border:none;background:none;text-align:left;font-size:13px;font-weight:500;color:var(--t2);cursor:pointer;font-family:inherit;transition:background .1s}
+.add-mod-item:hover{background:var(--blue-bg);color:var(--blue)}
+
+.wf-footer{display:flex;align-items:center;justify-content:space-between;margin-top:16px;padding-top:16px;border-top:1px solid var(--brd-l)}
+.wf-footer-label{font-size:12px;color:var(--t5)}
+.wf-tok{display:flex;align-items:baseline;gap:4px}
+.wf-tok-n{font-size:22px;font-weight:900;color:var(--blue);letter-spacing:-.04em;line-height:1}
+.wf-tok-u{font-size:11px;color:var(--t5);font-weight:500}
+
+/* Volume card */
+.vol-card{padding:22px}
+.vol-card h3{font-size:15px;font-weight:700;margin-bottom:4px}
+.vol-helper{font-size:12px;color:var(--t5);margin-bottom:16px;line-height:1.5}
+.vol-input{width:100%;padding:14px 16px;border:1.5px solid var(--brd);border-radius:10px;font-size:22px;font-weight:800;font-family:inherit;color:var(--t1);background:var(--white);letter-spacing:-.02em;transition:border-color .15s,box-shadow .15s}
+.vol-input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-l)}
+.vol-input::placeholder{color:var(--brd);font-weight:400;font-size:16px;letter-spacing:0}
+.quick-picks{display:flex;gap:6px;margin-top:12px;flex-wrap:wrap}
+.qp{padding:6px 14px;border-radius:8px;border:1px solid var(--brd);font-size:12px;font-weight:600;color:var(--t4);background:var(--white);cursor:pointer;transition:all .12s}
+.qp:hover{border-color:var(--blue);color:var(--blue);transform:translateY(-1px)}
+.qp.on{border-color:var(--blue);color:var(--blue);background:var(--blue-bg)}
+.qp.on{animation:qpPop .3s cubic-bezier(.3,1.4,.4,1)}
+@keyframes qpPop{0%{transform:scale(1)}50%{transform:scale(1.08)}100%{transform:scale(1)}}
+
+/* Volume slider */
+.vol-slider-wrap{margin-top:18px;padding:0 2px}
+.vol-slider-labels{display:flex;justify-content:space-between;font-size:10px;font-weight:600;color:var(--t5);margin-top:14px;letter-spacing:.02em}
+.vol-slider-labels span{cursor:pointer;transition:color .12s}
+.vol-slider-labels span:hover{color:var(--blue)}
+.vol-slider{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:4px;background:linear-gradient(90deg,var(--blue) 0%,var(--blue) var(--fill,0%),var(--brd-l) var(--fill,0%),var(--brd-l) 100%);outline:none;cursor:pointer}
+.vol-slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:20px;height:20px;border-radius:50%;background:var(--white);border:2.5px solid var(--blue);cursor:pointer;box-shadow:0 2px 6px rgba(50,83,209,.25)}
+.vol-slider::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:var(--white);border:2.5px solid var(--blue);cursor:pointer;box-shadow:0 2px 6px rgba(50,83,209,.25)}
+.vol-ticks{display:flex;justify-content:space-between;margin-top:4px;padding:0 3px}
+.vol-tick{width:2px;height:5px;background:var(--brd-l);border-radius:1px}
+
+/* Mode switch (matches flow builder canvas-mode) */
+.mode-switch{display:inline-flex;background:var(--white);border-radius:12px;padding:4px;border:1px solid var(--brd-l);box-shadow:0 2px 16px rgba(0,0,0,.05);margin:0 0 20px 0;gap:2px}
+.mode-b{padding:8px 20px;border-radius:8px;border:none;background:none;font-size:13px;font-weight:600;color:var(--t4);cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap}
+.mode-b.on{background:var(--blue);color:var(--white);box-shadow:0 2px 10px rgba(50,83,209,.3)}
+.mode-b:not(.on):hover{color:var(--t2)}
+.mode-b:disabled{opacity:.45;cursor:not-allowed}
+
+/* Info banner */
+.info-banner{padding:12px 16px;background:var(--green-bg);border:1px solid var(--green-l);border-radius:10px;font-size:12px;color:var(--t4);display:flex;gap:8px;align-items:flex-start;line-height:1.5}
+.info-dot{width:16px;height:16px;border-radius:50%;background:var(--green);color:var(--white);font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+
+/* RIGHT */
+.right{position:sticky;top:88px;display:flex;flex-direction:column;gap:14px}
+
+.empty-state{padding:52px 24px;text-align:center}
+.empty-state p{font-size:13px;color:var(--t5);line-height:1.6}
+
+.result{display:none;flex-direction:column;gap:14px}
+.result.show{display:flex;animation:fadeUp .25s ease}
+
+/* Price hero */
+.price-hero{background:#1f3bb8;border-radius:14px;padding:32px 28px;color:var(--white);box-shadow:0 10px 30px rgba(31,59,184,.3),0 2px 8px rgba(31,59,184,.18);position:relative;overflow:hidden;isolation:isolate}
+.price-hero::before{content:"";position:absolute;inset:0;background:radial-gradient(110% 70% at 100% 0%,rgba(120,160,255,.45) 0%,rgba(120,160,255,0) 55%),radial-gradient(90% 70% at 0% 100%,rgba(20,30,90,.55) 0%,rgba(20,30,90,0) 60%);pointer-events:none;z-index:-1}
+.price-hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.08) 0%,rgba(255,255,255,0) 50%);pointer-events:none;z-index:-1;border-radius:14px;box-shadow:inset 0 1px 0 rgba(255,255,255,.14)}
+.price-eyebrow{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.35);margin-bottom:8px}
+.price-big{font-size:42px;font-weight:900;letter-spacing:-.04em;line-height:1}
+.price-unit{font-size:13px;font-weight:400;color:rgba(255,255,255,.35);margin-left:4px;letter-spacing:0}
+.price-rows{margin-top:28px;padding-top:20px;border-top:1px solid rgba(255,255,255,.08);display:flex;flex-direction:column;gap:14px}
+.price-row{display:flex;justify-content:space-between;align-items:center;font-size:13px}
+.price-row-label{color:rgba(255,255,255,.4)}
+.price-row-val{font-weight:700}
+.price-row--license{margin-top:4px;padding-top:8px;border-top:1px solid rgba(255,255,255,.12)}
+
+/* Breakdown */
+.bd-toggle{display:flex;align-items:center;justify-content:space-between;padding:13px 18px;cursor:pointer;font-size:13px;font-weight:600;color:var(--t4);transition:color .12s;user-select:none}
+.bd-toggle:hover{color:var(--t1)}
+.bd-arrow{font-size:10px;transition:transform .2s}
+.bd-arrow.open{transform:rotate(180deg)}
+.bd-body{border-top:1px solid var(--brd-l);max-height:0;overflow:hidden;transition:max-height .3s ease,padding .3s}
+.bd-body.open{max-height:500px;padding:4px 0 8px}
+.bd-row{display:flex;justify-content:space-between;padding:7px 18px;font-size:12px}
+.bd-lbl{color:var(--t5)}
+.bd-val{font-weight:700;color:var(--t1)}
+
+/* CTAs */
+.cta-primary{display:block;width:100%;padding:14px;text-align:center;background:var(--blue);color:var(--white);border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;text-decoration:none;transition:background .12s}
+.cta-primary:hover{background:var(--blue-h)}
+.cta-back{display:block;width:100%;padding:11px;text-align:center;background:none;color:var(--t5);border:1px solid var(--brd);border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;transition:all .12s}
+.cta-back:hover{color:var(--t4);border-color:var(--brd)}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+@media(max-width:760px){
+  .layout{grid-template-columns:1fr}
+  .right{position:static}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="workspace.html" class="logo" id="pgLogo">
+    <img src="illustrations/ShareID-logo.svg" alt="ShareID" style="height:32px;width:auto;display:block" draggable="false">
+  </a>
+  <span class="topbar-label" id="pgWfName">Pricing</span>
+</div>
+
+<div class="page">
+  <div class="breadcrumb">
+    <a href="workspace.html" class="bc-back" id="bcWorkspace">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 11L5 7l4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Workflows
+    </a>
+    <span class="bc-sep">›</span>
+    <a href="documentation.html" class="bc-back" id="bcBuilder" style="color:var(--t4)">Builder</a>
+    <span class="bc-sep">›</span>
+    <span class="bc-cur">Pricing</span>
+  </div>
+
+  <div class="mode-switch" id="modeSwitch" role="group" aria-label="Flow type">
+    <button class="mode-b on" id="mdOnb" onclick="setPricingMode('onboarding')" aria-pressed="true">Onboarding</button>
+    <button class="mode-b" id="mdAuth" onclick="setPricingMode('auth')" aria-pressed="false">Authentication</button>
+  </div>
+
+  <div class="layout">
+
+    <!-- LEFT -->
+    <div class="left">
+
+      <div>
+        <div class="sec-label">Your workflow</div>
+        <div class="card wf-card">
+          <div class="wf-header">
+            <div class="wf-title">
+              <span class="wf-title-text">Configuration</span>
+              <span class="wf-badge" id="wfBadge">Onboarding</span>
+            </div>
+            <a href="documentation.html" class="wf-edit" id="wfEditLink" style="display:none" onclick="try{sessionStorage.setItem('shareid_edit_flow','1');}catch(e){}">Edit</a>
+          </div>
+          <div class="preset-picks" id="presetPicks"></div>
+          <div class="modules-list" id="modulesList"></div>
+          <div class="wf-footer">
+            <span class="wf-footer-label">Total per verification</span>
+            <div class="wf-tok">
+              <span class="wf-tok-n" id="wfTokN">6</span>
+              <span class="wf-tok-u">tok</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="sec-label">Expected volume</div>
+        <div class="card vol-card">
+          <h3>How many verifications?</h3>
+          <p class="vol-helper">Enter the number of ID verifications you expect to run with this workflow.</p>
+          <input class="vol-input" id="volInput" type="text" placeholder="e.g. 100,000" oninput="onVol(this)">
+          <div class="vol-slider-wrap">
+            <input type="range" class="vol-slider" id="volSlider" min="0" max="1000" value="0" oninput="onSlider(this)">
+            <div class="vol-slider-labels">
+              <span onclick="setVolume(1000)">1K</span>
+              <span onclick="setVolume(10000)">10K</span>
+              <span onclick="setVolume(100000)">100K</span>
+              <span onclick="setVolume(1000000)">1M</span>
+              <span onclick="setVolume(10000000)">10M</span>
+            </div>
+          </div>
+          <div class="quick-picks" id="quickPicks"></div>
+        </div>
+      </div>
+
+      <div class="info-banner">
+        <div class="info-dot">i</div>
+        <span>Larger token packs have a lower price per token — your cost per verification decreases as volume grows.</span>
+      </div>
+
+    </div>
+
+    <!-- RIGHT -->
+    <div class="right">
+      <div style="height:20px" aria-hidden="true"></div>
+      <div class="card" id="emptyCard">
+        <div class="empty-state">
+          <p>Enter your expected annual volume<br>to see the pricing estimate.</p>
+        </div>
+      </div>
+
+      <div class="result" id="result">
+
+        <div class="price-hero">
+          <div class="price-eyebrow">Cost per verification</div>
+          <div class="price-big" id="heroCpv">--<span class="price-unit">/ verif.</span></div>
+          <div class="price-rows">
+            <div class="price-row">
+              <span class="price-row-label">Total cost</span>
+              <span class="price-row-val" id="heroTotal">--</span>
+            </div>
+            <div class="price-row">
+              <span class="price-row-label">Pack</span>
+              <span class="price-row-val" id="heroPack">--</span>
+            </div>
+            <div class="price-row price-row--license">
+              <span class="price-row-label">License fee</span>
+              <span class="price-row-val" id="heroLicense">--</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="bd-toggle" onclick="toggleBd()">
+            Full breakdown
+            <span class="bd-arrow" id="bdArrow">&#9662;</span>
+          </div>
+          <div class="bd-body" id="bdBody">
+            <div class="bd-row"><span class="bd-lbl">Tokens / verification</span><span class="bd-val" id="bdTpv">--</span></div>
+            <div class="bd-row"><span class="bd-lbl">Expected verifications</span><span class="bd-val" id="bdVol">--</span></div>
+            <div class="bd-row"><span class="bd-lbl">Required tokens</span><span class="bd-val" id="bdReq">--</span></div>
+            <div class="bd-row"><span class="bd-lbl">Price per token</span><span class="bd-val" id="bdPpt">--</span></div>
+            <div class="bd-row"><span class="bd-lbl">Pack price</span><span class="bd-val" id="bdPackPrice">--</span></div>
+            <div class="bd-row"><span class="bd-lbl">License fee</span><span class="bd-val" id="bdLicense">--</span></div>
+          </div>
+        </div>
+
+        <button class="cta-primary">Request this plan</button>
+        <a href="documentation.html" class="cta-back">← Back to workflow builder</a>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const PRESETS=[
+  {id:'basic_plus',    label:'Basic+',       tpv:2, modules:[
+    {type:'doc', name:'Doc IDV',  preset:'Basique+',    tok:2},
+  ]},
+  {id:'substantiel',   label:'Substantial',  tpv:6, modules:[
+    {type:'doc', name:'Doc IDV',  preset:'Substantiel', tok:4},
+    {type:'face',name:'Face IDV', preset:'Substantiel', tok:2},
+  ]},
+  {id:'substantial_plus',label:'Substantial+',tpv:7,modules:[
+    {type:'doc', name:'Doc IDV',  preset:'Substantiel+',tok:5},
+    {type:'face',name:'Face IDV', preset:'Substantiel', tok:2},
+  ]},
+  {id:'advanced',      label:'Advanced',     tpv:8, modules:[
+    {type:'doc', name:'Doc IDV',  preset:'Advanced',    tok:3},
+    {type:'face',name:'Face IDV', preset:'High',        tok:5},
+  ]},
+];
+const AUTH_PRESETS=[
+  {id:'mfa_3',      label:'MFA 3.0',    tpv:1, modules:[{type:'auth',name:'Auth',preset:'MFA 3.0',   tok:1}]},
+  {id:'eudiw_pid',  label:'EUDIW PID',  tpv:2, modules:[{type:'auth',name:'Auth',preset:'EUDIW PID', tok:2}]},
+];
+let customWf=null;
+let selectedPackTokens=null;
+
+const PACKS=[
+  {tokens:60000,  price:0.15,cost:9000,  label:'60K',  license:3000},
+  {tokens:150000, price:0.14,cost:21000, label:'150K', license:4000},
+  {tokens:350000, price:0.13,cost:45500, label:'350K', license:5000},
+  {tokens:700000, price:0.12,cost:84000, label:'700K', license:6000},
+  {tokens:1750000,price:0.11,cost:192500,label:'1.75M',license:22500},
+  {tokens:3500000,price:0.10,cost:350000,label:'3.5M', license:35000},
+  {tokens:7000000,price:0.09,cost:630000,label:'7M',   license:50000},
+];
+let volume=0,bdOpen=false,TPV=6;
+
+function fmt(n){return n.toLocaleString('en-US')}
+function eur(n){return '€'+n.toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0})}
+
+/* ── ICONS ── */
+function docIcon(){return`<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2.5" y="1.5" width="9" height="12" rx="1.5" stroke="#3253d1" stroke-width="1.3"/><line x1="4.5" y1="5" x2="9.5" y2="5" stroke="#3253d1" stroke-width="1.2" stroke-linecap="round"/><line x1="4.5" y1="7.5" x2="8.5" y2="7.5" stroke="#3253d1" stroke-width="1.2" stroke-linecap="round"/><line x1="4.5" y1="10" x2="9" y2="10" stroke="#3253d1" stroke-width="1.2" stroke-linecap="round"/></svg>`}
+function faceIcon(){return`<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="5.5" stroke="#3253d1" stroke-width="1.3"/><circle cx="6.2" cy="7.2" r="1.1" fill="#3253d1"/><circle cx="9.8" cy="7.2" r="1.1" fill="#3253d1"/><path d="M6 10.2 Q8 11.5 10 10.2" stroke="#3253d1" stroke-width="1.2" stroke-linecap="round" fill="none"/></svg>`}
+function extIcon(){return`<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="4.5" width="9" height="2" rx="1" fill="#3253d1" fill-opacity=".2"/><rect x="11" y="4" width="3" height="3" rx="1.5" fill="#3253d1" fill-opacity=".5"/><rect x="2" y="9.5" width="6" height="2" rx="1" fill="#3253d1" fill-opacity=".15"/><rect x="9" y="9" width="5" height="3" rx="1.5" fill="#3253d1" fill-opacity=".3"/></svg>`}
+function intIcon(){return`<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M5 4L3 8l2 4M11 4l2 4-2 4" stroke="#606880" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="8" cy="8" r="1.2" fill="#606880" fill-opacity=".4"/></svg>`}
+function authIcon(){return`<svg width="16" height="16" viewBox="0 0 18 18" fill="none"><path d="M9 1.8 2.8 4v4.2c0 3.6 2.5 6.6 6.2 8 3.7-1.4 6.2-4.4 6.2-8V4L9 1.8Z" stroke="#3253d1" stroke-width="1.3" stroke-linejoin="round" fill="#3253d1" fill-opacity=".06"/><path d="m6.3 9 2 2 3.6-3.8" stroke="#3253d1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`}
+
+const TYPE_META={
+  doc: {name:'Identity',   cls:'mi-doc', icon:docIcon},
+  face:{name:'Face IDV',   cls:'mi-face',icon:faceIcon},
+  ext: {name:'Issuance',   cls:'mi-ext', icon:extIcon},
+  int: {name:'Integration',cls:'mi-int', icon:intIcon},
+  auth:{name:'Auth',       cls:'mi-auth',icon:authIcon},
+};
+const ADDON_DEFS={
+  ext:[
+    {key:'eudiw_issue',       l:'EUDIW Attestation', d:'EU Digital Identity credential', t:2},
+    {key:'other_attestation', l:'Other Attestation', d:'Custom credential issuance',     t:1},
+  ],
+  int:[
+    {key:'audit_trail',    l:'Request audit trail', d:'Full verification log',        t:0},
+    {key:'request_assets', l:'Request assets',      d:'Videos, photos & recordings',  t:0},
+    {key:'id_data_extract',l:'ID data extraction',  d:'Structured identity fields',   t:0},
+    {key:'risk_scoring',   l:'Risk scoring',        d:'Fraud probability score',      t:0},
+  ],
+};
+
+/* ── MODULE PRESET OPTIONS (for in-place editing) ── */
+const MOD_PRESETS={
+  doc:[
+    {l:'Basique',t:1},{l:'Basique+',t:2},
+    {l:'Substantiel',t:4},{l:'Substantiel+',t:5},{l:'Advanced',t:3},
+  ],
+  face:[{l:'Basic',t:1},{l:'Substantiel',t:2},{l:'High',t:5}],
+  auth:[{l:'MFA 3.0',t:1},{l:'EUDIW PID',t:2}],
+  ext:[{l:'EUDIW Attestation',t:2},{l:'Other Attestation',t:1}],
+  int:[{l:'Webhook',t:0}],
+};
+let currentModules=[];
+let isCustomFlow=false;
+let currentCustomKey=null; // 'onboarding' | 'auth' | null
+function recomputeTPV(){TPV=currentModules.reduce((s,m)=>s+(m.tok||0),0)||6;}
+function syncCustomFlow(){
+  if(!isCustomFlow||!currentCustomKey)return;
+  // Rebuild pipeline shape from currentModules so changes persist across preset switches
+  const pipeline=currentModules.map((m,i)=>({id:'p_'+i,type:m.type,config:{l:m.preset,t:m.tok}}));
+  customFlows[currentCustomKey]={pipeline,totalTok:currentModules.reduce((s,m)=>s+(m.tok||0),0)};
+  // Persist
+  try{
+    const raw=JSON.parse(localStorage.getItem('shareid_workflow')||'null')||{};
+    raw.flows=raw.flows||{};
+    raw.flows[currentCustomKey]={pipeline,totalTok:customFlows[currentCustomKey].totalTok};
+    localStorage.setItem('shareid_workflow',JSON.stringify(raw));
+  }catch(e){}
+}
+function changeModulePreset(idx,label){
+  const m=currentModules[idx];if(!m)return;
+  const opts=MOD_PRESETS[m.type];if(!opts)return;
+  const pick=opts.find(o=>o.l===label);if(!pick)return;
+  m.preset=pick.l;m.tok=pick.t;
+  recomputeTPV();syncCustomFlow();
+  renderModuleRows(currentModules);
+  if(selectedPackTokens===null)syncActivePick();
+  calc();
+}
+const MOD_LABELS={doc:'Identity',face:'Face IDV',auth:'Auth',ext:'Issuance',int:'Integration'};
+function toggleAddonExpand(idx){
+  const m=currentModules[idx];if(!m)return;
+  m.expanded=!m.expanded;
+  renderModuleRows(currentModules);
+}
+function toggleAddonOpt(idx,key,tok){
+  const m=currentModules[idx];if(!m)return;
+  if(!m.addons)m.addons={};
+  if(m.addons[key])delete m.addons[key];
+  else m.addons[key]=true;
+  if(tok)m.tok=Object.entries(m.addons).reduce((s,[k])=>{const d=ADDON_DEFS[m.type]?.find(o=>o.key===k);return s+(d?.t||0);},0);
+  recomputeTPV();
+  renderModuleRows(currentModules);
+  if(selectedPackTokens===null)syncActivePick();
+  calc();
+}
+function setAddonUrl(idx,val){
+  const m=currentModules[idx];if(!m)return;
+  m.callbackUrl=val;
+}
+function addModule(type){
+  if(!MOD_PRESETS[type])return;
+  if(currentModules.some(m=>m.type===type))return;
+  const def=MOD_PRESETS[type][0];
+  currentModules.push({type,name:MOD_LABELS[type],preset:def.l,tok:def.t});
+  recomputeTPV();syncCustomFlow();
+  renderModuleRows(currentModules);
+  if(selectedPackTokens===null)syncActivePick();
+  calc();
+}
+function removeModule(idx){
+  if(!currentModules[idx])return;
+  currentModules.splice(idx,1);
+  recomputeTPV();syncCustomFlow();
+  renderModuleRows(currentModules);
+  if(selectedPackTokens===null)syncActivePick();
+  calc();
+  // If flow became empty, switch to "no custom flow" state so Build-your-own appears
+  if(currentModules.length===0&&currentCustomKey){
+    customFlows[currentCustomKey]=null;
+    try{
+      const raw=JSON.parse(localStorage.getItem('shareid_workflow')||'null')||{};
+      if(raw.flows)delete raw.flows[currentCustomKey];
+      localStorage.setItem('shareid_workflow',JSON.stringify(raw));
+    }catch(e){}
+    const mode=currentCustomKey;
+    currentCustomKey=null;isCustomFlow=false;
+    setPricingMode(mode);
+  }
+}
+function toggleAddMenu(){
+  const menu=document.getElementById('addModMenu');
+  if(!menu)return;
+  menu.classList.toggle('open');
+}
+document.addEventListener('click',e=>{
+  const menu=document.getElementById('addModMenu');
+  if(!menu||!menu.classList.contains('open'))return;
+  if(!e.target.closest('.add-mod-wrap'))menu.classList.remove('open');
+});
+
+/* ── RENDER MODULES LIST ── */
+function renderModuleRows(modules){
+  currentModules=modules;
+  // Restore dividers in case they were hidden for empty state
+  const foot=document.querySelector('.wf-footer');if(foot)foot.style.display=modules.length?'':'none';
+  const picks=document.querySelector('.preset-picks');if(picks)picks.style.borderBottom=modules.length?'':'none';
+  const coreTypes=['doc','face','auth'];
+  const core=modules.filter(m=>coreTypes.includes(m.type));
+  const addons=modules.filter(m=>!coreTypes.includes(m.type));
+  const rowHTML=(m,isAddon)=>{
+    if(!m.addons)m.addons={};
+    const meta=TYPE_META[m.type]||TYPE_META.int;
+    const rowCls=isAddon?'addon-row':(m.type==='doc'?'core-doc':m.type==='face'||m.type==='auth'?'core-face':'');
+    const idx=modules.indexOf(m);
+    const opts=!isAddon&&isCustomFlow&&MOD_PRESETS[m.type];
+    const presetHTML=opts?`<select class="module-preset-sel" onchange="changeModulePreset(${idx},this.value)" aria-label="${m.name} preset">${opts.map(o=>`<option value="${o.l}"${o.l===m.preset?' selected':''}>${o.l}</option>`).join('')}</select>`:`<div class="module-preset">${m.preset||''}</div>`;
+    const rmBtn=isCustomFlow&&!isAddon?`<button class="module-rm" onclick="removeModule(${idx})" aria-label="Remove ${m.name}" title="Remove"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 3l6 6M9 3l-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>`:'';
+    if(isAddon&&ADDON_DEFS[m.type]){
+      const chkSvg=`<svg viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5L8.5 2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+      const defs=ADDON_DEFS[m.type];
+      const optsHTML=defs.map(o=>{
+        const on=!!m.addons[o.key];
+        const tokBadge=o.t?`<span class="addon-opt-tok">+${o.t} tok</span>`:'';
+        return`<div class="addon-opt${on?' on':''}" onclick="toggleAddonOpt(${idx},'${o.key}',${o.t})"><div class="ao-box">${chkSvg}</div><div class="addon-opt-info"><div class="addon-opt-name">${o.l}</div><div class="addon-opt-desc">${o.d}</div></div>${tokBadge}</div>`;
+      }).join('');
+      const selCount=Object.keys(m.addons).filter(k=>m.addons[k]).length;
+      const expanded=!!m.expanded;
+      const summary=selCount?`${selCount} selected`:'Not configured';
+      const chevSvg=`<svg class="addon-chev${expanded?' open':''}" viewBox="0 0 14 14" fill="none"><path d="M4 5l3 3 3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+      const urlField=m.type==='int'&&expanded?`<input class="addon-url" type="url" placeholder="https://yourdomain.com/callback" value="${m.callbackUrl||''}" oninput="setAddonUrl(${idx},this.value)" aria-label="Callback URL">`:'';
+      const tokDisplay=m.tok?`${m.tok} tok`:'—';
+      const addonRmBtn=isCustomFlow?`<button class="module-rm" onclick="event.stopPropagation();removeModule(${idx})" aria-label="Remove ${m.name}" title="Remove"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 3l6 6M9 3l-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>`:'';
+      return`<div class="module-row ${rowCls}" style="align-items:flex-start;padding:12px 14px">
+        <div class="module-icon ${meta.cls}" style="margin-top:2px">${meta.icon()}</div>
+        <div class="module-info" style="flex:1">
+          <div class="addon-hd" onclick="toggleAddonExpand(${idx})">
+            <div class="addon-hd-info">
+              <span class="module-name" style="margin:0">${m.name}</span>
+              <span class="addon-summary${selCount?' has-sel':''}">${summary}</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+              <span class="module-tok" style="margin:0">${tokDisplay}</span>
+              ${chevSvg}
+            </div>
+          </div>
+          ${expanded?`${urlField}<div class="addon-opts">${optsHTML}</div>`:''}
+        </div>
+        ${addonRmBtn}
+      </div>`;
+    }
+    return`<div class="module-row ${rowCls}">
+      <div class="module-icon ${meta.cls}">${meta.icon()}</div>
+      <div class="module-info"><div class="module-name">${m.name}</div>${presetHTML}</div>
+      <span class="module-tok">${m.tok} tok</span>
+      ${rmBtn}
+    </div>`;
+  };
+  // Add module button (only for custom flows, when there's a slot available)
+  const allowedTypes=currentCustomKey==='auth'?['auth','int']:['doc','face','ext','int'];
+  const missingTypes=allowedTypes.filter(t=>!modules.some(m=>m.type===t));
+  const addBtnHTML=(isCustomFlow&&missingTypes.length)?`<div class="add-mod-wrap"><button class="add-mod-btn" onclick="toggleAddMenu()" aria-haspopup="true"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 2v8M2 6h8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>Add module</button><div class="add-mod-menu" id="addModMenu" role="menu">${missingTypes.map(t=>`<button class="add-mod-item" onclick="addModule('${t}')" role="menuitem">${MOD_LABELS[t]}</button>`).join('')}</div></div>`:'';
+  document.getElementById('modulesList').innerHTML=
+    core.map(m=>rowHTML(m,false)).join('')+
+    (addons.length?`<div class="addons-label">Add-ons</div>`+addons.map(m=>rowHTML(m,true)).join(''):'')+
+    addBtnHTML;
+  document.getElementById('wfTokN').textContent=TPV;
+  document.getElementById('bdTpv').textContent=TPV;
+  if(selectedPackTokens!==null){
+    volume=Math.floor(selectedPackTokens/TPV);
+    document.getElementById('volInput').value=volume.toLocaleString('en-US');
+    syncActivePick();calc();
+  }
+}
+
+/* ── PRESET PICKER ── */
+const customFlows={onboarding:null,auth:null};
+function buildPresetPicker(activeId){
+  const el=document.getElementById('presetPicks');
+  const isAuthCtx=activeId==='custom-auth'||(activeId==='build-auth')||AUTH_PRESETS.some(p=>p.id===activeId);
+  const authMode=document.getElementById('mdAuth')&&document.getElementById('mdAuth').classList.contains('on');
+  const inAuth=isAuthCtx||authMode;
+  const hasOn=customFlows.onboarding&&Array.isArray(customFlows.onboarding.pipeline);
+  const hasAu=customFlows.auth&&Array.isArray(customFlows.auth.pipeline);
+  let customBtns='';
+  if(!inAuth){
+    const customId='custom-onboarding';
+    customBtns+=`<div class="pp custom${activeId===customId?' on':''}" data-id="${customId}" onclick="startCustomFlow('onboarding')">Custom flow</div>`;
+  }
+  const presetSet=inAuth?AUTH_PRESETS:PRESETS;
+  const presetBtns=presetSet.map((p,i)=>`<div class="pp${activeId===p.id?' on':''}" data-id="${p.id}" onclick="selectPreset(this)">${p.label}</div>`).join('');
+  el.innerHTML=customBtns+presetBtns;
+}
+function startCustomFlow(flowKey){
+  if(!customFlows[flowKey]||!Array.isArray(customFlows[flowKey].pipeline)){
+    customFlows[flowKey]={pipeline:[],totalTok:0};
+  }
+  const targetId='custom-'+flowKey;
+  buildPresetPicker(targetId);
+  selectPreset({dataset:{id:targetId}});
+}
+function goBuild(flowKey){
+  // Start an empty custom flow in-place so user can add modules right here
+  customFlows[flowKey]={pipeline:[],totalTok:0};
+  isCustomFlow=true;
+  currentCustomKey=flowKey;
+  currentModules=[];
+  TPV=0;
+  document.getElementById('wfBadge').textContent=flowKey==='auth'?'Authentication':'Onboarding';
+  document.getElementById('wfEditLink').style.display='';
+  const editLink=document.getElementById('wfEditLink');
+  try{editLink.onclick=function(){try{sessionStorage.setItem('shareid_edit_flow','1');sessionStorage.setItem('shareid_edit_mode',flowKey);}catch(e){}};}catch(e){}
+  buildPresetPicker('custom-'+flowKey);
+  renderModuleRows(currentModules);
+  syncCustomFlow();
+}
+function selectPreset(el){
+  const id=el.dataset.id;
+  buildPresetPicker(id);
+  syncModeSwitch(id);
+  const editLink=document.getElementById('wfEditLink');
+  if(id==='custom-onboarding'||id==='custom-auth'){
+    const flowKey=id==='custom-auth'?'auth':'onboarding';
+    const flow=customFlows[flowKey];
+    if(!flow)return;
+    isCustomFlow=true;
+    currentCustomKey=flowKey;
+    editLink.style.display='';
+    try{editLink.onclick=function(){try{sessionStorage.setItem('shareid_edit_flow','1');sessionStorage.setItem('shareid_edit_mode',flowKey);}catch(e){}};}catch(e){}
+    document.getElementById('wfBadge').textContent=flowKey==='auth'?'Authentication':'Onboarding';
+    TPV=flow.totalTok||flow.pipeline.reduce((s,st)=>s+(st.config?(st.config.t||0):0),0)||6;
+    const all=flow.pipeline.map(s=>({type:s.type,name:(TYPE_META[s.type]||TYPE_META.int).name,preset:s.config?(s.config.l||'—'):'Not configured',tok:s.config?(s.config.t||0):0}));
+    renderModuleRows(all);
+  } else {
+    const authPreset=AUTH_PRESETS.find(p=>p.id===id);
+    const preset=authPreset||PRESETS.find(p=>p.id===id);if(!preset)return;
+    isCustomFlow=false;
+    currentCustomKey=null;
+    editLink.style.display='none';
+    document.getElementById('wfBadge').textContent=authPreset?'Authentication':'Onboarding';
+    TPV=preset.tpv;
+    renderModuleRows(preset.modules);
+  }
+  calc();
+}
+
+/* ── WORKSPACE STORAGE ── */
+const WS_KEY='shareid_workspaces';
+const WS_ACTIVE='shareid_active_workspace';
+const LEGACY_KEY='shareid_workflow';
+function loadWorkspaces(){try{const a=JSON.parse(localStorage.getItem(WS_KEY)||'[]');return Array.isArray(a)?a:[]}catch(e){return[]}}
+function saveWorkspaces(list){try{localStorage.setItem(WS_KEY,JSON.stringify(list));}catch(e){}}
+function getQueryParam(k){return new URLSearchParams(location.search).get(k)}
+
+let workspaces=loadWorkspaces();
+let currentWorkspaceId=getQueryParam('w')||localStorage.getItem(WS_ACTIVE)||null;
+let currentWorkspace=currentWorkspaceId?workspaces.find(w=>w.id===currentWorkspaceId):null;
+
+function wfLink(page){
+  return page+(currentWorkspaceId?('?w='+encodeURIComponent(currentWorkspaceId)):'');
+}
+function wireNavLinks(){
+  const lg=document.getElementById('pgLogo');if(lg)lg.href='workspace.html';
+  const w=document.getElementById('bcWorkspace');if(w)w.href='workspace.html';
+  const b=document.getElementById('bcBuilder');if(b)b.href=wfLink('documentation.html');
+  const nm=document.getElementById('pgWfName');
+  if(nm&&currentWorkspace)nm.textContent=currentWorkspace.name||'Pricing';
+}
+
+/* ── LOAD WORKFLOW ── */
+function loadWorkflow(){
+  const calcTok=(pl)=>{let x=0;(pl||[]).forEach(st=>x+=(st.config?(st.config.t||0):0));return x;};
+  // Prefer workspace, fall back to legacy key
+  if(currentWorkspace&&currentWorkspace.flows){
+    const fl=currentWorkspace.flows;
+    if(fl.onboarding&&Array.isArray(fl.onboarding.pipeline)&&fl.onboarding.pipeline.length)
+      customFlows.onboarding={pipeline:fl.onboarding.pipeline,totalTok:calcTok(fl.onboarding.pipeline)};
+    if(fl.auth&&Array.isArray(fl.auth.pipeline)&&fl.auth.pipeline.length)
+      customFlows.auth={pipeline:fl.auth.pipeline,totalTok:calcTok(fl.auth.pipeline)};
+    customWf={flows:fl,mode:'onboarding'};
+  } else {
+    try{const r=localStorage.getItem(LEGACY_KEY);if(r)customWf=JSON.parse(r);}catch(e){}
+    if(customWf&&customWf.flows){
+      if(customWf.flows.onboarding&&Array.isArray(customWf.flows.onboarding.pipeline)&&customWf.flows.onboarding.pipeline.length)
+        customFlows.onboarding={pipeline:customWf.flows.onboarding.pipeline,totalTok:customWf.flows.onboarding.totalTok||calcTok(customWf.flows.onboarding.pipeline)};
+      if(customWf.flows.auth&&Array.isArray(customWf.flows.auth.pipeline)&&customWf.flows.auth.pipeline.length)
+        customFlows.auth={pipeline:customWf.flows.auth.pipeline,totalTok:customWf.flows.auth.totalTok||calcTok(customWf.flows.auth.pipeline)};
+    }else if(customWf&&Array.isArray(customWf.pipeline)&&customWf.pipeline.length){
+      const k=customWf.mode==='auth'?'auth':'onboarding';
+      customFlows[k]={pipeline:customWf.pipeline,totalTok:customWf.totalTok||calcTok(customWf.pipeline)};
+    }
+  }
+  const hasOn=!!customFlows.onboarding, hasAu=!!customFlows.auth;
+  const preferred=(customWf&&customWf.mode==='auth'&&hasAu)?'custom-auth':(hasOn?'custom-onboarding':(hasAu?'custom-auth':'substantiel'));
+  buildPresetPicker(preferred);
+  syncModeSwitch(preferred);
+  selectPreset({dataset:{id:preferred}});
+
+  // Pre-fill volume from saved workspace pricing if present
+  restorePricingInputs();
+}
+
+/* ── PRICING PERSISTENCE ── */
+let _pricingSaveTimer=null;
+function getCurrentPricingMode(){
+  // Map the current calc context to 'onboarding' | 'auth'
+  if(isCustomFlow&&currentCustomKey)return currentCustomKey;
+  // Preset-based? Infer from mode switch button state
+  const au=document.getElementById('mdAuth');
+  if(au&&au.classList.contains('on'))return 'auth';
+  return 'onboarding';
+}
+function saveWorkspacePricing(){
+  if(!currentWorkspace)return;
+  if(volume<=0)return; // nothing calculated yet
+  const modeKey=getCurrentPricingMode();
+  const required=TPV*volume;
+  let pack=PACKS[PACKS.length-1];
+  for(const p of PACKS){if(p.tokens>=required){pack=p;break;}}
+  const monthlyCost=pack.cost+pack.license;
+  currentWorkspace.pricing=currentWorkspace.pricing||{};
+  currentWorkspace.pricing[modeKey]={
+    volume,
+    tpv:TPV,
+    packTokens:pack.tokens,
+    packLabel:pack.label,
+    totalCost:monthlyCost,
+    updatedAt:Date.now()
+  };
+  currentWorkspace.updatedAt=Date.now();
+  const idx=workspaces.findIndex(w=>w.id===currentWorkspaceId);
+  if(idx>=0)workspaces[idx]=currentWorkspace;
+  saveWorkspaces(workspaces);
+}
+function schedulePricingSave(){
+  clearTimeout(_pricingSaveTimer);
+  _pricingSaveTimer=setTimeout(saveWorkspacePricing,280);
+}
+function restorePricingInputs(){
+  if(!currentWorkspace||!currentWorkspace.pricing)return;
+  const modeKey=getCurrentPricingMode();
+  const p=currentWorkspace.pricing[modeKey];
+  if(!p||!p.volume)return;
+  volume=p.volume;
+  const vi=document.getElementById('volInput');
+  if(vi)vi.value=p.volume.toLocaleString('en-US');
+  if(p.packTokens){
+    selectedPackTokens=p.packTokens;
+    document.querySelectorAll('.qp').forEach(el=>{el.classList.toggle('on',parseInt(el.dataset.tokens)===p.packTokens);});
+  }
+  syncSlider&&syncSlider();
+  calc();
+}
+
+/* ── CALC ── */
+function calc(){
+  const empty=document.getElementById('emptyCard');
+  const result=document.getElementById('result');
+  if(volume<=0){empty.style.display='';result.classList.remove('show');return;}
+  empty.style.display='none';
+  result.classList.add('show');
+
+  const required=TPV*volume;
+  let pack=PACKS[PACKS.length-1];
+  for(const p of PACKS){if(p.tokens>=required){pack=p;break;}}
+
+  const total=pack.cost+pack.license;
+  const cpv=(pack.price*TPV).toFixed(2);
+
+  document.getElementById('heroCpv').innerHTML='€'+cpv+'<span class="price-unit">/ verif.</span>';
+  document.getElementById('heroTotal').textContent=eur(total);
+  document.getElementById('heroPack').textContent=pack.label+' tok @ €'+pack.price.toFixed(2);
+  document.getElementById('heroLicense').textContent=eur(pack.license);
+  document.getElementById('bdTpv').textContent=TPV;
+  document.getElementById('bdVol').textContent=fmt(volume);
+  document.getElementById('bdReq').textContent=fmt(required);
+  document.getElementById('bdPpt').textContent='€'+pack.price.toFixed(2);
+  document.getElementById('bdPackPrice').textContent=eur(pack.cost);
+  document.getElementById('bdLicense').textContent=eur(pack.license);
+  schedulePricingSave();
+}
+
+function renderQuickPicks(){
+  const container=document.getElementById('quickPicks');
+  container.innerHTML=PACKS.map(p=>`<div class="qp" data-tokens="${p.tokens}" onclick="pickPack(this)">${p.label}</div>`).join('');
+}
+function syncActivePick(){
+  const required=TPV*volume;
+  let activePack=null;
+  for(const p of PACKS){if(p.tokens>=required){activePack=p;break;}}
+  document.querySelectorAll('.qp').forEach(el=>{
+    el.classList.toggle('on',activePack&&parseInt(el.dataset.tokens)===activePack.tokens);
+  });
+}
+function pickPack(el){
+  selectedPackTokens=parseInt(el.dataset.tokens);
+  volume=Math.floor(selectedPackTokens/TPV);
+  document.getElementById('volInput').value=volume.toLocaleString('en-US');
+  document.querySelectorAll('.qp').forEach(p=>p.classList.remove('on'));
+  el.classList.add('on');
+  syncSlider();
+  calc();
+}
+function onVol(el){
+  const raw=el.value.replace(/[^0-9]/g,'');
+  volume=parseInt(raw)||0;
+  if(raw)el.value=parseInt(raw).toLocaleString('en-US');
+  selectedPackTokens=null;
+  syncSlider();syncActivePick();calc();
+}
+/* Logarithmic slider: 0..1000 → 1,000..10,000,000 */
+const VOL_MIN=1000,VOL_MAX=10000000;
+function volToSlider(v){if(v<=0)return 0;const t=(Math.log(Math.max(v,VOL_MIN))-Math.log(VOL_MIN))/(Math.log(VOL_MAX)-Math.log(VOL_MIN));return Math.round(Math.max(0,Math.min(1,t))*1000);}
+function sliderToVol(s){const t=s/1000;const v=Math.exp(Math.log(VOL_MIN)+t*(Math.log(VOL_MAX)-Math.log(VOL_MIN)));/* snap to nice numbers */const mag=Math.pow(10,Math.floor(Math.log10(v)));const step=mag/10;return Math.round(v/step)*step;}
+function syncSlider(){const s=document.getElementById('volSlider');if(!s)return;const sv=volToSlider(volume);s.value=sv;s.style.setProperty('--fill',(sv/10)+'%');}
+function onSlider(el){const sv=parseInt(el.value);volume=sv===0?0:sliderToVol(sv);el.style.setProperty('--fill',(sv/10)+'%');document.getElementById('volInput').value=volume?volume.toLocaleString('en-US'):'';selectedPackTokens=null;syncActivePick();calc();}
+function setVolume(v){volume=v;document.getElementById('volInput').value=v.toLocaleString('en-US');syncSlider();selectedPackTokens=null;syncActivePick();calc();}
+
+/* Mode toggle (Onboarding / Authentication) */
+function setPricingMode(m){
+  const hasFlow=!!customFlows[m];
+  // Update mode toggle UI immediately
+  const onb=document.getElementById('mdOnb'),au=document.getElementById('mdAuth');
+  onb.classList.toggle('on',m==='onboarding');onb.setAttribute('aria-pressed',m==='onboarding');
+  au.classList.toggle('on',m==='auth');au.setAttribute('aria-pressed',m==='auth');
+  // Always update badge to reflect current toggle
+  document.getElementById('wfBadge').textContent=m==='auth'?'Authentication':'Onboarding';
+  if(m==='auth'){
+    // Auth always uses presets (MFA 3.0 / EUDIW PID), no custom editing
+    buildPresetPicker('mfa_3');
+    selectPreset({dataset:{id:'mfa_3'}});
+    return;
+  }
+  if(hasFlow){
+    const targetId='custom-'+m;
+    buildPresetPicker(targetId);
+    selectPreset({dataset:{id:targetId}});
+    return;
+  }
+  // Onboarding with no custom flow — default preset
+  buildPresetPicker('substantiel');
+  selectPreset({dataset:{id:'substantiel'}});
+}
+function syncModeSwitch(activeId){
+  const isAuthId=activeId==='custom-auth'||AUTH_PRESETS.some(p=>p.id===activeId);
+  const m=isAuthId?'auth':'onboarding';
+  const onb=document.getElementById('mdOnb'),au=document.getElementById('mdAuth');
+  if(!onb||!au)return;
+  onb.classList.toggle('on',m==='onboarding');onb.setAttribute('aria-pressed',m==='onboarding');
+  au.classList.toggle('on',m==='auth');au.setAttribute('aria-pressed',m==='auth');
+  onb.disabled=false;au.disabled=false;
+  onb.title='';au.title='';
+}
+function toggleBd(){
+  bdOpen=!bdOpen;
+  document.getElementById('bdBody').classList.toggle('open',bdOpen);
+  document.getElementById('bdArrow').classList.toggle('open',bdOpen);
+}
+
+wireNavLinks();
+renderQuickPicks();
+if(currentWorkspace){document.body.classList.add('ws-mode');}
+loadWorkflow();
+</script>
+</body>
+</html>

@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<title>ShareID — Workspace</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --blue:#3253d1;--blue-h:#2a46b5;--blue-bg:#f0f3fd;--blue-l:#e8ecfb;
+  --green:#1b9764;--green-bg:#eaf5f0;
+  --red:#dc2626;--red-bg:#fef2f2;
+  --navy:#0c0f1a;
+  --white:#fff;--bg:#f4f5f7;--bg2:#ecedf1;
+  --t1:#0f1117;--t2:#1e2030;--t3:#3d4155;--t4:#6b7086;--t5:#9ca1b5;--t6:#c5c8d6;
+  --brd:#dfe1ea;--brd-l:#eceef4;
+}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;color:var(--t1);-webkit-font-smoothing:antialiased;background:var(--bg);min-height:100vh}
+
+/* Shell: sidebar + main */
+.app{display:flex;min-height:100vh}
+
+/* Sidebar — blue theme, expandable groups */
+.side{width:240px;flex-shrink:0;background:var(--blue);color:#fff;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow:hidden}
+.side-hd{padding:22px 20px 14px;display:flex;align-items:center;gap:10px}
+.side-logo{display:flex;align-items:center;text-decoration:none;color:#fff}
+.side-logo img{height:28px;width:auto;display:block;filter:brightness(0) invert(1)}
+.side-nav{padding:8px 10px;flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:1px}
+.side-sep{height:1px;background:rgba(255,255,255,.16);margin:8px 6px}
+.side-item{display:flex;align-items:center;gap:12px;padding:9px 10px;border-radius:8px;text-decoration:none;color:rgba(255,255,255,.88);font:600 13px/1 Inter,sans-serif;cursor:pointer;border:none;background:transparent;font-family:inherit;width:100%;text-align:left;transition:background .12s,color .12s}
+.side-item:hover{background:rgba(255,255,255,.08);color:#fff}
+.side-item.active{background:rgba(255,255,255,.12);color:#fff}
+.side-item svg{width:16px;height:16px;flex-shrink:0;opacity:.88}
+.side-item:hover svg,.side-item.active svg{opacity:1}
+.side-item.disabled{opacity:.5;cursor:default;pointer-events:none}
+.side-item .chev{margin-left:auto;width:14px;height:14px;opacity:.7;transition:transform .18s}
+.side-item[aria-expanded="true"] .chev{transform:rotate(180deg)}
+.side-group-body{position:relative;padding:4px 0 6px 12px;margin-left:14px;display:flex;flex-direction:column;gap:2px;border-left:1px solid rgba(255,255,255,.22)}
+.side-group-body[aria-hidden="true"]{display:none}
+.side-sub{display:flex;align-items:center;padding:7px 12px;border-radius:7px;text-decoration:none;color:rgba(255,255,255,.72);font:500 13px/1 Inter,sans-serif;cursor:pointer;border:1.5px solid transparent;background:transparent;transition:color .12s,border-color .12s,background .12s}
+.side-sub:hover{color:#fff;background:rgba(255,255,255,.06)}
+.side-sub.active{color:#fff;font-weight:600;background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.22);box-shadow:0 1px 2px rgba(0,0,0,.12)}
+.side-sub.disabled{opacity:.5;cursor:default;pointer-events:none}
+
+.side-ft{padding:12px 14px;border-top:1px solid rgba(255,255,255,.16);display:flex;align-items:center;gap:10px}
+.side-avatar{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.22);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px}
+.side-user{flex:1;min-width:0}
+.side-user-name{font-size:13px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.side-user-role{font-size:10px;color:rgba(255,255,255,.62);letter-spacing:.08em;text-transform:uppercase;font-weight:700}
+.side-exit{width:28px;height:28px;border:none;background:transparent;color:rgba(255,255,255,.72);border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.side-exit:hover{background:rgba(255,255,255,.12);color:#fff}
+.side-exit svg{width:14px;height:14px}
+
+/* Main */
+.main{flex:1;min-width:0;display:flex;flex-direction:column}
+
+/* Top bar (thin, on main) */
+.topbar{height:56px;border-bottom:1px solid var(--brd-l);display:flex;align-items:center;justify-content:space-between;padding:0 28px;background:var(--white);flex-shrink:0;position:sticky;top:0;z-index:10}
+.tb-page-title{font-size:14px;font-weight:600;color:var(--t2)}
+.tb-actions{display:flex;align-items:center;gap:12px}
+.tb-meta{font-size:12px;color:var(--t5)}
+
+/* Layout */
+.wrap{max-width:1280px;margin:0 auto;padding:32px 28px 64px;width:100%;flex:1}
+
+@media (max-width:860px){
+  .side{width:68px}
+  .side-logo span, .side-item span, .side-user, .side-ft{display:none}
+  .side-ft{display:flex;justify-content:center;padding:12px 8px}
+  .side-hd{justify-content:center;padding:22px 8px 18px}
+}
+.page-hd{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:24px;flex-wrap:wrap}
+.page-title{font-size:28px;font-weight:800;letter-spacing:-.02em;color:var(--navy)}
+.page-sub{font-size:13px;color:var(--t4);margin-top:4px}
+
+/* Toolbar */
+.toolbar{display:flex;align-items:center;gap:10px;margin-bottom:20px;flex-wrap:wrap}
+.search{position:relative;flex:1;min-width:240px;max-width:420px}
+.search input{width:100%;height:40px;padding:0 38px 0 38px;border:1px solid var(--brd);border-radius:10px;background:var(--white);font:500 13px/1 Inter,sans-serif;color:var(--t1);outline:none;transition:border-color .12s, box-shadow .12s}
+.search input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(50,83,209,.12)}
+.search .ico{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--t5);pointer-events:none}
+.search .ico svg{width:14px;height:14px;display:block}
+.search .clear{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:22px;height:22px;border:none;background:var(--bg);border-radius:6px;color:var(--t4);cursor:pointer;display:none;align-items:center;justify-content:center}
+.search .clear:hover{background:var(--bg2);color:var(--t2)}
+.search.has-text .clear{display:flex}
+.search .kbd{position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:10px;color:var(--t5);background:var(--bg);border:1px solid var(--brd-l);border-radius:4px;padding:2px 6px;font-family:inherit;font-weight:600;pointer-events:none}
+.search.has-text .kbd{display:none}
+
+.sort{position:relative}
+.sort-trigger{display:inline-flex;align-items:center;gap:7px;height:40px;padding:0 14px;border-radius:10px;border:1px solid var(--brd-l);background:var(--white);font:600 13px/1 Inter,sans-serif;color:var(--t2);cursor:pointer;transition:all .12s;white-space:nowrap}
+.sort-trigger:hover{border-color:var(--t5)}
+.sort-trigger.open{border-color:var(--blue);box-shadow:0 0 0 3px rgba(50,83,209,.1)}
+.sort-trigger svg{width:14px;height:14px;color:var(--t4)}
+.sort-trigger .sort-chevron{width:12px;height:12px;color:var(--t5);transition:transform .15s}
+.sort-trigger.open .sort-chevron{transform:rotate(180deg)}
+.sort-panel{position:absolute;top:calc(100% + 6px);right:0;background:var(--white);border:1px solid var(--brd-l);border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.12);padding:6px;min-width:160px;z-index:50;display:none}
+.sort-panel.open{display:block}
+.sort-opt{display:flex;align-items:center;gap:8px;width:100%;padding:8px 10px;border-radius:8px;border:none;background:none;font:500 13px/1 Inter,sans-serif;color:var(--t2);cursor:pointer;text-align:left;transition:background .1s}
+.sort-opt:hover{background:var(--bg)}
+.sort-opt.on{background:var(--blue-bg);color:var(--blue);font-weight:600}
+.sort-opt-icon{width:16px;height:16px;flex-shrink:0;opacity:.5}
+.sort-opt.on .sort-opt-icon{opacity:1}
+
+.btn{display:inline-flex;align-items:center;gap:7px;height:40px;padding:0 16px;border-radius:10px;border:1px solid var(--brd);background:var(--white);font:600 13px/1 Inter,sans-serif;color:var(--t2);cursor:pointer;text-decoration:none;transition:all .12s}
+.btn:hover{border-color:var(--t5);color:var(--t1)}
+.btn.primary{background:var(--blue);color:var(--white);border-color:var(--blue);box-shadow:0 2px 10px rgba(50,83,209,.25)}
+.btn.primary:hover{background:var(--blue-h);border-color:var(--blue-h)}
+.btn svg{width:14px;height:14px}
+
+/* Grid */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+.card{background:var(--white);border:1px solid var(--brd-l);border-radius:14px;padding:20px;cursor:pointer;transition:all .14s;display:flex;flex-direction:column;gap:0;position:relative;outline:none;min-height:160px}
+.card:hover{border-color:var(--blue);box-shadow:0 6px 24px rgba(50,83,209,.10);transform:translateY(-1px)}
+.card:has(.menu-pop):hover{transform:none}
+.card:focus-visible{border-color:var(--blue);box-shadow:0 0 0 3px rgba(50,83,209,.18)}
+.card.selected{border-color:var(--blue);box-shadow:0 0 0 2px rgba(50,83,209,.2)}
+.card.dragging{opacity:.35;box-shadow:none;transform:none}
+.card.drag-over{border-color:var(--blue);box-shadow:-3px 0 0 var(--blue),0 6px 24px rgba(50,83,209,.12)}
+
+.c-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.c-badge{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--white);background:var(--blue);border-radius:5px;padding:3px 8px;flex-shrink:0}
+.c-badge.auth{background:#6b7280}
+.c-menu{flex-shrink:0;width:28px;height:28px;border:none;background:transparent;border-radius:6px;color:var(--t5);cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .1s,background .12s}
+.card:hover .c-menu,.c-menu:focus-visible,.c-menu[aria-expanded="true"]{opacity:1}
+.c-menu:hover{background:var(--bg);color:var(--t2)}
+.c-menu svg{width:14px;height:14px}
+.c-title{font-size:17px;font-weight:700;color:var(--t1);letter-spacing:-.02em;line-height:1.25;word-break:break-word;margin-top:10px}
+.c-title-input{font:700 17px/1.25 Inter,sans-serif;color:var(--t1);background:var(--bg);border:1.5px solid var(--blue);border-radius:6px;padding:3px 7px;outline:none;width:100%;letter-spacing:-.02em;margin-top:8px}
+.c-mods-line{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:5px}
+.c-mods-names{font-size:12px;color:var(--t4);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.c-mods-tok{font-size:12px;font-weight:700;color:var(--t3);white-space:nowrap;flex-shrink:0}
+.c-empty-hint{font-size:12px;color:var(--t5);margin-top:5px}
+.c-footer{display:flex;align-items:flex-end;justify-content:space-between;gap:8px;padding-top:12px;border-top:1px solid var(--brd-l);margin-top:auto}
+.c-updated{font-size:11px;color:var(--t5);font-weight:500;white-space:nowrap}
+
+.c-empty{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg);border-radius:8px;color:var(--t5);font-size:12px;font-weight:500}
+.c-empty svg{width:14px;height:14px;color:var(--t6)}
+
+/* Pricing info (inside c-footer) */
+.c-price{display:flex;flex-direction:column;gap:2px}
+.c-price-val{font-size:17px;font-weight:800;color:var(--t1);letter-spacing:-.02em;line-height:1.1}
+.c-price-sub{font-size:11px;color:var(--t4);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.c-not-priced{font-size:11px;color:var(--t5);font-weight:500;display:inline-flex;align-items:center;gap:6px}
+.c-not-priced svg{width:12px;height:12px;color:var(--t6)}
+
+/* Add card */
+.card.add{display:flex;align-items:center;justify-content:center;text-align:center;border:1.5px dashed var(--brd);background:transparent;min-height:200px;color:var(--t4);transition:all .14s}
+.card.add:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-bg);box-shadow:none;transform:none}
+.add-inner{display:flex;flex-direction:column;align-items:center;gap:8px}
+.add-icon{width:40px;height:40px;border-radius:50%;background:var(--white);border:1.5px solid var(--brd);display:flex;align-items:center;justify-content:center;color:var(--t4);transition:all .14s}
+.card.add:hover .add-icon{background:var(--blue);border-color:var(--blue);color:var(--white)}
+.add-icon svg{width:18px;height:18px}
+.add-label{font-size:13px;font-weight:600}
+.add-hint{font-size:11px;color:var(--t5);font-weight:500}
+.card.add:hover .add-hint{color:var(--blue)}
+
+/* Empty state */
+.empty{padding:80px 24px;display:flex;flex-direction:column;align-items:center;text-align:center;background:var(--white);border:1px dashed var(--brd);border-radius:14px;gap:16px}
+.empty-icon{width:64px;height:64px;border-radius:16px;background:var(--blue-bg);display:flex;align-items:center;justify-content:center;color:var(--blue)}
+.empty-icon svg{width:28px;height:28px}
+.empty h2{font-size:20px;font-weight:700;color:var(--t1);letter-spacing:-.01em}
+.empty p{font-size:13px;color:var(--t4);max-width:380px;line-height:1.55}
+
+/* Menu popover */
+.menu-pop{position:absolute;top:42px;right:14px;background:var(--white);border:1px solid var(--brd-l);border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,.12);padding:6px;min-width:160px;z-index:100;display:none}
+.menu-pop.open{display:block}
+.menu-item{display:flex;align-items:center;gap:10px;width:100%;padding:8px 10px;border:none;background:none;border-radius:6px;font:500 13px/1 Inter,sans-serif;color:var(--t2);cursor:pointer;text-align:left}
+.menu-item:hover{background:var(--bg)}
+.menu-item.danger{color:var(--red)}
+.menu-item.danger:hover{background:var(--red-bg)}
+.menu-item svg{width:14px;height:14px;color:currentColor}
+.menu-sep{height:1px;background:var(--brd-l);margin:4px 6px}
+
+/* Modal */
+.modal-bd{position:fixed;inset:0;background:rgba(12,15,26,.4);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;z-index:200;padding:20px}
+.modal-bd.open{display:flex}
+.modal{background:var(--white);border-radius:16px;padding:28px;width:100%;max-width:420px;box-shadow:0 24px 64px rgba(0,0,0,.24)}
+.modal h3{font-size:18px;font-weight:700;color:var(--t1);margin-bottom:8px;letter-spacing:-.01em}
+.modal p{font-size:13px;color:var(--t4);line-height:1.55;margin-bottom:20px}
+.modal-act{display:flex;gap:10px;justify-content:flex-end}
+.modal-act .btn{height:38px;padding:0 18px}
+/* Type picker modal */
+.type-modal{max-width:500px;padding:36px}
+.type-modal h3{font-size:20px;margin-bottom:6px}
+.type-modal .sub{font-size:13px;color:var(--t4);margin-bottom:28px}
+.type-cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:28px}
+.type-card{border:2px solid var(--brd-l);border-radius:14px;padding:24px 20px;cursor:pointer;transition:all .14s;text-align:left;background:var(--white)}
+.type-card:hover{border-color:var(--blue);background:var(--blue-bg)}
+.type-card.selected{border-color:var(--blue);background:var(--blue-bg)}
+.type-card-icon{width:48px;height:48px;border-radius:14px;background:var(--blue-bg);display:flex;align-items:center;justify-content:center;color:var(--blue);margin-bottom:16px}
+.type-card.selected .type-card-icon{background:var(--blue);color:var(--white)}
+.type-card-icon svg{width:24px;height:24px}
+.type-card-name{font-size:14px;font-weight:700;color:var(--t1);margin-bottom:6px}
+.type-card-desc{font-size:12px;color:var(--t4);line-height:1.5}
+.btn.danger{background:var(--red);color:var(--white);border-color:var(--red)}
+.btn.danger:hover{background:#b91c1c;border-color:#b91c1c}
+
+/* API modal */
+.api-modal{max-width:680px;width:100%}
+.api-modal h3{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.api-code{background:#0f1320;border-radius:10px;padding:16px 18px;max-height:50vh;overflow:auto;font:500 12.5px/1.55 ui-monospace,SFMono-Regular,Menlo,monospace;color:#d7dcea;white-space:pre}
+.api-code::-webkit-scrollbar{width:8px;height:8px}
+.api-code::-webkit-scrollbar-thumb{background:#2a2f45;border-radius:4px}
+.api-act{display:flex;gap:10px;justify-content:flex-end;margin-top:16px}
+
+/* Toast */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--navy);color:var(--white);padding:12px 18px;border-radius:10px;font-size:13px;font-weight:500;display:flex;align-items:center;gap:14px;box-shadow:0 8px 32px rgba(0,0,0,.2);opacity:0;pointer-events:none;transition:all .25s;z-index:300}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);pointer-events:auto}
+.toast button{background:none;border:none;color:var(--blue-l);font:600 12px/1 Inter,sans-serif;cursor:pointer;padding:4px 8px;border-radius:4px;letter-spacing:.04em;text-transform:uppercase}
+.toast button:hover{background:rgba(255,255,255,.08)}
+
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+</style>
+</head>
+<body>
+
+<div class="app">
+
+<aside class="side" aria-label="Primary navigation">
+  <div class="side-hd">
+    <a class="side-logo" href="workspace.html" aria-label="ShareID">
+      <img src="illustrations/ShareID-logo.svg" alt="ShareID" draggable="false">
+    </a>
+  </div>
+  <nav class="side-nav">
+    <a class="side-item disabled" href="#" aria-disabled="true">
+      <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 7.5L8 3l5 4.5V13a1 1 0 01-1 1h-2.5v-3.5h-3V14H4a1 1 0 01-1-1V7.5Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+      <span>Home</span>
+    </a>
+    <button class="side-item" type="button" aria-expanded="true" aria-controls="grpWf" onclick="toggleGroup(this)">
+      <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="2" y="3" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.4"/><rect x="9" y="3" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.4"/><rect x="2" y="10" width="5" height="3" rx="1" stroke="currentColor" stroke-width="1.4"/><rect x="9" y="10" width="5" height="3" rx="1" stroke="currentColor" stroke-width="1.4"/></svg>
+      <span>Workflows</span>
+      <svg class="chev" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M4 9l3-3 3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <div class="side-group-body" id="grpWf" aria-hidden="false">
+      <a class="side-sub active" href="workspace.html" aria-current="page">My flows</a>
+      <a class="side-sub" href="plans.html">Pricing</a>
+    </div>
+    <a class="side-item disabled" href="#" aria-disabled="true">
+      <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 13V7m3 6V4m3 9v-6m3 6V3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+      <span>Reporting</span>
+    </a>
+    <a class="side-item disabled" href="#" aria-disabled="true">
+      <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="2.5" y="2.5" width="11" height="11" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M5 6h6M5 8.5h6M5 11h3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+      <span>Requests history</span>
+    </a>
+    <div class="side-sep" aria-hidden="true"></div>
+    <a class="side-item disabled" href="#" aria-disabled="true">
+      <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="1.4"/><path d="M8 4V2.5M8 13.5V12M4 8H2.5M13.5 8H12M4.9 4.9l-1-1M12.1 12.1l-1-1M4.9 11.1l-1 1M12.1 3.9l-1 1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      <span>Manage Businesses</span>
+    </a>
+    <a class="side-item disabled" href="#" aria-disabled="true">
+      <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="2.5" y="2.5" width="11" height="11" rx="1.5" stroke="currentColor" stroke-width="1.4"/><circle cx="8" cy="7" r="2" stroke="currentColor" stroke-width="1.3"/><path d="M5 13c.5-1.6 1.7-2.6 3-2.6s2.5 1 3 2.6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      <span>Manage Users</span>
+    </a>
+    <div class="side-sep" aria-hidden="true"></div>
+    <a class="side-item disabled" href="#" aria-disabled="true">
+      <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="2.5" y="3" width="11" height="8" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M5.5 13h5M7 11v2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><polygon points="7,5.8 10,7.3 7,8.8" fill="currentColor"/></svg>
+      <span>Product demo</span>
+    </a>
+    <a class="side-item disabled" href="#" aria-disabled="true">
+      <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="2" y="4" width="12" height="9" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M5.5 4V2.5h5V4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="8" cy="8.5" r="2" stroke="currentColor" stroke-width="1.3"/></svg>
+      <span>Run Authenticity Photo</span>
+    </a>
+    <a class="side-item disabled" href="#" aria-disabled="true">
+      <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M10 4h3v3M13 4l-5 5M6.5 6H3.5a1 1 0 00-1 1v5a1 1 0 001 1h5a1 1 0 001-1V9.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span>Operator platform</span>
+    </a>
+    <a class="side-item disabled" href="#" aria-disabled="true">
+      <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="2.5" y="3.5" width="11" height="9" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M2.5 5l5.5 3.5L13.5 5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span>Contact support</span>
+    </a>
+  </nav>
+  <div class="side-ft">
+    <div class="side-avatar" aria-hidden="true">S</div>
+    <div class="side-user">
+      <div class="side-user-name">Demo user</div>
+      <div class="side-user-role">Admin</div>
+    </div>
+    <button class="side-exit" aria-label="Sign out" title="Sign out">
+      <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M7 3H4a1 1 0 00-1 1v8a1 1 0 001 1h3M10 5l3 3-3 3M13 8H6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+  </div>
+</aside>
+
+<div class="main">
+
+<header class="topbar">
+  <span class="tb-page-title">Workflows</span>
+  <div class="tb-actions">
+    <span class="tb-meta">Workspace</span>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="page-hd">
+    <div>
+      <h1 class="page-title">Workflows</h1>
+      <p class="page-sub" id="pageSub">Loading…</p>
+    </div>
+    <button class="btn primary" onclick="createWorkspace()" aria-label="New workflow (Cmd+N)">
+      <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      New workflow
+    </button>
+  </div>
+
+  <div class="toolbar">
+    <div class="search" id="searchWrap">
+      <span class="ico" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.5"/><path d="M11 11l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+      <input type="text" id="search" placeholder="Search workflows…" aria-label="Search workflows" autocomplete="off">
+      <button class="clear" id="searchClear" aria-label="Clear search" type="button">
+        <svg viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M3 3l6 6M9 3l-6 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <div class="sort" id="sortBar">
+      <button class="sort-trigger" id="sortTrigger" onclick="toggleSortPanel()" aria-haspopup="listbox" aria-expanded="false">
+        <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M2 5h12M4 8h8M6 11h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        <span id="sortLabel">Recent</span>
+        <svg class="sort-chevron" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <div class="sort-panel" id="sortPanel" role="listbox">
+        <button class="sort-opt on" data-sort="updated" onclick="setSort(this)" role="option" aria-selected="true">
+          <svg class="sort-opt-icon" viewBox="0 0 16 16" fill="none"><path d="M8 3v10M5 10l3 3 3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Recently updated
+        </button>
+        <button class="sort-opt" data-sort="created" onclick="setSort(this)" role="option" aria-selected="false">
+          <svg class="sort-opt-icon" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="5.5" stroke="currentColor" stroke-width="1.4"/><path d="M8 5.5V8l2 1.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          Date created
+        </button>
+        <button class="sort-opt" data-sort="name" onclick="setSort(this)" role="option" aria-selected="false">
+          <svg class="sort-opt-icon" viewBox="0 0 16 16" fill="none"><path d="M3 5h10M3 8h7M3 11h4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          Name (A→Z)
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="content"></div>
+</main>
+
+</div><!-- /main -->
+</div><!-- /app -->
+
+<!-- Delete confirm modal -->
+<!-- New workflow type picker -->
+<div class="modal-bd" id="typeModal" role="dialog" aria-modal="true" aria-labelledby="typeModalTitle">
+  <div class="modal type-modal">
+    <h3 id="typeModalTitle">New workflow</h3>
+    <p class="sub">Choose the type of flow you want to build</p>
+    <div class="type-cards">
+      <button class="type-card selected" id="typeOnb" onclick="selectType('onboarding')">
+        <div class="type-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="10" height="14" rx="2"/><line x1="7.5" y1="6" x2="12.5" y2="6"/><line x1="7.5" y1="9" x2="11.5" y2="9"/><circle cx="17" cy="17" r="4"/><path d="M15.5 17l1 1 2-2"/></svg></div>
+        <div class="type-card-name">Onboarding</div>
+        <div class="type-card-desc">Verify user identity at registration — document scan, face match</div>
+      </button>
+      <button class="type-card" id="typeAuth" onclick="selectType('auth')">
+        <div class="type-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L4 6v5c0 5 3.5 9.3 8 10.9C16.5 20.3 20 16 20 11V6L12 2z"/><path d="M9 12l2 2 4-4"/></svg></div>
+        <div class="type-card-name">Authentication</div>
+        <div class="type-card-desc">Re-authenticate returning users — MFA, EUDIW</div>
+      </button>
+    </div>
+    <div class="modal-act">
+      <button class="btn" onclick="closeTypeModal()">Cancel</button>
+      <button class="btn primary" onclick="confirmCreateWorkspace()">Create</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bd" id="delModal" role="dialog" aria-modal="true" aria-labelledby="delTitle">
+  <div class="modal">
+    <h3 id="delTitle">Delete workflow?</h3>
+    <p id="delDesc">This action can't be undone. The workflow and all its steps will be removed.</p>
+    <div class="modal-act">
+      <button class="btn" onclick="closeDelete()">Cancel</button>
+      <button class="btn danger" id="delConfirm" onclick="confirmDelete()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- API config modal -->
+<div class="modal-bd" id="apiModal" role="dialog" aria-modal="true" aria-labelledby="apiTitle">
+  <div class="modal api-modal">
+    <h3 id="apiTitle">API config</h3>
+    <pre class="api-code" id="apiCode" aria-label="API configuration JSON"></pre>
+    <div class="api-act">
+      <button class="btn" onclick="closeApi()">Close</button>
+      <button class="btn primary" id="apiCopy" onclick="copyApi()">Copy JSON</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast" role="status" aria-live="polite">
+  <span id="toastMsg"></span>
+  <button id="toastAction" hidden></button>
+</div>
+
+<div id="a11y-live" aria-live="polite" class="sr-only"></div>
+
+<script>
+/* ─── Sidebar group toggle ─── */
+function toggleGroup(btn){
+  const expanded=btn.getAttribute('aria-expanded')==='true';
+  const target=document.getElementById(btn.getAttribute('aria-controls'));
+  btn.setAttribute('aria-expanded',expanded?'false':'true');
+  if(target)target.setAttribute('aria-hidden',expanded?'true':'false');
+  try{localStorage.setItem('sb_grp_'+btn.getAttribute('aria-controls'),expanded?'0':'1');}catch(e){}
+}
+/* restore collapsed state */
+document.querySelectorAll('.side-item[aria-controls]').forEach(btn=>{
+  try{
+    const saved=localStorage.getItem('sb_grp_'+btn.getAttribute('aria-controls'));
+    if(saved==='0'){btn.setAttribute('aria-expanded','false');const t=document.getElementById(btn.getAttribute('aria-controls'));if(t)t.setAttribute('aria-hidden','true');}
+  }catch(e){}
+});
+
+/* ─── Storage helpers ─── */
+const WS_KEY='shareid_workspaces';
+const WS_ACTIVE='shareid_active_workspace';
+const LEGACY_KEY='shareid_workflow';
+
+function uid(){return 'w_'+Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-3)}
+
+function loadAll(){
+  let list=[];
+  try{list=JSON.parse(localStorage.getItem(WS_KEY)||'[]');if(!Array.isArray(list))list=[];}catch(e){list=[]}
+  // Migrate legacy single-workflow if no workspaces yet
+  if(!list.length){
+    try{
+      const legacy=JSON.parse(localStorage.getItem(LEGACY_KEY)||'null');
+      if(legacy&&(legacy.flows||legacy.pipeline)){
+        const flows=legacy.flows||{};
+        const onbPipe=flows.onboarding?.pipeline||(legacy.mode!=='auth'&&Array.isArray(legacy.pipeline)?legacy.pipeline:[]);
+        const authPipe=flows.auth?.pipeline||(legacy.mode==='auth'&&Array.isArray(legacy.pipeline)?legacy.pipeline:[]);
+        const hasContent=(onbPipe&&onbPipe.length)||(authPipe&&authPipe.length);
+        if(hasContent){
+          const now=Date.now();
+          list=[{id:uid(),name:'Untitled workflow',createdAt:now,updatedAt:now,flows:{onboarding:{pipeline:onbPipe},auth:{pipeline:authPipe}}}];
+          saveAll(list);
+        }
+      }
+    }catch(e){}
+  }
+  return list;
+}
+function saveAll(list){try{localStorage.setItem(WS_KEY,JSON.stringify(list));}catch(e){}}
+function setActive(id){try{localStorage.setItem(WS_ACTIVE,id);}catch(e){}}
+
+/* ─── State ─── */
+let workspaces=loadAll();
+let sortBy='updated';
+let query='';
+let openMenuFor=null;
+let renameFor=null;
+let deleteFor=null;
+let pendingDelete=null;
+let undoTimer=null;
+
+/* ─── Module icons (mini, mirror documentation.html) ─── */
+const MOD_ICONS={
+  doc:'<svg viewBox="0 0 18 18" fill="none"><rect x="2" y="2.5" width="14" height="13" rx="2" stroke="currentColor" stroke-width="1.4"/><circle cx="12" cy="7.5" r="1.5" stroke="currentColor" stroke-width="1.1"/><path d="M5 7h4M5 9.5h3" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>',
+  face:'<svg viewBox="0 0 18 18" fill="none"><circle cx="9" cy="7" r="3.2" stroke="currentColor" stroke-width="1.4"/><path d="M3.5 16c0-3 2.5-5.5 5.5-5.5s5.5 2.5 5.5 5.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>',
+  ext:'<svg viewBox="0 0 18 18" fill="none"><rect x="3" y="3" width="12" height="12" rx="3" stroke="currentColor" stroke-width="1.4"/><path d="M9 6v6M6 9h6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>',
+  int:'<svg viewBox="0 0 18 18" fill="none"><path d="M3 6.5h12M3 11.5h12M7 3v12M11 3v12" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>',
+  auth:'<svg viewBox="0 0 18 18" fill="none"><path d="M9 1.8 2.8 4v4.2c0 3.6 2.5 6.6 6.2 8 3.7-1.4 6.2-4.4 6.2-8V4L9 1.8Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="m6.3 9 2 2 3.6-3.8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+};
+
+/* ─── Date formatting ─── */
+function relTime(ts){
+  if(!ts)return '';
+  const s=Math.floor((Date.now()-ts)/1000);
+  if(s<60)return 'just now';
+  if(s<3600)return Math.floor(s/60)+'m ago';
+  if(s<86400)return Math.floor(s/3600)+'h ago';
+  if(s<604800)return Math.floor(s/86400)+'d ago';
+  const d=new Date(ts);
+  return d.toLocaleDateString(undefined,{month:'short',day:'numeric',year:d.getFullYear()===new Date().getFullYear()?undefined:'numeric'});
+}
+
+/* ─── Filtering & sorting ─── */
+function filterSort(){
+  let arr=workspaces.slice();
+  if(query){
+    const q=query.toLowerCase();
+    arr=arr.filter(w=>(w.name||'').toLowerCase().includes(q));
+  }
+  if(sortBy==='updated')arr.sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0));
+  else if(sortBy==='created')arr.sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+  else if(sortBy==='name')arr.sort((a,b)=>(a.name||'').localeCompare(b.name||''));
+  return arr;
+}
+
+/* ─── Render ─── */
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+
+const MOD_NAMES={doc:'Identity',face:'Face IDV',auth:'Auth',ext:'Issuance',int:'Integration'};
+function moduleRows(flow){
+  const pipe=(flow&&flow.pipeline)||[];
+  if(!pipe.length)return '';
+  return pipe.map(s=>{
+    const name=MOD_NAMES[s.type]||s.type;
+    const preset=s.config?.l||'';
+    const tok=s.config?.t||0;
+    const icon=MOD_ICONS[s.type]||'';
+    const clsMap={doc:'mi-doc',face:'mi-face',auth:'mi-auth',ext:'mi-ext',int:'mi-int'};
+    const cls=clsMap[s.type]||'mi-doc';
+    return `<div class="c-mod-row"><div class="c-mod-icon ${cls}">${icon}</div><div class="c-mod-info"><span class="c-mod-name">${escapeHtml(name)}</span>${preset?`<span class="c-mod-preset">${escapeHtml(preset)}</span>`:''}</div>${tok?`<span class="c-mod-tok">${tok} tok</span>`:''}</div>`;
+  }).join('');
+}
+
+function totalSteps(w){return ((w.flows?.onboarding?.pipeline)||[]).length+((w.flows?.auth?.pipeline)||[]).length}
+
+function eur(n){return '€'+Math.round(n).toLocaleString('en-US')}
+function fmtK(n){if(n>=1000000)return (n/1000000).toFixed(n%1000000?1:0)+'M';if(n>=1000)return Math.round(n/1000)+'K';return String(n)}
+
+function pricingStrip(w){
+  const pr=w.pricing||{};
+  const onb=pr.onboarding, au=pr.auth;
+  const parts=[];
+  const pick=p=>({...p,cost:(p.totalCost!=null?p.totalCost:p.monthlyCost)||0});
+  if(onb&&onb.volume>0)parts.push({key:'onboarding',...pick(onb)});
+  if(au&&au.volume>0)parts.push({key:'auth',...pick(au)});
+  if(!parts.length){
+    const total=totalSteps(w);
+    if(!total)return '';
+    return `<div class="c-not-priced">
+      <svg viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M7 3.5v7M4 7h6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.2"/></svg>
+      Not priced yet
+    </div>`;
+  }
+  const total=parts.reduce((s,p)=>s+(p.cost||0),0);
+  let sub;
+  if(parts.length===2){
+    sub=`Onboarding ${eur(onb.totalCost||onb.monthlyCost||0)} · Auth ${eur(au.totalCost||au.monthlyCost||0)}`;
+  } else {
+    const p=parts[0];
+    const label=p.key==='onboarding'?'Onboarding':'Auth';
+    const verifs=p.packTokens&&p.tpv?Math.floor(p.packTokens/p.tpv):null;
+    const verifStr=verifs?` · ~${fmtK(verifs)} verifications`:'';
+    sub=`${label} · ${p.packLabel||fmtK(p.packTokens||0)} pack${verifStr}`;
+  }
+  return `<div class="c-price">
+    <span class="c-price-val">${eur(total)}</span>
+    <span class="c-price-sub">${escapeHtml(sub)}</span>
+  </div>`;
+}
+
+function renderCard(w){
+  const updated=relTime(w.updatedAt);
+  const total=totalSteps(w);
+  const flowType=w.flowType||(w.flows?.auth?.pipeline?.length&&!w.flows?.onboarding?.pipeline?.length?'auth':'onboarding');
+  const badgeLabel=flowType==='auth'?'Authentication':'Onboarding';
+  const nameDisp=renameFor===w.id
+    ? `<input class="c-title-input" type="text" value="${escapeHtml(w.name||'')}" data-rename="${w.id}" aria-label="Workflow name" />`
+    : `<h3 class="c-title" ondblclick="startRename(event,'${w.id}')" title="Double-click to rename">${escapeHtml(w.name||'Untitled')}</h3>`;
+  const pipe=[...(w.flows?.onboarding?.pipeline||[]),...(w.flows?.auth?.pipeline||[])];
+  const totalTok=pipe.reduce((s,st)=>s+(st.config?.t||0),0);
+  const names=pipe.map(st=>MOD_NAMES[st.type]||st.type).join(' · ');
+  const modsHtml=names
+    ?`<div class="c-mods-line"><span class="c-mods-names">${escapeHtml(names)}</span>${totalTok?`<span class="c-mods-tok">${totalTok} tok</span>`:''}</div>`
+    :`<div class="c-empty-hint">Empty — click to build</div>`;
+  const priceHtml=pricingStrip(w);
+  return `
+    <div class="card" data-id="${w.id}" tabindex="0" role="button" draggable="true" aria-label="Open ${escapeHtml(w.name||'workflow')}" onclick="openCard(event,'${w.id}')" onkeydown="cardKey(event,'${w.id}')">
+      <div class="c-top">
+        <span class="c-badge${flowType==='auth'?' auth':''}">${badgeLabel}</span>
+        <button class="c-menu" aria-haspopup="menu" aria-expanded="${openMenuFor===w.id?'true':'false'}" aria-label="More actions" onclick="toggleMenu(event,'${w.id}')">
+          <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><circle cx="3" cy="8" r="1.4"/><circle cx="8" cy="8" r="1.4"/><circle cx="13" cy="8" r="1.4"/></svg>
+        </button>
+        ${openMenuFor===w.id?menuPop(w.id):''}
+      </div>
+      ${nameDisp}
+      ${modsHtml}
+      <div class="c-footer">
+        ${priceHtml}
+        <span class="c-updated">${escapeHtml(updated)}</span>
+      </div>
+    </div>`;
+}
+
+function openPricing(e,id){
+  if(e){e.stopPropagation();e.preventDefault();}
+  setActive(id);
+  syncLegacy(id);
+  location.href='pricing.html?w='+encodeURIComponent(id);
+}
+function priceKey(e,id){
+  if(e.key==='Enter'||e.key===' '){e.preventDefault();openPricing(e,id);}
+}
+
+function menuPop(id){
+  const w=workspaces.find(x=>x.id===id);
+  const hasSteps=w&&totalSteps(w)>0;
+  const hasPricing=w&&w.pricing&&((w.pricing.onboarding&&w.pricing.onboarding.volume>0)||(w.pricing.auth&&w.pricing.auth.volume>0));
+  return `<div class="menu-pop open" role="menu" onclick="event.stopPropagation()">
+    <button class="menu-item" role="menuitem" onclick="openCard(event,'${id}')"><svg viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Open</button>
+    <button class="menu-item" role="menuitem" onclick="openPricing(event,'${id}')"><svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.4"/><path d="M10 6c0-.8-1-1.5-2-1.5s-2 .5-2 1.4c0 .9.8 1.2 2 1.4 1.2.2 2 .6 2 1.4s-1 1.3-2 1.3-2-.5-2-1.3M8 3.5v1M8 11.5v1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>${hasPricing?'Edit pricing':'Calculate price'}</button>
+    <button class="menu-item" role="menuitem" onclick="showApi(event,'${id}')" ${hasSteps?'':'disabled style="opacity:.4;cursor:not-allowed"'}><svg viewBox="0 0 16 16" fill="none"><path d="M5.5 4.5L2 8l3.5 3.5M10.5 4.5L14 8l-3.5 3.5M9.5 3l-3 10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Show API</button>
+    <div class="menu-sep"></div>
+    <button class="menu-item" role="menuitem" onclick="startRenameMenu(event,'${id}')"><svg viewBox="0 0 16 16" fill="none"><path d="M11 2.5l2.5 2.5L6 12.5l-3 .5.5-3L11 2.5Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>Rename</button>
+    <button class="menu-item" role="menuitem" onclick="duplicate(event,'${id}')"><svg viewBox="0 0 16 16" fill="none"><rect x="5.5" y="5.5" width="8" height="8" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M10.5 5.5V3.5c0-.55-.45-1-1-1H3.5c-.55 0-1 .45-1 1v6c0 .55.45 1 1 1h2" stroke="currentColor" stroke-width="1.4"/></svg>Duplicate</button>
+    <div class="menu-sep"></div>
+    <button class="menu-item danger" role="menuitem" onclick="askDelete(event,'${id}')"><svg viewBox="0 0 16 16" fill="none"><path d="M3 4.5h10M6.5 4.5V3a1 1 0 011-1h1a1 1 0 011 1v1.5M5 4.5l.5 8a1 1 0 001 .9h3a1 1 0 001-.9l.5-8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>Delete</button>
+  </div>`;
+}
+
+/* ─── API config ─── */
+function buildApiJson(w){
+  const levels={};
+  const process=pipe=>{
+    (pipe||[]).forEach(s=>{
+      if(s.type==='doc'&&s.config)levels.doc_idv={idv_level:s.config.v||s.config.l};
+      if(s.type==='face'&&s.config)levels.face_idv={idv_level:s.config.v||s.config.l};
+      if(s.type==='ext')for(const k of Object.keys(s.addons||{}))levels[k]={enabled:true};
+      if(s.type==='auth'&&s.config){if((s.config.type||'')==='mfa')levels.authentication={method:'mfa_3'};else levels.eudiw_pid={enabled:true}}
+    });
+  };
+  process(w.flows?.onboarding?.pipeline);
+  process(w.flows?.auth?.pipeline);
+  const cfg={credentials:{business_hash:'YOUR_HASH',api_key:'YOUR_KEY'},levels,options:{callback:{urls:['https://yourdomain.com/shareid/callback']}}};
+  const docStep=(w.flows?.onboarding?.pipeline||[]).find(s=>s.type==='doc'&&s.config);
+  if(docStep&&docStep.fb&&docStep.fb!=='none')cfg.options.fallback={enabled:true,method:docStep.fb==='video'?'video_capture':'photo_capture'};
+  return cfg;
+}
+
+function showApi(e,id){
+  if(e){e.stopPropagation();}
+  openMenuFor=null;
+  const w=workspaces.find(x=>x.id===id);
+  if(!w||!totalSteps(w))return;
+  const json=JSON.stringify(buildApiJson(w),null,2);
+  const colored=escapeHtml(json)
+    .replace(/&quot;([^&]+)&quot;:/g,'<span style="color:#7fb3ff">&quot;$1&quot;</span>:')
+    .replace(/: &quot;([^&]+)&quot;/g,': <span style="color:#8ed0a1">&quot;$1&quot;</span>')
+    .replace(/: (true|false)/g,': <span style="color:#ffb86c">$1</span>');
+  $('apiTitle').textContent=`API config — ${w.name||'Workflow'}`;
+  $('apiCode').innerHTML=colored;
+  $('apiModal').classList.add('open');
+  $('apiModal').dataset.raw=json;
+  setTimeout(()=>{$('apiCopy').focus();},20);
+  render();
+}
+function closeApi(){$('apiModal').classList.remove('open');}
+function copyApi(){
+  const raw=$('apiModal').dataset.raw||'';
+  navigator.clipboard.writeText(raw).then(()=>{
+    const btn=$('apiCopy');const orig=btn.textContent;btn.textContent='Copied!';
+    setTimeout(()=>{btn.textContent=orig;},1400);
+  });
+}
+
+function render(){
+  const arr=filterSort();
+  const sub=$('pageSub');
+  const total=workspaces.length;
+  if(sub)sub.textContent=total?`${total} workflow${total>1?'s':''}${query?` · ${arr.length} match${arr.length!==1?'es':''}`:''}`:'No workflows yet — start one below.';
+  const c=$('content');
+  if(!total){
+    c.innerHTML=`<div class="empty">
+      <div class="empty-icon"><svg viewBox="0 0 56 48" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="1" y="8" width="18" height="14" rx="4" stroke-dasharray="3 3"/><rect x="19" y="8" width="18" height="14" rx="4" stroke-dasharray="3 3"/><rect x="37" y="8" width="18" height="14" rx="4" stroke-dasharray="3 3"/><path d="M10 22v8c0 2 1 3 3 3h30c2 0 3-1 3-3v-8" stroke-linecap="round"/><path d="M28 33v8M22 41h12" stroke-linecap="round"/></svg></div>
+      <h2>No workflows yet</h2>
+      <p>Build identity verification, authentication, and onboarding flows for your products. Start with a blank workflow or duplicate an existing one.</p>
+      <button class="btn primary" onclick="createWorkspace()">
+        <svg viewBox="0 0 16 16" fill="none"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        Create your first workflow
+      </button>
+    </div>`;
+    return;
+  }
+  if(query&&!arr.length){
+    c.innerHTML=`<div class="empty">
+      <div class="empty-icon"><svg viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.5"/><path d="M11 11l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+      <h2>No matches</h2>
+      <p>No workflows match "${escapeHtml(query)}". Try a different search.</p>
+      <button class="btn" onclick="clearSearch()">Clear search</button>
+    </div>`;
+    return;
+  }
+  let html='<div class="grid">';
+  arr.forEach(w=>html+=renderCard(w));
+  html+=`<button class="card add" onclick="createWorkspace()" aria-label="New workflow">
+    <div class="add-inner">
+      <div class="add-icon"><svg viewBox="0 0 18 18" fill="none"><path d="M9 4v10M4 9h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></div>
+      <div class="add-label">New workflow</div>
+    </div>
+  </button>`;
+  html+='</div>';
+  c.innerHTML=html;
+  if(renameFor){
+    const inp=document.querySelector(`[data-rename="${renameFor}"]`);
+    if(inp){inp.focus();inp.select();}
+  }
+  initDrag();
+}
+
+let dragSrcId=null;
+function initDrag(){
+  const cards=[...document.querySelectorAll('.card[draggable]')];
+  cards.forEach(card=>{
+    card.addEventListener('dragstart',e=>{
+      dragSrcId=card.dataset.id;
+      card.classList.add('dragging');
+      e.dataTransfer.effectAllowed='move';
+    });
+    card.addEventListener('dragend',()=>{
+      card.classList.remove('dragging');
+      document.querySelectorAll('.card.drag-over').forEach(c=>c.classList.remove('drag-over'));
+    });
+    card.addEventListener('dragover',e=>{
+      e.preventDefault();
+      e.dataTransfer.dropEffect='move';
+      if(card.dataset.id!==dragSrcId){
+        document.querySelectorAll('.card.drag-over').forEach(c=>c.classList.remove('drag-over'));
+        card.classList.add('drag-over');
+      }
+    });
+    card.addEventListener('dragleave',()=>card.classList.remove('drag-over'));
+    card.addEventListener('drop',e=>{
+      e.preventDefault();
+      card.classList.remove('drag-over');
+      const targetId=card.dataset.id;
+      if(!dragSrcId||dragSrcId===targetId)return;
+      const srcIdx=workspaces.findIndex(w=>w.id===dragSrcId);
+      const tgtIdx=workspaces.findIndex(w=>w.id===targetId);
+      if(srcIdx===-1||tgtIdx===-1)return;
+      const [moved]=workspaces.splice(srcIdx,1);
+      workspaces.splice(tgtIdx,0,moved);
+      saveWorkspaces();
+      render();
+    });
+  });
+}
+
+const $=id=>document.getElementById(id);
+
+/* ─── Actions ─── */
+let _pendingFlowType='onboarding';
+function createWorkspace(){
+  _pendingFlowType='onboarding';
+  selectType('onboarding');
+  document.getElementById('typeModal').classList.add('open');
+}
+function selectType(type){
+  _pendingFlowType=type;
+  document.getElementById('typeOnb').classList.toggle('selected',type==='onboarding');
+  document.getElementById('typeAuth').classList.toggle('selected',type==='auth');
+}
+function closeTypeModal(){document.getElementById('typeModal').classList.remove('open');}
+function confirmCreateWorkspace(){
+  closeTypeModal();
+  const now=Date.now();
+  const id=uid();
+  const existingNames=workspaces.map(w=>w.name);
+  let n=1, name='Untitled workflow';
+  while(existingNames.includes(name)){n++;name='Untitled workflow '+n}
+  const flows=_pendingFlowType==='auth'
+    ?{auth:{pipeline:[]}}
+    :{onboarding:{pipeline:[]}};
+  const w={id,name,flowType:_pendingFlowType,createdAt:now,updatedAt:now,flows};
+  workspaces.unshift(w);
+  saveAll(workspaces);
+  setActive(id);
+  try{localStorage.removeItem(LEGACY_KEY);}catch(e){}
+  location.href='documentation.html?w='+encodeURIComponent(id);
+}
+
+function openCard(e,id){
+  if(e&&e.target&&(e.target.closest('.c-menu')||e.target.closest('.menu-pop')||e.target.closest('.c-title-input')))return;
+  if(renameFor===id)return;
+  setActive(id);
+  // Set legacy so pricing.html etc. show the right workflow
+  syncLegacy(id);
+  location.href='documentation.html?w='+encodeURIComponent(id);
+}
+
+function syncLegacy(id){
+  const w=workspaces.find(x=>x.id===id);if(!w)return;
+  const calcTok=()=>0;
+  try{
+    const flows={
+      onboarding:{pipeline:w.flows?.onboarding?.pipeline||[],totalTok:calcTok()},
+      auth:{pipeline:w.flows?.auth?.pipeline||[],totalTok:calcTok()}
+    };
+    const pipeline=flows.onboarding.pipeline;
+    localStorage.setItem(LEGACY_KEY,JSON.stringify({pipeline,mode:'onboarding',totalTok:0,flows}));
+  }catch(e){}
+}
+
+function cardKey(e,id){
+  if(e.key==='Enter'||e.key===' '){e.preventDefault();openCard(e,id)}
+  if(e.key==='F2'){e.preventDefault();startRename(e,id)}
+  if(e.key==='Delete'||e.key==='Backspace'){if(e.metaKey||e.ctrlKey){e.preventDefault();askDelete(e,id)}}
+}
+
+function toggleMenu(e,id){
+  e.stopPropagation();
+  openMenuFor=openMenuFor===id?null:id;
+  render();
+}
+
+function closeMenu(){if(openMenuFor){openMenuFor=null;render();}}
+
+function startRename(e,id){
+  if(e&&e.stopPropagation)e.stopPropagation();
+  renameFor=id;
+  openMenuFor=null;
+  render();
+}
+function startRenameMenu(e,id){
+  e.stopPropagation();
+  startRename(e,id);
+}
+
+function commitRename(id,newName){
+  renameFor=null;
+  const w=workspaces.find(x=>x.id===id);
+  if(w){
+    const trimmed=(newName||'').trim();
+    if(trimmed&&trimmed!==w.name){w.name=trimmed;w.updatedAt=Date.now();saveAll(workspaces);}
+  }
+  render();
+}
+function cancelRename(){renameFor=null;render();}
+
+function duplicate(e,id){
+  e.stopPropagation();
+  const w=workspaces.find(x=>x.id===id);
+  if(!w)return;
+  const now=Date.now();
+  const copy=JSON.parse(JSON.stringify(w));
+  copy.id=uid();
+  copy.name=w.name+' (copy)';
+  copy.createdAt=now;
+  copy.updatedAt=now;
+  workspaces.unshift(copy);
+  saveAll(workspaces);
+  openMenuFor=null;
+  render();
+  toast('Workflow duplicated');
+}
+
+function askDelete(e,id){
+  e.stopPropagation();
+  deleteFor=id;
+  openMenuFor=null;
+  const w=workspaces.find(x=>x.id===id);
+  $('delTitle').textContent=`Delete "${w?w.name:'workflow'}"?`;
+  $('delDesc').textContent=`This action can't be undone. The workflow and all its steps will be removed.`;
+  $('delModal').classList.add('open');
+  setTimeout(()=>$('delConfirm').focus(),20);
+}
+function closeDelete(){deleteFor=null;$('delModal').classList.remove('open');}
+function confirmDelete(){
+  if(!deleteFor){closeDelete();return;}
+  const idx=workspaces.findIndex(x=>x.id===deleteFor);
+  if(idx<0){closeDelete();return;}
+  const removed=workspaces.splice(idx,1)[0];
+  pendingDelete={item:removed,index:idx};
+  saveAll(workspaces);
+  closeDelete();
+  render();
+  toast(`"${removed.name}" deleted`,'Undo',()=>{
+    workspaces.splice(pendingDelete.index,0,pendingDelete.item);
+    saveAll(workspaces);
+    pendingDelete=null;
+    render();
+  });
+}
+
+function clearSearch(){
+  $('search').value='';
+  query='';
+  $('searchWrap').classList.remove('has-text');
+  render();
+}
+
+/* ─── Toast ─── */
+function toast(msg,actionLabel,actionFn){
+  const t=$('toast');
+  $('toastMsg').textContent=msg;
+  const btn=$('toastAction');
+  if(actionLabel){
+    btn.hidden=false;
+    btn.textContent=actionLabel;
+    btn.onclick=()=>{actionFn&&actionFn();hideToast();};
+  } else {
+    btn.hidden=true;
+  }
+  t.classList.add('show');
+  clearTimeout(undoTimer);
+  undoTimer=setTimeout(hideToast,5000);
+}
+function hideToast(){$('toast').classList.remove('show');pendingDelete=null;}
+
+/* ─── Wire up ─── */
+document.addEventListener('click',(e)=>{
+  if(openMenuFor&&!e.target.closest('.menu-pop')&&!e.target.closest('.c-menu'))closeMenu();
+  if(renameFor&&!e.target.closest('.c-title-input')){
+    const inp=document.querySelector(`[data-rename="${renameFor}"]`);
+    if(inp)commitRename(renameFor,inp.value); else cancelRename();
+  }
+});
+
+document.addEventListener('keydown',(e)=>{
+  // Cmd+N — new workflow
+  if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='n'){
+    e.preventDefault();createWorkspace();return;
+  }
+  // / — focus search
+  if(e.key==='/'&&document.activeElement?.tagName!=='INPUT'){
+    e.preventDefault();$('search').focus();return;
+  }
+  // Escape — close modal / menu / clear search / cancel rename
+  if(e.key==='Escape'){
+    if($('apiModal').classList.contains('open')){closeApi();return;}
+    if($('delModal').classList.contains('open')){closeDelete();return;}
+    if(openMenuFor){closeMenu();return;}
+    if(renameFor){cancelRename();return;}
+    if(query){clearSearch();$('search').blur();return;}
+  }
+  // Enter / Escape on rename input
+  if(renameFor&&document.activeElement?.dataset?.rename===renameFor){
+    if(e.key==='Enter'){e.preventDefault();commitRename(renameFor,document.activeElement.value);}
+    if(e.key==='Escape'){e.preventDefault();cancelRename();}
+  }
+});
+
+// Search handling
+$('search').addEventListener('input',(e)=>{
+  query=e.target.value;
+  $('searchWrap').classList.toggle('has-text',!!query);
+  render();
+});
+$('searchClear').addEventListener('click',clearSearch);
+const SORT_LABELS={updated:'Recent',created:'Created',name:'Name'};
+function toggleSortPanel(){
+  const t=$('sortTrigger'),p=$('sortPanel');
+  const open=p.classList.toggle('open');
+  t.classList.toggle('open',open);
+  t.setAttribute('aria-expanded',open?'true':'false');
+}
+function setSort(btn){
+  sortBy=btn.dataset.sort;
+  document.querySelectorAll('.sort-opt').forEach(b=>{b.classList.toggle('on',b===btn);b.setAttribute('aria-selected',b===btn?'true':'false');});
+  $('sortLabel').textContent=SORT_LABELS[sortBy]||sortBy;
+  $('sortPanel').classList.remove('open');
+  $('sortTrigger').classList.remove('open');
+  $('sortTrigger').setAttribute('aria-expanded','false');
+  render();
+}
+document.addEventListener('click',e=>{if(!e.target.closest('.sort')){$('sortPanel')?.classList.remove('open');$('sortTrigger')?.classList.remove('open');}});
+
+// Modal: backdrop click
+$('delModal').addEventListener('click',(e)=>{if(e.target.id==='delModal')closeDelete();});
+$('apiModal').addEventListener('click',(e)=>{if(e.target.id==='apiModal')closeApi();});
+
+// Initial render
+render();
+</script>
+</body>
+</html>

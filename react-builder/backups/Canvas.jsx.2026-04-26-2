@@ -1,0 +1,260 @@
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useStore } from '../../store/useStore';
+import { MODS, Icons } from '../../data/modules';
+import StepCard from './StepCard';
+
+// Look up the full preset definition from MODS (handles templates that store partial configs)
+function getFullPreset(step) {
+  if (!step.config?.v || step.type !== 'doc') return null;
+  const path = step.path ?? 'document';
+  const pathDef = MODS.doc.paths[path];
+  if (!pathDef) return null;
+  return pathDef.presets.flatMap((pg) => pg.items).find((item) => item.v === step.config.v) ?? null;
+}
+
+function Connector({ dashed }) {
+  return <div className={`conn${dashed ? ' dashed' : ''}`} />;
+}
+
+// SVG icons for fallback side card
+const FbIcons = {
+  branch: `<svg viewBox="0 0 16 16" fill="none"><circle cx="5" cy="4" r="2" stroke="currentColor" strokeWidth="1.4"/><circle cx="11" cy="12" r="2" stroke="currentColor" strokeWidth="1.4"/><circle cx="11" cy="4" r="2" stroke="currentColor" strokeWidth="1.4"/><path d="M5 6v1.5a2.5 2.5 0 002.5 2.5H11" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/></svg>`,
+  video:  `<svg viewBox="0 0 16 16" fill="none"><rect x="1.5" y="4.5" width="9" height="7" rx="1.5" stroke="currentColor" strokeWidth="1.4"/><path d="M10.5 7l4-2v6l-4-2" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/></svg>`,
+  photo:  `<svg viewBox="0 0 16 16" fill="none"><rect x="1.5" y="3.5" width="13" height="9" rx="1.5" stroke="currentColor" strokeWidth="1.4"/><circle cx="8" cy="8" r="2.5" stroke="currentColor" strokeWidth="1.4"/><circle cx="12" cy="5.5" r="0.8" fill="currentColor"/></svg>`,
+};
+
+// Fallback capture side card — appears to the RIGHT of first Identity when NFC preset selected
+function FallbackSideCard({ step }) {
+  const setActive = useStore((s) => s.setActive);
+  const fbChosen = step.fb && step.fb !== 'none';
+  const fbLabel = step.fb === 'video' ? 'Video capture' : step.fb === 'photo' ? 'Photo capture' : 'Not selected';
+  const iconKey = step.fb === 'video' ? 'video' : step.fb === 'photo' ? 'photo' : 'branch';
+
+  return (
+    <>
+      <div className={`fb-conn${fbChosen ? '' : ' fb-conn-uncfg'}`} aria-hidden="true" />
+      <div className="fb-sub-card-wrap">
+        <div
+          className={`fb-sub-card${fbChosen ? '' : ' fb-sub-uncfg'}`}
+          onClick={(e) => { e.stopPropagation(); setActive(step.id); }}
+          tabIndex={0}
+          onKeyDown={(e) => e.key === 'Enter' && setActive(step.id)}
+        >
+          <div className="fb-card-body">
+            <div className="step-ico" dangerouslySetInnerHTML={{ __html: FbIcons[iconKey] }} />
+            <div className="step-info">
+              <div className="step-name">Fallback</div>
+              <div className="step-sub">{fbLabel}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
+// Inline role picker — shown instead of immediately adding the card
+function BackupRolePicker({ onSelect, onCancel }) {
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === 'Escape') onCancel(); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onCancel]);
+
+  // Close on click outside
+  useEffect(() => {
+    const onClick = (e) => { if (ref.current && !ref.current.contains(e.target)) onCancel(); };
+    // defer so the opening click doesn't immediately close it
+    const t = setTimeout(() => document.addEventListener('mousedown', onClick), 0);
+    return () => { clearTimeout(t); document.removeEventListener('mousedown', onClick); };
+  }, [onCancel]);
+
+  return (
+    <div ref={ref} className="role-picker" onClick={(e) => e.stopPropagation()}>
+      <div className="role-picker-label">Choose document role</div>
+      <div className="role-picker-opts">
+        <button className="role-picker-btn secondary" onClick={() => onSelect('secondary')}>
+          <span className="role-picker-ico">
+            <svg viewBox="0 0 14 14" fill="none" width="13" height="13">
+              <rect x="2" y="2" width="4.5" height="10" rx="1.5" stroke="currentColor" strokeWidth="1.3"/>
+              <rect x="7.5" y="2" width="4.5" height="10" rx="1.5" stroke="currentColor" strokeWidth="1.3"/>
+            </svg>
+          </span>
+          <span className="role-picker-name">Secondary</span>
+          <span className="role-picker-desc">Parallel document</span>
+        </button>
+        <button className="role-picker-btn fallback" onClick={() => onSelect('fallback')}>
+          <span className="role-picker-ico">
+            <svg viewBox="0 0 14 14" fill="none" width="13" height="13">
+              <path d="M7 2v6M4 6l3 3 3-3" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M2 11h10" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
+            </svg>
+          </span>
+          <span className="role-picker-name">Fallback</span>
+          <span className="role-picker-desc">Used if primary fails</span>
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// Add backup doc button — inline between Identity and next step
+function AddBackupBtn({ onOpen }) {
+  return (
+    <button className="add-backup-btn" onClick={(e) => { e.stopPropagation(); onOpen(); }}>
+      <svg viewBox="0 0 12 12" fill="none" width="11" height="11">
+        <path d="M6 1v10M1 6h10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+      </svg>
+      Add backup document
+    </button>
+  );
+}
+
+export default function Canvas() {
+  const pipeline = useStore((s) => s.pipeline);
+  const addStep = useStore((s) => s.addStep);
+  const addBackupDoc = useStore((s) => s.addBackupDoc);
+  const setActive = useStore((s) => s.setActive);
+  const zoom = useStore((s) => s.zoom);
+  const setZoom = useStore((s) => s.setZoom);
+  const canvasRef = useRef(null);
+  const [showRolePicker, setShowRolePicker] = useState(false);
+
+  // Zoom toward cursor. transformOrigin is 'top center', so only vertical scroll needs adjustment.
+  // clientY: cursor Y in viewport; pass null to zoom toward canvas vertical center.
+  const zoomAt = useCallback((clientY, delta) => {
+    const el = canvasRef.current;
+    if (!el) return;
+    const oldZoom = useStore.getState().zoom;
+    const newZoom = Math.min(2, Math.max(0.25, Math.round((oldZoom + delta) * 100) / 100));
+    if (newZoom === oldZoom) return;
+
+    // Adjust vertical scroll so content under cursor stays fixed
+    const rect = el.getBoundingClientRect();
+    const cy = clientY != null ? clientY - rect.top : rect.height / 2;
+    // content Y under cursor (in unscaled units): (scrollTop + cy) / oldZoom
+    const contentY = (el.scrollTop + cy) / oldZoom;
+    el.scrollTop = contentY * newZoom - cy;
+
+    setZoom(newZoom);
+  }, [setZoom]);
+
+  // Hotkeys: Cmd/Ctrl +/-/0
+  useEffect(() => {
+    const onKey = (e) => {
+      if (!e.metaKey && !e.ctrlKey) return;
+      if (e.key === '=' || e.key === '+') { e.preventDefault(); zoomAt(null, +0.1); }
+      else if (e.key === '-') { e.preventDefault(); zoomAt(null, -0.1); }
+      else if (e.key === '0') { e.preventDefault(); setZoom(1); }
+    };
+    // Ctrl+wheel: cursor-centered zoom
+    const onWheel = (e) => {
+      if (!e.ctrlKey && !e.metaKey) return;
+      e.preventDefault();
+      zoomAt(e.clientY, -e.deltaY * 0.002);
+    };
+    window.addEventListener('keydown', onKey);
+    window.addEventListener('wheel', onWheel, { passive: false });
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      window.removeEventListener('wheel', onWheel);
+    };
+  }, [zoomAt, setZoom]);
+
+  const onDragOver = useCallback((e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'copy'; }, []);
+  const onDrop = useCallback((e) => {
+    e.preventDefault();
+    const type = e.dataTransfer.getData('moduleType');
+    if (type) addStep(type);
+  }, [addStep]);
+
+  const docSteps = pipeline.filter((s) => s.type === 'doc');
+  const hasSecondDoc = docSteps.length > 1;
+  const firstDocStep = docSteps[0] ?? null;
+  const secondDocStep = docSteps[1] ?? null;
+
+  // All steps render inline — second doc is a regular inline card, NOT a side card
+  const mainSteps = pipeline;
+
+  return (
+    <>
+      <div ref={canvasRef} className="canvas" onDragOver={onDragOver} onDrop={onDrop} onClick={() => setActive(null)}>
+        {pipeline.length === 0 ? (
+          <div className="canvas-empty">
+            <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+              <rect x="10" y="8" width="28" height="32" rx="5" stroke="currentColor" strokeWidth="2"/>
+              <path d="M17 18h14M17 24h14M17 30h8" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+            </svg>
+            <h2>Build your workflow</h2>
+            <p>Drag modules from the left panel or click to add them</p>
+          </div>
+        ) : (
+          <div className="flow" style={{ transform: `scale(${zoom})`, transformOrigin: 'top center', transition: 'transform .15s' }}>
+            <div className="flow-cap start">
+              <span className="flow-cap-ico">
+                <svg viewBox="0 0 14 14" fill="none" width="13" height="13">
+                  <path d="M4 3l7 4-7 4V3z" fill="currentColor"/>
+                </svg>
+              </span>
+              Start
+            </div>
+            <Connector />
+
+            {mainSteps.map((step) => {
+              const isFirstDoc = step === firstDocStep;
+              const isSecondDoc = step === secondDocStep;
+              const fullPreset = isFirstDoc ? getFullPreset(step) : null;
+              const hasFallbackPreset = isFirstDoc && !!fullPreset?.fb;
+
+              return (
+                <div key={step.id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                  {/* First Identity: wrap for fallback side card */}
+                  {isFirstDoc ? (
+                    <div
+                      className="step-fb-group"
+                      style={{ position: 'relative', width: 280 }}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <StepCard step={step} />
+                      {hasFallbackPreset && <FallbackSideCard step={step} />}
+                    </div>
+                  ) : (
+                    <StepCard step={step} isSecondDoc={isSecondDoc} />
+                  )}
+
+                  {isFirstDoc && !hasSecondDoc && !!firstDocStep?.config ? (
+                    <>
+                      <Connector />
+                      {showRolePicker ? (
+                        <BackupRolePicker
+                          onSelect={(role) => { setShowRolePicker(false); addBackupDoc(role); }}
+                          onCancel={() => setShowRolePicker(false)}
+                        />
+                      ) : (
+                        <AddBackupBtn onOpen={() => setShowRolePicker(true)} />
+                      )}
+                      <Connector />
+                    </>
+                  ) : (
+                    <Connector />
+                  )}
+                </div>
+              );
+            })}
+
+            <div className="flow-cap end">
+              <span className="flow-cap-ico">
+                <svg viewBox="0 0 14 14" fill="none" width="12" height="12">
+                  <rect x="3" y="3" width="8" height="8" rx="2" fill="currentColor"/>
+                </svg>
+              </span>
+              End
+            </div>
+          </div>
+        )}
+      </div>
+    </>
+  );
+}
